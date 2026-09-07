@@ -1,0 +1,79 @@
+# CyberSentinel AI — Default Configuration
+version: "1.0.0"
+
+pipeline:
+  window_size_seconds: 30.0
+  step_size_seconds: 30.0
+  min_flows_per_window: 1
+  sequence_length: 8
+  forecast_horizon_k: 4
+
+features:
+  feature_list:
+    - flow_count
+    - total_packets
+    - total_bytes
+    - pkt_rate
+    - byte_rate
+    - unique_src_ips
+    - unique_dst_ips
+    - unique_dst_ports
+    - syn_count
+    - rst_count
+    - fin_count
+    - syn_ratio
+    - rst_ratio
+    - dst_ip_entropy
+    - dst_port_entropy
+    - failed_flow_count
+    - failed_flow_ratio
+    - tcp_flag_diversity
+    - port_445_share
+    - port_3389_share
+    - port_22_share
+    - port_80_443_share
+    - mean_flow_duration
+    - bytes_per_packet
+
+taxonomy:
+  stages:
+    - BENIGN
+    - RECONNAISSANCE
+    - INITIAL_ACCESS
+    - EXECUTION
+    - CREDENTIAL_ACCESS
+    - DISCOVERY
+    - LATERAL_MOVEMENT
+    - COMMAND_AND_CONTROL
+    - EXFILTRATION
+    - UNKNOWN
+
+model:
+  hidden_dim: 128
+  num_layers: 2
+  num_heads: 4
+  dropout: 0.1
+  learning_rate: 0.001
+  loss_weights:
+    lambda_stage: 1.0
+    lambda_attack: 1.0
+    lambda_transition: 1.0
+    lambda_next_stage: 1.0
+
+risk_engine:
+  weights:
+    attack_probability: 0.40
+    stage_severity: 0.35
+    forecast_probability: 0.15
+    confidence_weight: 0.10
+  stage_severity_scores:
+    BENIGN: 0.0
+    RECONNAISSANCE: 0.25
+    DISCOVERY: 0.35
+    INITIAL_ACCESS: 0.50
+    EXECUTION: 0.65
+    CREDENTIAL_ACCESS: 0.75
+    LATERAL_MOVEMENT: 0.85
+    COMMAND_AND_CONTROL: 0.90
+    EXFILTRATION: 1.00
+    UNKNOWN: 0.20
