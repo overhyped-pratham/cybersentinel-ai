@@ -1,0 +1,471 @@
+{
+  "metadata": {
+    "source_trace": "trace_multistage_01.csv",
+    "flow_count": 1080,
+    "window_count": 12,
+    "evaluated_windows": 8,
+    "timestamp": "2026-09-07T13:59:31Z",
+    "model_version": "CyberWorldModelV2",
+    "device": "cpu"
+  },
+  "windows": [
+    {
+      "window_index": 4,
+      "window_start_time": 4.0,
+      "observed_physical_state": {
+        "flow_count": 82.0,
+        "total_packets": 121.0,
+        "total_bytes": 7260.0,
+        "pkt_rate": 4.033333333333333,
+        "byte_rate": 242.0,
+        "unique_src_ips": 1.0
+      },
+      "current_stage": "RECONNAISSANCE",
+      "predicted_next_stage": "RECONNAISSANCE",
+      "attack_probability": 0.9948,
+      "confidence": 0.7207,
+      "transition_detected": false,
+      "risk_score": 70.75,
+      "risk_level": "HIGH",
+      "inference_time_ms": 24.900099999968006,
+      "top_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 77.0,
+          "predicted": 28.62,
+          "abs_change": 48.38,
+          "rel_change_pct": -62.83,
+          "direction": "decrease"
+        },
+        {
+          "feature": "dst_port_entropy",
+          "current": 10.3692,
+          "predicted": 3.1133,
+          "abs_change": 7.2559,
+          "rel_change_pct": -69.98,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_packets",
+          "current": -0.421,
+          "predicted": -1.9819,
+          "abs_change": 1.5609,
+          "rel_change_pct": -370.73,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        "T1595",
+        "T1046",
+        "T1590"
+      ],
+      "rollout_k4_stages": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "agent_summary": "No transition is predicted for the next window. Stage **RECONNAISSANCE** is expected to continue (confidence 72.1%)."
+    },
+    {
+      "window_index": 5,
+      "window_start_time": 5.0,
+      "observed_physical_state": {
+        "flow_count": 81.0,
+        "total_packets": 121.0,
+        "total_bytes": 7260.0,
+        "pkt_rate": 4.033333333333333,
+        "byte_rate": 242.0,
+        "unique_src_ips": 1.0
+      },
+      "current_stage": "RECONNAISSANCE",
+      "predicted_next_stage": "RECONNAISSANCE",
+      "attack_probability": 0.9948,
+      "confidence": 0.7191,
+      "transition_detected": false,
+      "risk_score": 70.73,
+      "risk_level": "HIGH",
+      "inference_time_ms": 18.82690000002185,
+      "top_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 76.0,
+          "predicted": 28.5561,
+          "abs_change": 47.4439,
+          "rel_change_pct": -62.43,
+          "direction": "decrease"
+        },
+        {
+          "feature": "dst_port_entropy",
+          "current": 10.329,
+          "predicted": 3.1418,
+          "abs_change": 7.1872,
+          "rel_change_pct": -69.58,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_packets",
+          "current": -0.421,
+          "predicted": -2.028,
+          "abs_change": 1.607,
+          "rel_change_pct": -381.68,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        "T1595",
+        "T1046",
+        "T1590"
+      ],
+      "rollout_k4_stages": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "agent_summary": "No transition is predicted for the next window. Stage **RECONNAISSANCE** is expected to continue (confidence 71.9%)."
+    },
+    {
+      "window_index": 6,
+      "window_start_time": 6.0,
+      "observed_physical_state": {
+        "flow_count": 86.0,
+        "total_packets": 977.0,
+        "total_bytes": 92797.0,
+        "pkt_rate": 32.56666666666667,
+        "byte_rate": 3093.233333333333,
+        "unique_src_ips": 1.0
+      },
+      "current_stage": "CREDENTIAL_ACCESS",
+      "predicted_next_stage": "LATERAL_MOVEMENT",
+      "attack_probability": 0.9979,
+      "confidence": 0.8257,
+      "transition_detected": true,
+      "risk_score": 92.92,
+      "risk_level": "CRITICAL",
+      "inference_time_ms": 15.688199999999597,
+      "top_features": [
+        {
+          "feature": "syn_ratio",
+          "current": 0.0,
+          "predicted": -2.7686,
+          "abs_change": 2.7686,
+          "rel_change_pct": -27685582637.79,
+          "direction": "decrease"
+        },
+        {
+          "feature": "port_80_443_share",
+          "current": 0.0,
+          "predicted": -2.4643,
+          "abs_change": 2.4643,
+          "rel_change_pct": -24643254280.09,
+          "direction": "decrease"
+        },
+        {
+          "feature": "flow_count",
+          "current": -0.3333,
+          "predicted": 1.9873,
+          "abs_change": 2.3206,
+          "rel_change_pct": 696.18,
+          "direction": "increase"
+        }
+      ],
+      "mitre_techniques": [
+        "T1021",
+        "T1570"
+      ],
+      "rollout_k4_stages": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "agent_summary": "Yes \u2014 a stage transition is predicted. CyberWorldModelV2 forecasts a transition from **CREDENTIAL_ACCESS** to **LATERAL_MOVEMENT** with 82.6% confidence. Transition CREDENTIAL_ACCESS \u2192 LATERAL_MOVEMENT predicted within the next 30s window."
+    },
+    {
+      "window_index": 7,
+      "window_start_time": 7.0,
+      "observed_physical_state": {
+        "flow_count": 96.0,
+        "total_packets": 1090.0,
+        "total_bytes": 101248.0,
+        "pkt_rate": 36.333333333333336,
+        "byte_rate": 3374.9333333333334,
+        "unique_src_ips": 1.0
+      },
+      "current_stage": "CREDENTIAL_ACCESS",
+      "predicted_next_stage": "LATERAL_MOVEMENT",
+      "attack_probability": 0.9981,
+      "confidence": 0.8277,
+      "transition_detected": true,
+      "risk_score": 92.95,
+      "risk_level": "CRITICAL",
+      "inference_time_ms": 15.904200000022684,
+      "top_features": [
+        {
+          "feature": "syn_ratio",
+          "current": 0.0,
+          "predicted": -2.7959,
+          "abs_change": 2.7959,
+          "rel_change_pct": -27958803176.88,
+          "direction": "decrease"
+        },
+        {
+          "feature": "port_80_443_share",
+          "current": 0.0,
+          "predicted": -2.5494,
+          "abs_change": 2.5494,
+          "rel_change_pct": -25493686199.19,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_bytes",
+          "current": -0.1661,
+          "predicted": 1.8007,
+          "abs_change": 1.9668,
+          "rel_change_pct": 1183.94,
+          "direction": "increase"
+        }
+      ],
+      "mitre_techniques": [
+        "T1021",
+        "T1570"
+      ],
+      "rollout_k4_stages": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "agent_summary": "Yes \u2014 a stage transition is predicted. CyberWorldModelV2 forecasts a transition from **CREDENTIAL_ACCESS** to **LATERAL_MOVEMENT** with 82.8% confidence. Transition CREDENTIAL_ACCESS \u2192 LATERAL_MOVEMENT predicted within the next 30s window."
+    },
+    {
+      "window_index": 8,
+      "window_start_time": 8.0,
+      "observed_physical_state": {
+        "flow_count": 93.0,
+        "total_packets": 1184.0,
+        "total_bytes": 177251.0,
+        "pkt_rate": 39.46666666666667,
+        "byte_rate": 5908.366666666667,
+        "unique_src_ips": 2.0
+      },
+      "current_stage": "CREDENTIAL_ACCESS",
+      "predicted_next_stage": "LATERAL_MOVEMENT",
+      "attack_probability": 0.9982,
+      "confidence": 0.9114,
+      "transition_detected": true,
+      "risk_score": 93.79,
+      "risk_level": "CRITICAL",
+      "inference_time_ms": 13.281000000006316,
+      "top_features": [
+        {
+          "feature": "port_80_443_share",
+          "current": 0.0,
+          "predicted": -3.126,
+          "abs_change": 3.126,
+          "rel_change_pct": -31260240077.97,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_ratio",
+          "current": 0.0,
+          "predicted": -3.1124,
+          "abs_change": 3.1124,
+          "rel_change_pct": -31124398708.34,
+          "direction": "decrease"
+        },
+        {
+          "feature": "rst_ratio",
+          "current": 1.171,
+          "predicted": -1.4302,
+          "abs_change": 2.6012,
+          "rel_change_pct": -222.14,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        "T1021",
+        "T1570"
+      ],
+      "rollout_k4_stages": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "agent_summary": "Yes \u2014 a stage transition is predicted. CyberWorldModelV2 forecasts a transition from **CREDENTIAL_ACCESS** to **LATERAL_MOVEMENT** with 91.1% confidence. Transition CREDENTIAL_ACCESS \u2192 LATERAL_MOVEMENT predicted within the next 30s window."
+    },
+    {
+      "window_index": 9,
+      "window_start_time": 9.0,
+      "observed_physical_state": {
+        "flow_count": 99.0,
+        "total_packets": 5112.0,
+        "total_bytes": 1908443.0,
+        "pkt_rate": 170.4,
+        "byte_rate": 63614.76666666667,
+        "unique_src_ips": 1.0
+      },
+      "current_stage": "LATERAL_MOVEMENT",
+      "predicted_next_stage": "LATERAL_MOVEMENT",
+      "attack_probability": 0.9991,
+      "confidence": 0.938,
+      "transition_detected": false,
+      "risk_score": 94.09,
+      "risk_level": "CRITICAL",
+      "inference_time_ms": 12.465499999962049,
+      "top_features": [
+        {
+          "feature": "port_445_share",
+          "current": 1.226,
+          "predicted": -0.1,
+          "abs_change": 1.326,
+          "rel_change_pct": -108.16,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_bytes",
+          "current": 1.0737,
+          "predicted": -0.1947,
+          "abs_change": 1.2684,
+          "rel_change_pct": -118.13,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_ratio",
+          "current": 0.0,
+          "predicted": -1.1127,
+          "abs_change": 1.1127,
+          "rel_change_pct": -11127259731.29,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        "T1021",
+        "T1570"
+      ],
+      "rollout_k4_stages": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "agent_summary": "No transition is predicted for the next window. Stage **LATERAL_MOVEMENT** is expected to continue (confidence 93.8%)."
+    },
+    {
+      "window_index": 10,
+      "window_start_time": 10.0,
+      "observed_physical_state": {
+        "flow_count": 88.0,
+        "total_packets": 4585.0,
+        "total_bytes": 1720911.0,
+        "pkt_rate": 152.83333333333334,
+        "byte_rate": 57363.7,
+        "unique_src_ips": 1.0
+      },
+      "current_stage": "LATERAL_MOVEMENT",
+      "predicted_next_stage": "LATERAL_MOVEMENT",
+      "attack_probability": 0.9996,
+      "confidence": 0.99,
+      "transition_detected": false,
+      "risk_score": 94.63,
+      "risk_level": "CRITICAL",
+      "inference_time_ms": 12.76339999992615,
+      "top_features": [
+        {
+          "feature": "total_bytes",
+          "current": 0.9451,
+          "predicted": -0.4081,
+          "abs_change": 1.3532,
+          "rel_change_pct": -143.19,
+          "direction": "decrease"
+        },
+        {
+          "feature": "port_445_share",
+          "current": 1.2539,
+          "predicted": -0.0043,
+          "abs_change": 1.2581,
+          "rel_change_pct": -100.34,
+          "direction": "decrease"
+        },
+        {
+          "feature": "port_3389_share",
+          "current": 1.2365,
+          "predicted": -0.02,
+          "abs_change": 1.2565,
+          "rel_change_pct": -101.62,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        "T1021",
+        "T1570"
+      ],
+      "rollout_k4_stages": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "agent_summary": "No transition is predicted for the next window. Stage **LATERAL_MOVEMENT** is expected to continue (confidence 99.0%)."
+    },
+    {
+      "window_index": 11,
+      "window_start_time": 11.0,
+      "observed_physical_state": {
+        "flow_count": 90.0,
+        "total_packets": 4338.0,
+        "total_bytes": 1675086.0,
+        "pkt_rate": 144.6,
+        "byte_rate": 55836.2,
+        "unique_src_ips": 1.0
+      },
+      "current_stage": "LATERAL_MOVEMENT",
+      "predicted_next_stage": "LATERAL_MOVEMENT",
+      "attack_probability": 0.9996,
+      "confidence": 0.9861,
+      "transition_detected": false,
+      "risk_score": 94.6,
+      "risk_level": "CRITICAL",
+      "inference_time_ms": 11.902299999974275,
+      "top_features": [
+        {
+          "feature": "port_3389_share",
+          "current": 1.684,
+          "predicted": 0.234,
+          "abs_change": 1.45,
+          "rel_change_pct": -86.1,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_bytes",
+          "current": 0.9136,
+          "predicted": -0.33,
+          "abs_change": 1.2436,
+          "rel_change_pct": -136.12,
+          "direction": "decrease"
+        },
+        {
+          "feature": "port_445_share",
+          "current": 0.9808,
+          "predicted": -0.0851,
+          "abs_change": 1.0659,
+          "rel_change_pct": -108.68,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        "T1021",
+        "T1570"
+      ],
+      "rollout_k4_stages": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "agent_summary": "No transition is predicted for the next window. Stage **LATERAL_MOVEMENT** is expected to continue (confidence 98.6%)."
+    }
+  ]
+}

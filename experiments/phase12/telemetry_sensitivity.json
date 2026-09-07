@@ -1,0 +1,240 @@
+{
+  "baseline": {
+    "description": "Standard background HTTP/HTTPS traffic (100 flows)",
+    "metrics": {
+      "attack_probability": 0.9989,
+      "confidence": 0.5117,
+      "predicted_next_stage": "CREDENTIAL_ACCESS",
+      "transition_detected": false,
+      "risk_score": 86.32,
+      "risk_level": "CRITICAL",
+      "top_features": [
+        {
+          "feature": "port_80_443_share",
+          "current": 1.3594,
+          "predicted": -0.6805,
+          "abs_change": 2.0398,
+          "rel_change_pct": -150.06,
+          "direction": "decrease"
+        },
+        {
+          "feature": "unique_dst_ports",
+          "current": -1.0,
+          "predicted": -0.0773,
+          "abs_change": 0.9227,
+          "rel_change_pct": 92.27,
+          "direction": "increase"
+        },
+        {
+          "feature": "syn_count",
+          "current": 0.7,
+          "predicted": -0.1793,
+          "abs_change": 0.8793,
+          "rel_change_pct": -125.61,
+          "direction": "decrease"
+        }
+      ],
+      "predicted_physical_state_sample": {}
+    }
+  },
+  "perturbation_1_syn_flood": {
+    "description": "Injected 500 SYN packets with zero ACK and high failure rate",
+    "metrics": {
+      "attack_probability": 0.9979,
+      "confidence": 0.8867,
+      "predicted_next_stage": "CREDENTIAL_ACCESS",
+      "transition_detected": false,
+      "risk_score": 90.03,
+      "risk_level": "CRITICAL",
+      "top_features": [
+        {
+          "feature": "flow_count",
+          "current": 42.5,
+          "predicted": 0.0262,
+          "abs_change": 42.4738,
+          "rel_change_pct": -99.94,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_count",
+          "current": 25.7,
+          "predicted": -0.0485,
+          "abs_change": 25.7485,
+          "rel_change_pct": -100.19,
+          "direction": "decrease"
+        },
+        {
+          "feature": "failed_flow_count",
+          "current": 7.4328,
+          "predicted": -0.009,
+          "abs_change": 7.4419,
+          "rel_change_pct": -100.12,
+          "direction": "decrease"
+        }
+      ],
+      "predicted_physical_state_sample": {}
+    },
+    "delta_risk": 3.710000000000008,
+    "delta_attack_prob": -0.0010000000000000009
+  },
+  "perturbation_2_failed_ssh_bruteforce": {
+    "description": "Injected 200 failed SSH flows on port 22 with RST flags",
+    "metrics": {
+      "attack_probability": 0.9974,
+      "confidence": 0.88,
+      "predicted_next_stage": "CREDENTIAL_ACCESS",
+      "transition_detected": false,
+      "risk_score": 89.95,
+      "risk_level": "CRITICAL",
+      "top_features": [
+        {
+          "feature": "flow_count",
+          "current": 17.5,
+          "predicted": 0.0569,
+          "abs_change": 17.4431,
+          "rel_change_pct": -99.67,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_count",
+          "current": 10.7,
+          "predicted": -0.0412,
+          "abs_change": 10.7412,
+          "rel_change_pct": -100.38,
+          "direction": "decrease"
+        },
+        {
+          "feature": "failed_flow_count",
+          "current": 2.9552,
+          "predicted": -0.0469,
+          "abs_change": 3.0022,
+          "rel_change_pct": -101.59,
+          "direction": "decrease"
+        }
+      ],
+      "predicted_physical_state_sample": {}
+    },
+    "delta_risk": 3.6300000000000097,
+    "delta_attack_prob": -0.0015000000000000568
+  },
+  "perturbation_3_exfiltration_surge": {
+    "description": "Injected 20 massive flows totaling 400 MB to external IP",
+    "metrics": {
+      "attack_probability": 0.9989,
+      "confidence": 0.9698,
+      "predicted_next_stage": "EXFILTRATION",
+      "transition_detected": false,
+      "risk_score": 99.65,
+      "risk_level": "CRITICAL",
+      "top_features": [
+        {
+          "feature": "byte_rate",
+          "current": 274.2945,
+          "predicted": 34.2154,
+          "abs_change": 240.0791,
+          "rel_change_pct": -87.53,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_bytes",
+          "current": 274.2945,
+          "predicted": 36.0211,
+          "abs_change": 238.2734,
+          "rel_change_pct": -86.87,
+          "direction": "decrease"
+        },
+        {
+          "feature": "pkt_rate",
+          "current": 92.0788,
+          "predicted": 13.2962,
+          "abs_change": 78.7827,
+          "rel_change_pct": -85.56,
+          "direction": "decrease"
+        }
+      ],
+      "predicted_physical_state_sample": {}
+    },
+    "delta_risk": 13.330000000000013,
+    "delta_attack_prob": 0.0
+  },
+  "perturbation_4_port_scan_recon": {
+    "description": "Injected sweeps against 150 unique destination ports",
+    "metrics": {
+      "attack_probability": 0.9967,
+      "confidence": 0.7889,
+      "predicted_next_stage": "RECONNAISSANCE",
+      "transition_detected": false,
+      "risk_score": 71.51,
+      "risk_level": "HIGH",
+      "top_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 149.0,
+          "predicted": 40.1479,
+          "abs_change": 108.8521,
+          "rel_change_pct": -73.06,
+          "direction": "decrease"
+        },
+        {
+          "feature": "flow_count",
+          "current": 13.3333,
+          "predicted": 0.3144,
+          "abs_change": 13.019,
+          "rel_change_pct": -97.64,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_count",
+          "current": 8.2,
+          "predicted": 0.0311,
+          "abs_change": 8.1689,
+          "rel_change_pct": -99.62,
+          "direction": "decrease"
+        }
+      ],
+      "predicted_physical_state_sample": {}
+    },
+    "delta_risk": -14.809999999999988,
+    "delta_attack_prob": -0.0021999999999999797
+  },
+  "perturbation_5_packet_size_skew": {
+    "description": "Injected extreme packet-to-byte ratio skew",
+    "metrics": {
+      "attack_probability": 0.982,
+      "confidence": 0.4607,
+      "predicted_next_stage": "LATERAL_MOVEMENT",
+      "transition_detected": false,
+      "risk_score": 88.64,
+      "risk_level": "CRITICAL",
+      "top_features": [
+        {
+          "feature": "total_packets",
+          "current": 153.5653,
+          "predicted": 0.232,
+          "abs_change": 153.3333,
+          "rel_change_pct": -99.85,
+          "direction": "decrease"
+        },
+        {
+          "feature": "pkt_rate",
+          "current": 153.5653,
+          "predicted": 0.4225,
+          "abs_change": 153.1428,
+          "rel_change_pct": -99.72,
+          "direction": "decrease"
+        },
+        {
+          "feature": "flow_count",
+          "current": 9.1667,
+          "predicted": 0.2003,
+          "abs_change": 8.9664,
+          "rel_change_pct": -97.82,
+          "direction": "decrease"
+        }
+      ],
+      "predicted_physical_state_sample": {}
+    },
+    "delta_risk": 2.3200000000000074,
+    "delta_attack_prob": -0.016900000000000026
+  }
+}
