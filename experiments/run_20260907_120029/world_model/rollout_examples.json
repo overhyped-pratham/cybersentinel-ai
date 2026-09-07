@@ -1,0 +1,102 @@
+{
+  "k_steps": 4,
+  "n_sequences": 5,
+  "rollout": [
+    {
+      "step": 1,
+      "stage_pred": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "attack_prob": [
+        0.2405501753091812,
+        0.26064249873161316,
+        0.2598362863063812,
+        0.2756801247596741,
+        0.2668532133102417
+      ],
+      "top_stage": [
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY"
+      ]
+    },
+    {
+      "step": 2,
+      "stage_pred": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "attack_prob": [
+        0.50016850233078,
+        0.5143219232559204,
+        0.518319845199585,
+        0.5322709679603577,
+        0.5225107073783875
+      ],
+      "top_stage": [
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY"
+      ]
+    },
+    {
+      "step": 3,
+      "stage_pred": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "attack_prob": [
+        0.7127599120140076,
+        0.7201365232467651,
+        0.7209476232528687,
+        0.7282781600952148,
+        0.7234129309654236
+      ],
+      "top_stage": [
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY"
+      ]
+    },
+    {
+      "step": 4,
+      "stage_pred": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "attack_prob": [
+        0.8102053999900818,
+        0.8135393857955933,
+        0.8132778406143188,
+        0.8177621364593506,
+        0.8150120973587036
+      ],
+      "top_stage": [
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY",
+        "DISCOVERY"
+      ]
+    }
+  ]
+}
