@@ -1,0 +1,20 @@
+{
+  "optimal_temperature": 1.5680352262105373,
+  "method": "temperature_scaling",
+  "fitted_split": "validation",
+  "validation_scenarios": [
+    "trace_multistage_01",
+    "trace_benign_alpha"
+  ],
+  "uncalibrated": {
+    "brier_score": 0.1853072935994934,
+    "ece": 0.0676764629103921,
+    "mean_confidence": 0.9540401697158813
+  },
+  "calibrated": {
+    "brier_score": 0.17416145439209488,
+    "ece": 0.04753103716806928,
+    "mean_confidence": 0.902850329875946
+  },
+  "prediction_invariance_verified": true
+}

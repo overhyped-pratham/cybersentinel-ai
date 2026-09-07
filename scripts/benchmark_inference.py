@@ -1,0 +1,179 @@
+"""
+CyberSentinel AI — Inference Latency & Performance Benchmark (Phase 10).
+
+Measures:
+  1. Single forward pass latency (median, p95, p99 across 100 runs)
+  2. K=4 step autoregressive rollout latency (median, p95, p99 across 50 runs)
+  3. Feature attribution explainability latency
+  4. Memory usage (peak RSS in MB)
+  5. API round-trip latency (optional, if server is running)
+
+Usage:
+  python scripts/benchmark_inference.py
+  python scripts/benchmark_inference.py --runs 200 --check-api
+"""
+
+from __future__ import annotations
+
+import argparse
+import gc
+import json
+import os
+import sys
+import time
+from pathlib import Path
+from typing import Dict, List
+
+import numpy as np
+import psutil
+import torch
+
+# Ensure project root is in sys.path
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from backend.services.model_service import ModelService
+from ml.world_model.world_model_v2 import INPUT_DIM
+
+
+def get_memory_usage_mb() -> float:
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / (1024 * 1024)
+
+
+def benchmark_forward_and_rollout(runs: int = 100) -> Dict[str, any]:
+    print("=" * 60)
+    print("CYBERSENTINEL AI -- BENCHMARKING INFERENCE PERFORMANCE")
+    print("=" * 60)
+
+    # Initialize model service
+    mem_before = get_memory_usage_mb()
+    t0 = time.perf_counter()
+    svc = ModelService.get_instance()
+    init_time_s = time.perf_counter() - t0
+    mem_after = get_memory_usage_mb()
+
+    if not svc.is_loaded:
+        print("ERROR: ModelService could not load or train CyberWorldModelV2.")
+        return {"error": "Model not loaded"}
+
+    print(f"[OK] ModelService loaded in {init_time_s:.2f}s | Memory: {mem_after:.1f} MB (Delta: +{mem_after - mem_before:.1f} MB)")
+
+    # Synthetic realistic input (T=8, D=24)
+    seq_len = 8
+    x_seq = np.random.randn(seq_len, INPUT_DIM).astype(np.float32).tolist()
+    mask = [True] * seq_len
+
+    # Warmup
+    print("\nWarming up JIT and PyTorch execution paths...")
+    for _ in range(5):
+        svc.forecast(x_seq=x_seq, mask_list=mask, k_steps=4)
+
+    # Benchmark 1: Single Step Forecast + Full Pipeline (Forward + Explain + MITRE + Risk)
+    print(f"\n[1/3] Benchmarking full 1-step forecast pipeline ({runs} runs)...")
+    forecast_times: List[float] = []
+    for _ in range(runs):
+        t_start = time.perf_counter()
+        _ = svc.forecast(x_seq=x_seq, mask_list=mask, k_steps=1)
+        forecast_times.append((time.perf_counter() - t_start) * 1000.0)  # ms
+
+    # Benchmark 2: K=4 Step Rollout Pipeline (Forward + K=4 Autoregressive + Explain + MITRE + Risk)
+    k4_runs = max(20, runs // 2)
+    print(f"[2/3] Benchmarking full K=4 rollout forecast pipeline ({k4_runs} runs)...")
+    k4_times: List[float] = []
+    for _ in range(k4_runs):
+        t_start = time.perf_counter()
+        _ = svc.forecast(x_seq=x_seq, mask_list=mask, k_steps=4)
+        k4_times.append((time.perf_counter() - t_start) * 1000.0)  # ms
+
+    # Benchmark 3: Raw PyTorch Forward Pass Only
+    print(f"[3/3] Benchmarking pure PyTorch model forward pass ({runs} runs)...")
+    raw_x = torch.randn(1, seq_len, INPUT_DIM).to(svc.trainer.device)
+    raw_mask = torch.ones(1, seq_len, dtype=torch.bool).to(svc.trainer.device)
+    raw_times: List[float] = []
+    svc.trainer.model.eval()
+    with torch.no_grad():
+        for _ in range(runs):
+            t_start = time.perf_counter()
+            _ = svc.trainer.model(raw_x, raw_mask)
+            raw_times.append((time.perf_counter() - t_start) * 1000.0)
+
+    # Stats calculation
+    def calc_stats(times: List[float]) -> Dict[str, float]:
+        arr = np.array(times)
+        return {
+            "median_ms": float(np.median(arr)),
+            "mean_ms": float(np.mean(arr)),
+            "p95_ms": float(np.percentile(arr, 95)),
+            "p99_ms": float(np.percentile(arr, 99)),
+            "min_ms": float(np.min(arr)),
+            "max_ms": float(np.max(arr)),
+            "throughput_hz": float(1000.0 / np.median(arr)),
+        }
+
+    stats_raw = calc_stats(raw_times)
+    stats_forecast = calc_stats(forecast_times)
+    stats_k4 = calc_stats(k4_times)
+    peak_mem = get_memory_usage_mb()
+
+    print("\n" + "=" * 60)
+    print("BENCHMARK RESULTS")
+    print("=" * 60)
+    print(f"Device: {svc.trainer.device}")
+    print(f"Peak Memory RSS: {peak_mem:.1f} MB")
+    print("-" * 60)
+    print(f"1. Pure Neural Net Forward Pass:")
+    print(f"   Median: {stats_raw['median_ms']:.2f} ms | P95: {stats_raw['p95_ms']:.2f} ms | P99: {stats_raw['p99_ms']:.2f} ms")
+    print(f"   Throughput: {stats_raw['throughput_hz']:.1f} inferences/sec")
+    print("-" * 60)
+    print(f"2. Full 1-Step Pipeline (NN + State Predictor + MITRE + Risk + Explain):")
+    print(f"   Median: {stats_forecast['median_ms']:.2f} ms | P95: {stats_forecast['p95_ms']:.2f} ms | P99: {stats_forecast['p99_ms']:.2f} ms")
+    print(f"   Throughput: {stats_forecast['throughput_hz']:.1f} windows/sec")
+    print("-" * 60)
+    print(f"3. Full K=4 Autoregressive Rollout Pipeline:")
+    print(f"   Median: {stats_k4['median_ms']:.2f} ms | P95: {stats_k4['p95_ms']:.2f} ms | P99: {stats_k4['p99_ms']:.2f} ms")
+    print(f"   Throughput: {stats_k4['throughput_hz']:.1f} rollouts/sec")
+    print("=" * 60)
+
+    res = {
+        "device": str(svc.trainer.device),
+        "peak_memory_mb": peak_mem,
+        "pure_nn_forward": stats_raw,
+        "full_forecast_pipeline": stats_forecast,
+        "full_k4_rollout_pipeline": stats_k4,
+    }
+    return res
+
+
+def check_api_latency() -> None:
+    try:
+        import requests
+        print("\nChecking live API latency on http://localhost:8000/api/v1/health ...")
+        t0 = time.perf_counter()
+        resp = requests.get("http://localhost:8000/api/v1/health", timeout=3.0)
+        dur = (time.perf_counter() - t0) * 1000.0
+        if resp.status_code == 200:
+            print(f"[OK] API /health roundtrip: {dur:.2f} ms")
+        else:
+            print(f"[ERR] API returned status {resp.status_code}")
+    except Exception as e:
+        print(f"Note: API server not running locally on :8000 ({e}). Skipping API test.")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="CyberSentinel AI Inference Benchmark")
+    parser.add_argument("--runs", type=int, default=100, help="Number of benchmark iterations")
+    parser.add_argument("--check-api", action="store_true", help="Check live API endpoint latency")
+    parser.add_argument("--out", type=Path, default=None, help="Save benchmark JSON output")
+    args = parser.parse_args()
+
+    results = benchmark_forward_and_rollout(runs=args.runs)
+    if args.check_api:
+        check_api_latency()
+
+    if args.out:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        with open(args.out, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+        print(f"\nSaved benchmark metrics to {args.out}")

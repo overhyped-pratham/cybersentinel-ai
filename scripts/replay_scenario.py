@@ -52,8 +52,8 @@ from mitre.mappings.mitre_mapper import get_mitre_summary
 from ml.state.state_builder import FEATURE_NAMES, NetworkStateBuilder
 from ml.preprocessing.scaler import FeatureScaler
 from network.flow.csv_loader import CSVFlowLoader
-from ml.sequence.sequence_builder import SequenceBuilder
-from ml.labelling.stage_labeller import StageLabeler
+from ml.preprocessing.sequence_builder import SequenceBuilder
+from ml.preprocessing.stage_labeler import StageLabeler
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)

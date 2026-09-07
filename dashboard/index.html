@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberSentinel AI — Command Center</title>
+<style>
+/* ─── Reset & Variables ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0d14;--surface:#111827;--surface2:#1a2035;--surface3:#222e45;
+  --border:#2a3550;--text:#e2e8f0;--muted:#94a3b8;--accent:#3b82f6;
+  --accent2:#6366f1;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;
+  --orange:#f97316;--purple:#8b5cf6;
+  --observed:#10b981;--forecast:#3b82f6;--simulated:#8b5cf6;
+  --font:'Segoe UI',system-ui,sans-serif;--mono:'Cascadia Code','Consolas',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+button{cursor:pointer;font-family:var(--font)}
+input,textarea{font-family:var(--font)}
+scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+
+/* ─── Layout ────────────────────────────────────────────────────────────── */
+.app{display:grid;grid-template-rows:56px 1fr;min-height:100vh}
+.header{background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;position:sticky;top:0;z-index:100}
+.header-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--purple));
+  border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.header-status{display:flex;gap:12px;align-items:center}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
+.status-dot.err{background:var(--red)}
+.status-label{font-size:12px;color:var(--muted)}
+.main{display:grid;grid-template-columns:320px 1fr 300px;gap:0;overflow:hidden;height:calc(100vh - 56px)}
+.sidebar-left{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px}
+.center{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.sidebar-right{background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px}
+
+/* ─── Cards ─────────────────────────────────────────────────────────────── */
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.card-title{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);
+  text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card-title .icon{font-size:13px}
+
+/* ─── Badges ─────────────────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;
+  border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.04em}
+.badge-observed{background:rgba(16,185,129,.15);color:var(--observed);border:1px solid rgba(16,185,129,.3)}
+.badge-forecast{background:rgba(59,130,246,.15);color:var(--forecast);border:1px solid rgba(59,130,246,.3)}
+.badge-simulated{background:rgba(139,92,246,.15);color:var(--simulated);border:1px solid rgba(139,92,246,.3)}
+.badge-critical{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
+.badge-high{background:rgba(249,115,22,.2);color:#fdba74;border:1px solid rgba(249,115,22,.4)}
+.badge-medium{background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.4)}
+.badge-low{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+
+/* ─── Metrics ────────────────────────────────────────────────────────────── */
+.metric-big{font-size:28px;font-weight:700;line-height:1}
+.metric-label{font-size:11px;color:var(--muted);margin-top:3px}
+.metric-row{display:flex;gap:16px;flex-wrap:wrap}
+.metric-box{flex:1;min-width:80px}
+.prob-bar-wrap{margin-top:6px}
+.prob-bar-track{background:var(--surface3);border-radius:4px;height:6px;overflow:hidden}
+.prob-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.prob-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px}
+
+/* ─── Attack Lifecycle ───────────────────────────────────────────────────── */
+.lifecycle{display:flex;flex-direction:column;gap:4px}
+.lc-stage{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;
+  border:1px solid transparent;transition:all .3s ease;position:relative}
+.lc-stage.active{background:rgba(59,130,246,.12);border-color:var(--accent);color:var(--accent)}
+.lc-stage.predicted{background:rgba(139,92,246,.1);border-color:var(--purple);color:var(--purple)}
+.lc-stage.simulated{background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.3);color:var(--simulated)}
+.lc-stage.past{opacity:.4}
+.lc-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0}
+.lc-stage.active .lc-dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.lc-stage.predicted .lc-dot{background:var(--purple)}
+.lc-stage.simulated .lc-dot{background:var(--simulated);opacity:.7}
+.lc-arrow{font-size:10px;color:var(--muted);margin-left:20px}
+.lc-label{font-size:12px;font-weight:500}
+.lc-annotation{margin-left:auto;font-size:10px;opacity:.8}
+
+/* ─── Timeline ───────────────────────────────────────────────────────────── */
+.timeline{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto}
+.tl-row{display:grid;grid-template-columns:50px 110px 110px 60px 60px;
+  gap:6px;align-items:center;padding:5px 8px;border-radius:5px;border:1px solid transparent}
+.tl-row:hover{background:var(--surface3)}
+.tl-row.transition-row{border-color:rgba(59,130,246,.3)}
+.tl-header{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.05em}
+.tl-win{font-size:11px;font-family:var(--mono);color:var(--muted)}
+.tl-stage{font-size:11px;font-weight:500}
+.tl-conf{font-size:11px;font-family:var(--mono)}
+.tl-risk{font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px}
+
+/* ─── Feature Table ──────────────────────────────────────────────────────── */
+.feat-table{width:100%;border-collapse:collapse;font-size:12px}
+.feat-table th{text-align:left;color:var(--muted);font-weight:600;font-size:10px;
+  letter-spacing:.05em;padding:4px 6px;border-bottom:1px solid var(--border)}
+.feat-table td{padding:5px 6px;border-bottom:1px solid rgba(42,53,80,.5)}
+.feat-name{font-family:var(--mono);color:var(--text)}
+.feat-val{font-family:var(--mono);color:var(--muted)}
+.feat-delta{font-family:var(--mono);font-weight:600}
+.feat-delta.pos{color:var(--red)}
+.feat-delta.neg{color:var(--green)}
+.feat-bar-cell{width:60px}
+.feat-bar{height:4px;border-radius:2px;background:var(--surface3);overflow:hidden}
+.feat-bar-inner{height:100%;border-radius:2px}
+
+/* ─── MITRE ──────────────────────────────────────────────────────────────── */
+.mitre-card{background:var(--surface3);border-radius:7px;padding:10px;margin-bottom:8px}
+.mitre-id{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700}
+.mitre-name{font-size:13px;font-weight:600;margin:3px 0}
+.mitre-tactic{font-size:11px;color:var(--muted)}
+.mitre-rationale{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+.mitre-provenance{font-size:10px;color:rgba(148,163,184,.5);margin-top:5px}
+
+/* ─── Rollout / Simulation ───────────────────────────────────────────────── */
+.rollout-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 0}
+.rollout-step{background:var(--surface3);border:1px solid var(--border);border-radius:7px;
+  padding:8px 12px;text-align:center;flex:1;min-width:90px;position:relative}
+.rollout-step.current-marker{border-color:var(--observed);background:rgba(16,185,129,.06)}
+.rollout-step-label{font-size:9px;font-weight:700;letter-spacing:.06em;
+  color:var(--simulated);text-transform:uppercase;margin-bottom:4px}
+.rollout-step.current-marker .rollout-step-label{color:var(--observed)}
+.rollout-stage{font-size:11px;font-weight:600}
+.rollout-conf{font-size:10px;color:var(--muted)}
+.rollout-arrow{color:var(--muted);font-size:14px;flex-shrink:0}
+.sim-notice{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);
+  border-radius:6px;padding:7px 10px;font-size:11px;color:var(--simulated);
+  display:flex;align-items:center;gap:6px}
+
+/* ─── Agent Chat ─────────────────────────────────────────────────────────── */
+.chat-area{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;margin-bottom:10px}
+.chat-msg{border-radius:7px;padding:9px 12px;font-size:12px;line-height:1.6}
+.chat-analyst{background:var(--surface3);border:1px solid var(--border)}
+.chat-agent{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2)}
+.chat-role{font-size:10px;font-weight:700;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.chat-role.analyst-role{color:var(--yellow)}
+.chat-role.agent-role{color:var(--accent)}
+.chat-tools{font-size:10px;color:rgba(148,163,184,.4);margin-top:4px}
+.chat-input-row{display:flex;gap:8px}
+.chat-input{flex:1;background:var(--surface3);border:1px solid var(--border);
+  border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;
+  transition:border-color .2s}
+.chat-input:focus{border-color:var(--accent)}
+.chat-send{background:var(--accent);color:#fff;border:none;border-radius:6px;
+  padding:7px 14px;font-size:12px;font-weight:600;transition:opacity .2s}
+.chat-send:hover{opacity:.85}
+.chat-send:disabled{opacity:.4;cursor:not-allowed}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;
+  border-radius:6px;font-size:12px;font-weight:600;border:none;transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-secondary{background:var(--surface3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+
+/* ─── Replay Controls ────────────────────────────────────────────────────── */
+.replay-controls{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.scenario-select{background:var(--surface3);border:1px solid var(--border);color:var(--text);
+  border-radius:5px;padding:5px 8px;font-size:12px;width:100%;margin-bottom:10px}
+.replay-progress{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin:8px 0}
+.replay-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));
+  border-radius:2px;transition:width .3s ease}
+.replay-info{font-size:11px;color:var(--muted)}
+
+/* ─── Benchmark Panel ────────────────────────────────────────────────────── */
+.bench-table{width:100%;border-collapse:collapse;font-size:11px}
+.bench-table th{color:var(--muted);font-size:10px;font-weight:600;
+  letter-spacing:.05em;padding:4px 6px;border-bottom:1px solid var(--border);text-align:left}
+.bench-table td{padding:5px 6px;border-bottom:1px solid rgba(42,53,80,.4);font-family:var(--mono)}
+.bench-table tr.best td{color:var(--green)}
+.bench-note{font-size:10px;color:rgba(148,163,184,.5);margin-top:6px}
+
+/* ─── Tabs ───────────────────────────────────────────────────────────────── */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.tab{padding:6px 12px;font-size:12px;font-weight:500;color:var(--muted);
+  border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;background:none;border-top:none;
+  border-left:none;border-right:none}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover{color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ─── Misc ───────────────────────────────────────────────────────────────── */
+.section-title{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text)}
+.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
+.text-muted{color:var(--muted)}
+.text-green{color:var(--green)}
+.text-red{color:var(--red)}
+.text-yellow{color:var(--yellow)}
+.text-blue{color:var(--accent)}
+.text-purple{color:var(--purple)}
+.text-mono{font-family:var(--mono)}
+.loading{opacity:.5;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.empty-state{text-align:center;padding:24px;color:var(--muted);font-size:12px}
+.alert-box{padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:8px}
+.alert-info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#93c5fd}
+.alert-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fcd34d}
+.alert-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+.markdown pre{background:var(--surface3);border-radius:5px;padding:8px;overflow-x:auto;font-size:11px}
+.markdown code{font-family:var(--mono);font-size:11px;background:var(--surface3);padding:1px 4px;border-radius:3px}
+.markdown strong{color:var(--text)}
+.markdown ul{padding-left:16px}
+.markdown li{margin-bottom:3px}
+.markdown table{width:100%;border-collapse:collapse}
+.markdown table th,.markdown table td{padding:4px 8px;border:1px solid var(--border);font-size:11px}
+.markdown table th{background:var(--surface3);font-weight:600}
+.markdown hr{border:none;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ─── Header ──────────────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-icon">🛡</div>
+    <span>CyberSentinel AI</span>
+    <span style="color:var(--muted);font-weight:400;font-size:12px">Command Center</span>
+  </div>
+  <div class="header-status">
+    <div id="hModelDot" class="status-dot"></div>
+    <span class="status-label" id="hModelLabel">Model: checking…</span>
+    <div id="hCalibDot" class="status-dot" style="margin-left:8px"></div>
+    <span class="status-label" id="hCalibLabel">Calibration: —</span>
+    <div id="hOllamaDot" class="status-dot" style="margin-left:8px"></div>
+    <span class="status-label" id="hOllamaLabel">Agent: —</span>
+  </div>
+</header>
+
+<!-- ─── Main Grid ────────────────────────────────────────────────────────── -->
+<div class="main">
+
+<!-- ══════════════ LEFT SIDEBAR ══════════════ -->
+<aside class="sidebar-left">
+
+  <!-- Threat Status -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title"><span class="icon">🎯</span>Threat Status</div>
+    <div class="metric-row" style="margin-bottom:12px">
+      <div class="metric-box">
+        <div id="curStage" class="metric-big" style="font-size:15px;color:var(--green)">—</div>
+        <div class="metric-label">Current Stage</div>
+      </div>
+      <div class="metric-box">
+        <div id="riskLevel" class="metric-big" style="font-size:15px">—</div>
+        <div class="metric-label">Risk Level</div>
+      </div>
+    </div>
+    <div class="prob-bar-wrap">
+      <div class="prob-label"><span>Attack Probability</span><span id="atkProbVal">—</span></div>
+      <div class="prob-bar-track"><div id="atkProbBar" class="prob-bar-fill" style="width:0%;background:var(--red)"></div></div>
+    </div>
+    <div class="prob-bar-wrap" style="margin-top:8px">
+      <div class="prob-label"><span>Model Confidence</span><span id="confVal">—</span></div>
+      <div class="prob-bar-track"><div id="confBar" class="prob-bar-fill" style="width:0%;background:var(--accent)"></div></div>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--muted)" id="riskScore">Risk Score: —</div>
+  </div>
+
+  <!-- Attack Lifecycle -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title"><span class="icon">🔗</span>Attack Lifecycle</div>
+    <div class="lifecycle" id="lifecyclePanel">
+      <!-- populated by JS -->
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="badge badge-observed">● Observed</span>
+      <span class="badge badge-forecast">● Forecast</span>
+      <span class="badge badge-simulated">● K=4 Sim</span>
+    </div>
+  </div>
+
+  <!-- Replay Controls -->
+  <div class="replay-controls">
+    <div class="card-title" style="margin-bottom:8px"><span class="icon">▶</span>Replay Mode</div>
+    <select id="scenarioSelect" class="scenario-select">
+      <option value="">Loading scenarios…</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="startReplay()" id="btnStart">▶ Start</button>
+      <button class="btn btn-secondary" onclick="stepReplay()" id="btnStep" disabled>⏭ Step</button>
+      <button class="btn btn-secondary" onclick="autoPlay()" id="btnAuto" disabled>⏩ Auto</button>
+    </div>
+    <div class="replay-progress"><div id="replayProgressBar" class="replay-progress-fill" style="width:0%"></div></div>
+    <div class="replay-info" id="replayInfo">Select a scenario and press Start</div>
+  </div>
+
+</aside>
+
+<!-- ══════════════ CENTER ══════════════ -->
+<main class="center">
+
+  <!-- Alert bar -->
+  <div id="alertBar" style="display:none"></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('tabTimeline',this)">📋 Timeline</button>
+    <button class="tab" onclick="showTab('tabSimulation',this)">🔮 K=4 Simulation</button>
+    <button class="tab" onclick="showTab('tabExplain',this)">🔍 Explainability</button>
+    <button class="tab" onclick="showTab('tabBenchmark',this)">📊 Benchmark</button>
+  </div>
+
+  <!-- Tab: Timeline -->
+  <div id="tabTimeline" class="tab-content active">
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span>Observation Timeline
+        <span class="badge badge-observed" style="margin-left:auto">OBSERVED TELEMETRY</span>
+      </div>
+      <div class="tl-row tl-header">
+        <span>Win</span><span>Observed</span><span>Forecast</span><span>Conf</span><span>Risk</span>
+      </div>
+      <div class="timeline" id="timelineRows">
+        <div class="empty-state">Start replay to see timeline</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: K=4 Simulation -->
+  <div id="tabSimulation" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">🔮</span>K=4 Forward Simulation
+        <span class="badge badge-simulated" style="margin-left:auto">MODEL SIMULATION</span>
+      </div>
+      <div class="sim-notice">
+        ⚠ These are autoregressive model predictions — <strong>not observed events</strong>.
+        No future observations consumed during simulation.
+      </div>
+      <div class="rollout-path" id="rolloutPath">
+        <div class="empty-state" style="width:100%">Run a forecast to see simulation</div>
+      </div>
+      <div id="rolloutSafetyFlags" style="margin-top:8px;font-size:11px;color:var(--muted)"></div>
+    </div>
+  </div>
+
+  <!-- Tab: Explainability -->
+  <div id="tabExplain" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">🔍</span>Feature Attribution
+        <span style="margin-left:auto;font-size:10px;color:var(--muted)">Source: |S_hat_{t+1} − S_t|</span>
+      </div>
+      <div id="explainNarrative" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6"></div>
+      <table class="feat-table">
+        <thead>
+          <tr>
+            <th>Feature</th><th>Current</th><th>Predicted</th><th>Delta</th><th>Importance</th>
+          </tr>
+        </thead>
+        <tbody id="featTableBody">
+          <tr><td colspan="5" class="empty-state">No data yet</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px;font-size:10px;color:rgba(148,163,184,.4)">
+        Provenance: CyberWorldModelV2 physical state predictor output — no LLM-generated conclusions.
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Benchmark -->
+  <div id="tabBenchmark" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span>Model Benchmark Comparison</div>
+      <div class="alert-box alert-info" style="margin-bottom:12px">
+        Hard Multi-Stage Holdout — N=44 sequences, 6 genuine stage transitions.
+        Source: <code>experiments/phase8c_investigation/phase8c_summary.json</code> (immutable).
+      </div>
+      <table class="bench-table">
+        <thead>
+          <tr>
+            <th>Model</th><th>Top-1</th><th>Top-3</th><th>Transition Acc</th><th>Brier</th><th>FPR</th><th>K-step</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="best">
+            <td><strong>CyberWorldModelV2</strong></td>
+            <td>97.73%</td><td>100%</td><td>83.33% (5/6)</td><td>0.0452</td><td>0.00%</td><td>✓ K=4</td>
+          </tr>
+          <tr>
+            <td>Temporal GRU</td>
+            <td>81.82%</td><td>97.73%</td><td>66.67% (4/6)</td><td>0.2913</td><td>53.33%</td><td>—</td>
+          </tr>
+          <tr>
+            <td>Logistic Regression</td>
+            <td>50.00%</td><td>72.73%</td><td>0.00% (0/6)</td><td>0.7206</td><td>0.00%</td><td>—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="bench-note">Phase 8C empirical investigation. Numbers are immutable — not re-optimized for UI.</p>
+      <hr class="divider">
+      <div class="card-title" style="margin-top:12px"><span class="icon">🏗</span>Architecture</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;font-family:var(--mono)">
+        V2: h_t → <strong>PhysicalNextStatePredictor</strong> → S_hat_{t+1} → Encoder → h_hat_{t+1}<br>
+        V1: h_t → TransitionHead (latent MLP) → h_hat_{t+1} <span style="color:var(--red)">[identity collapse]</span><br>
+        Temperature T* = 1.5680 (fitted on validation; loaded from artifact)
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════════ RIGHT SIDEBAR ══════════════ -->
+<aside class="sidebar-right">
+
+  <!-- MITRE Panel -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title"><span class="icon">🗂</span>MITRE ATT&CK
+      <span style="margin-left:auto;font-size:10px;color:rgba(148,163,184,.4)">v14 static</span>
+    </div>
+    <div id="mitrePanel">
+      <div class="empty-state">Awaiting forecast…</div>
+    </div>
+  </div>
+
+  <!-- Agent Chat -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🤖</span>CyberSentinel Agent
+      <span id="agentBackend" style="margin-left:auto;font-size:10px;color:var(--muted)">—</span>
+    </div>
+    <div class="chat-area" id="chatArea">
+      <div class="chat-msg chat-agent">
+        <div class="chat-role agent-role">CYBERSENTINEL</div>
+        I'm ready. Load a scenario and start replay, then ask me about the current network state.
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Ask the analyst agent…" onkeydown="if(event.key==='Enter')sendQuery()">
+      <button class="chat-send" onclick="sendQuery()" id="chatBtn">Send</button>
+    </div>
+    <!-- Quick questions -->
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px">
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('What is happening right now?')">Current state</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('What happens next?')">Forecast</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('Why do you think the attack is progressing?')">Evidence</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('Show me the next 4 simulated states.')">Rollout</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('What should the analyst investigate?')">Investigate</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('How confident are you?')">Confidence</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('What MITRE technique is associated with this stage?')">MITRE</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('Compare models.')">Benchmark</button>
+    </div>
+  </div>
+
+</aside>
+</div><!-- end .main -->
+</div><!-- end .app -->
+
+<script>
+// ─── Config ──────────────────────────────────────────────────────────────
+const API = 'http://localhost:8000/api/v1';
+
+const STAGES = [
+  'BENIGN','RECONNAISSANCE','INITIAL_ACCESS','EXECUTION',
+  'CREDENTIAL_ACCESS','DISCOVERY','LATERAL_MOVEMENT',
+  'COMMAND_AND_CONTROL','EXFILTRATION','UNKNOWN'
+];
+
+const STAGE_ICONS = {
+  BENIGN:'🟢',RECONNAISSANCE:'🔭',INITIAL_ACCESS:'🚪',EXECUTION:'⚙',
+  CREDENTIAL_ACCESS:'🔑',DISCOVERY:'🔎',LATERAL_MOVEMENT:'↔',
+  COMMAND_AND_CONTROL:'📡',EXFILTRATION:'📤',UNKNOWN:'❓'
+};
+
+const RISK_COLORS = {CRITICAL:'var(--red)',HIGH:'var(--orange)',MEDIUM:'var(--yellow)',LOW:'var(--green)'};
+
+// ─── State ────────────────────────────────────────────────────────────────
+let state = {
+  sessionId: null,
+  currentWindow: 0,
+  totalWindows: 0,
+  isComplete: false,
+  lastForecast: null,
+  timeline: [],
+  autoPlayInterval: null,
+};
+
+// ─── API helpers ──────────────────────────────────────────────────────────
+async function api(path, method='GET', body=null) {
+  const opts = { method, headers:{'Content-Type':'application/json'} };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const r = await fetch(API + path, opts);
+    if (!r.ok) { const e=await r.json().catch(()=>({})); throw new Error(e.detail||r.statusText); }
+    return await r.json();
+  } catch(e) {
+    showAlert('API Error: '+e.message,'error');
+    throw e;
+  }
+}
+
+// ─── Health check ─────────────────────────────────────────────────────────
+async function checkHealth() {
+  try {
+    const h = await fetch(API+'/health').then(r=>r.json());
+    setDot('hModelDot','hModelLabel','Model',h.model_loaded);
+    setDot('hCalibDot','hCalibLabel','Calibration',h.calibration_loaded);
+    setDot('hOllamaDot','hOllamaLabel','Agent (Ollama)',h.ollama_available);
+    if (!h.model_loaded) showAlert('Model not loaded — check server logs. Inference endpoints unavailable.','warn');
+  } catch(e) {
+    setDot('hModelDot','hModelLabel','Server: offline',false);
+    showAlert('Cannot reach CyberSentinel backend at '+API+'. Is the server running?','error');
+  }
+}
+
+function setDot(dotId, labelId, label, ok) {
+  document.getElementById(dotId).className='status-dot '+(ok?'ok':'err');
+  document.getElementById(labelId).textContent=label+': '+(ok?'OK':'—');
+}
+
+// ─── Scenario loader ──────────────────────────────────────────────────────
+async function loadScenarios() {
+  try {
+    const d = await api('/replay/scenarios');
+    const sel = document.getElementById('scenarioSelect');
+    sel.innerHTML = d.scenarios.map(s=>`<option value="${s}">${s}</option>`).join('');
+  } catch(e) {
+    document.getElementById('scenarioSelect').innerHTML='<option value="trace_multistage_03">trace_multistage_03</option>';
+  }
+}
+
+// ─── Replay ───────────────────────────────────────────────────────────────
+async function startReplay() {
+  const scenario = document.getElementById('scenarioSelect').value;
+  if (!scenario) { showAlert('Select a scenario first','warn'); return; }
+  stopAutoPlay();
+  state.timeline = [];
+  document.getElementById('timelineRows').innerHTML='<div class="empty-state loading">Starting session…</div>';
+
+  try {
+    const resp = await api('/replay/start','POST',{scenario_id:scenario,k_steps:4});
+    state.sessionId = resp.session_id;
+    state.currentWindow = 0;
+    state.totalWindows = resp.total_windows;
+    state.isComplete = false;
+    document.getElementById('replayInfo').textContent=`Session ${resp.session_id} | ${resp.total_windows} windows`;
+    document.getElementById('btnStep').disabled=false;
+    document.getElementById('btnAuto').disabled=false;
+    document.getElementById('btnAuto').textContent='⏩ Auto';
+    updateProgress();
+    showAlert(`Replay started: ${scenario} — ${resp.total_windows} windows`,'info');
+    await stepReplay();
+  } catch(e) {}
+}
+
+async function stepReplay() {
+  if (!state.sessionId || state.isComplete) return;
+  try {
+    const resp = await api(`/replay/step?session_id=${state.sessionId}`,'POST');
+    state.currentWindow = resp.window_index + 1;
+    state.isComplete = resp.is_complete;
+    state.lastForecast = resp.forecast;
+    if (resp.forecast) renderForecast(resp.forecast);
+    updateProgress();
+    if (state.isComplete) {
+      stopAutoPlay();
+      showAlert('Replay complete ✓','info');
+      document.getElementById('btnAuto').textContent='⏩ Auto';
+    }
+  } catch(e) {}
+}
+
+function autoPlay() {
+  if (state.autoPlayInterval) { stopAutoPlay(); return; }
+  if (!state.sessionId) { showAlert('Start replay first','warn'); return; }
+  document.getElementById('btnAuto').textContent='⏸ Pause';
+  state.autoPlayInterval = setInterval(async()=>{
+    if (state.isComplete) { stopAutoPlay(); return; }
+    await stepReplay();
+  }, 1800);
+}
+
+function stopAutoPlay() {
+  if (state.autoPlayInterval) { clearInterval(state.autoPlayInterval); state.autoPlayInterval=null; }
+  const btn = document.getElementById('btnAuto');
+  if (btn) btn.textContent='⏩ Auto';
+}
+
+function updateProgress() {
+  const pct = state.totalWindows ? (state.currentWindow/state.totalWindows*100) : 0;
+  document.getElementById('replayProgressBar').style.width=pct+'%';
+  document.getElementById('replayInfo').textContent=
+    `Window ${state.currentWindow}/${state.totalWindows} | Session ${state.sessionId||'—'}`;
+}
+
+// ─── Render forecast ──────────────────────────────────────────────────────
+function renderForecast(fc) {
+  renderThreatStatus(fc);
+  renderLifecycle(fc);
+  renderTimeline(fc);
+  renderRollout(fc);
+  renderExplainability(fc);
+  renderMitre(fc);
+}
+
+function renderThreatStatus(fc) {
+  const stageEl = document.getElementById('curStage');
+  stageEl.textContent = (STAGE_ICONS[fc.current_stage]||'') + ' ' + fc.current_stage;
+  const riskColor = RISK_COLORS[fc.risk_level] || 'var(--muted)';
+  stageEl.style.color = fc.attack_probability > 0.3 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('riskLevel').textContent = fc.risk_level || '—';
+  document.getElementById('riskLevel').style.color = riskColor;
+  document.getElementById('atkProbVal').textContent = pct(fc.attack_probability);
+  document.getElementById('atkProbBar').style.width = (fc.attack_probability*100)+'%';
+  document.getElementById('confVal').textContent = pct(fc.confidence);
+  document.getElementById('confBar').style.width = (fc.confidence*100)+'%';
+  document.getElementById('riskScore').textContent =
+    `Risk Score: ${fc.risk_score}/100 | ${fc.recommended_priority?.split('—')[0]||''}`;
+}
+
+function renderLifecycle(fc) {
+  const panel = document.getElementById('lifecyclePanel');
+  const cur = fc.current_stage;
+  const nxt = fc.predicted_next_stage;
+  const rolloutStages = (fc.rollout_steps||[]).map(r=>r.predicted_stage);
+  const transitions = fc.transition_detected;
+
+  panel.innerHTML = STAGES.map((s,i)=>{
+    let cls='lc-stage', ann='', label=s;
+    if (s===cur) { cls+=' active'; ann='<span class="lc-annotation badge badge-observed">NOW</span>'; }
+    else if (s===nxt && transitions) { cls+=' predicted'; ann='<span class="lc-annotation badge badge-forecast">FORECAST</span>'; }
+    else if (rolloutStages.slice(1).includes(s) && s!==cur && s!==nxt) {
+      cls+=' simulated'; ann='<span class="lc-annotation badge badge-simulated">SIM</span>';
+    } else if (STAGES.indexOf(s) < STAGES.indexOf(cur)) { cls+=' past'; }
+    const icon = STAGE_ICONS[s]||'●';
+    return `<div class="${cls}"><div class="lc-dot"></div><div class="lc-label">${icon} ${label}</div>${ann}</div>
+            ${i<STAGES.length-1?'<div class="lc-arrow">↓</div>':''}`;
+  }).join('');
+}
+
+function renderTimeline(fc) {
+  state.timeline.push({
+    win: state.currentWindow,
+    observed: fc.ground_truth_stage || fc.current_stage,
+    forecast: fc.predicted_next_stage,
+    conf: fc.confidence,
+    risk: fc.risk_level,
+    trans: fc.transition_detected,
+  });
+
+  const tbody = document.getElementById('timelineRows');
+  tbody.innerHTML = state.timeline.slice(-20).reverse().map(r=>`
+    <div class="tl-row ${r.trans?'transition-row':''}">
+      <span class="tl-win">W${r.win}</span>
+      <span class="tl-stage">${STAGE_ICONS[r.observed]||'●'} ${r.observed}</span>
+      <span class="tl-stage text-blue">${r.trans?'→ ':''}<em>${r.forecast}</em></span>
+      <span class="tl-conf">${pct(r.conf)}</span>
+      <span class="tl-risk badge badge-${(r.risk||'low').toLowerCase()}">${r.risk||'—'}</span>
+    </div>`).join('');
+}
+
+function renderRollout(fc) {
+  const steps = fc.rollout_steps || [];
+  const path = document.getElementById('rolloutPath');
+  if (!steps.length) { path.innerHTML='<div class="empty-state" style="width:100%">No rollout data</div>'; return; }
+
+  const items = [
+    `<div class="rollout-step current-marker">
+       <div class="rollout-step-label">Observed</div>
+       <div class="rollout-stage">${STAGE_ICONS[fc.current_stage]||''} ${fc.current_stage}</div>
+       <div class="rollout-conf">now</div>
+     </div>`
+  ];
+
+  steps.forEach((r,i)=>{
+    items.push('<div class="rollout-arrow">→</div>');
+    items.push(`<div class="rollout-step">
+      <div class="rollout-step-label">+${r.step} · SIM</div>
+      <div class="rollout-stage">${STAGE_ICONS[r.predicted_stage]||''} ${r.predicted_stage}</div>
+      <div class="rollout-conf">${pct(r.confidence)} conf</div>
+    </div>`);
+  });
+
+  path.innerHTML = items.join('');
+
+  const sf = fc.safety_flags || {};
+  const flags = [];
+  if (sf.nan_detected) flags.push('⚠ NaN detected in rollout');
+  if (sf.collapse_detected) flags.push('⚠ Entropy collapse detected');
+  if (!sf.feature_dim_valid) flags.push('⚠ Feature dim mismatch');
+  document.getElementById('rolloutSafetyFlags').textContent =
+    flags.length ? flags.join(' | ') : '✓ Rollout safety flags: all clear';
+  document.getElementById('rolloutSafetyFlags').style.color = flags.length?'var(--yellow)':'var(--green)';
+}
+
+function renderExplainability(fc) {
+  document.getElementById('explainNarrative').innerHTML = md(fc.explanation_narrative || '');
+  const feats = [...(fc.stage_relevant_features||[]), ...(fc.top_features||[])];
+  const seen = new Set();
+  const unique = feats.filter(f=>{ if(seen.has(f.feature))return false; seen.add(f.feature);return true; }).slice(0,8);
+
+  const maxAbs = Math.max(...unique.map(f=>Math.abs(f.abs_change)), 0.001);
+  const tbody = document.getElementById('featTableBody');
+  if (!unique.length) { tbody.innerHTML='<tr><td colspan="5" class="empty-state">No feature data</td></tr>'; return; }
+
+  tbody.innerHTML = unique.map(f=>{
+    const pctVal = f.rel_change_pct;
+    const barPct = Math.min(100, Math.abs(f.abs_change)/maxAbs*100);
+    const cls = pctVal>0?'pos':'neg';
+    const barColor = pctVal>0?'var(--red)':'var(--green)';
+    return `<tr>
+      <td class="feat-name">${f.feature}</td>
+      <td class="feat-val">${f.current.toFixed(3)}</td>
+      <td class="feat-val">${f.predicted.toFixed(3)}</td>
+      <td class="feat-delta ${cls}">${pctVal>0?'+':''}${pctVal.toFixed(1)}%</td>
+      <td class="feat-bar-cell"><div class="feat-bar"><div class="feat-bar-inner" style="width:${barPct}%;background:${barColor}"></div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMitre(fc) {
+  const panel = document.getElementById('mitrePanel');
+  const techs = fc.mitre_techniques || [];
+  if (!techs.length) {
+    panel.innerHTML='<div class="empty-state">No techniques for '+fc.predicted_next_stage+'</div>';
+    return;
+  }
+  panel.innerHTML = techs.slice(0,3).map(t=>`
+    <div class="mitre-card">
+      <div class="mitre-id">${t.technique_id}</div>
+      <div class="mitre-name">${t.name}</div>
+      <div class="mitre-tactic">${t.tactic}</div>
+      <div class="mitre-rationale">${t.rationale}</div>
+      <div class="mitre-provenance">${t.mapping_provenance}</div>
+    </div>`).join('');
+}
+
+// ─── Agent / Chat ─────────────────────────────────────────────────────────
+async function sendQuery() {
+  const input = document.getElementById('chatInput');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value='';
+  appendChat('analyst', q);
+  document.getElementById('chatBtn').disabled=true;
+
+  try {
+    const body = {query:q, current_forecast: state.lastForecast||undefined};
+    const resp = await api('/agent/query','POST',body);
+    appendChat('agent', resp.answer, resp.tool_calls, resp.llm_backend);
+    document.getElementById('agentBackend').textContent=resp.llm_backend||'—';
+  } catch(e) {
+    appendChat('agent','I encountered an error. Check /health for system status.',[],'error');
+  } finally {
+    document.getElementById('chatBtn').disabled=false;
+  }
+}
+
+function quickQ(q) { document.getElementById('chatInput').value=q; sendQuery(); }
+
+function appendChat(role, text, tools=[], backend='') {
+  const area = document.getElementById('chatArea');
+  const isAgent = role==='agent';
+  const toolsStr = (tools&&tools.length)?`<div class="chat-tools">🔧 ${tools.join(' → ')}</div>`:'';
+  const div = document.createElement('div');
+  div.className='chat-msg '+(isAgent?'chat-agent':'chat-analyst');
+  div.innerHTML=`<div class="chat-role ${isAgent?'agent-role':'analyst-role'}">${isAgent?'CYBERSENTINEL':'ANALYST'}</div>
+    <div class="markdown">${md(text)}</div>${toolsStr}`;
+  area.appendChild(div);
+  area.scrollTop=area.scrollHeight;
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────
+function pct(v) { return v!=null ? (v*100).toFixed(1)+'%' : '—'; }
+
+function showAlert(msg, type='info') {
+  const bar = document.getElementById('alertBar');
+  bar.className='alert-box alert-'+type;
+  bar.textContent=msg;
+  bar.style.display='block';
+  setTimeout(()=>bar.style.display='none', 6000);
+}
+
+// Minimal markdown renderer (bold, inline code, lists, links, tables, newlines)
+function md(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/^### (.+)$/gm,'<h4 style="margin:6px 0 4px;font-size:12px">$1</h4>')
+    .replace(/^## (.+)$/gm,'<h3 style="margin:8px 0 4px;font-size:13px">$1</h3>')
+    .replace(/^# (.+)$/gm,'<h2 style="margin:8px 0 4px;font-size:14px">$1</h2>')
+    .replace(/^[-•] (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs,'<ul style="padding-left:16px;margin:4px 0">$1</ul>')
+    .replace(/^\d+\. (.+)$/gm,'<li>$1</li>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>')
+    .replace(/^---$/gm,'<hr style="border:none;border-top:1px solid var(--border);margin:8px 0">')
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,'<br>');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+(async()=>{
+  await checkHealth();
+  await loadScenarios();
+  setInterval(checkHealth, 30000);
+})();
+</script>
+</body>
+</html>
