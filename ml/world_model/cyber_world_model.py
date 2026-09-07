@@ -664,9 +664,13 @@ class CyberWorldModelTrainer:
         if not path.exists():
             raise FileNotFoundError(f"Checkpoint not found: {path}")
         payload = torch.load(path, map_location="cpu", weights_only=False)
-        instance = cls(**payload["config"], device=device)
-        instance.model.load_state_dict(payload["state_dict"])
-        instance.training_history = payload.get("training_history", [])
+        if isinstance(payload, dict) and "config" in payload and "state_dict" in payload:
+            instance = cls(**payload["config"], device=device)
+            instance.model.load_state_dict(payload["state_dict"])
+            instance.training_history = payload.get("training_history", [])
+        else:
+            instance = cls(device=device)
+            instance.model.load_state_dict(payload)
         instance.is_fitted = True
         logger.info("CyberWorldModel loaded from %s", path)
         return instance
