@@ -1,0 +1,16 @@
+{
+  "optimal_temperature_fitted_on_val": 1.5680352262105373,
+  "uncalibrated": {
+    "brier_score": 0.1853072935994934,
+    "ece": 0.0676764629103921,
+    "mean_confidence": 0.9540401697158813,
+    "transition_confidence": 0.8874991536140442
+  },
+  "calibrated": {
+    "brier_score": 0.17416145439209488,
+    "ece": 0.04753103716806928,
+    "mean_confidence": 0.902850329875946,
+    "transition_confidence": 0.8150498867034912
+  },
+  "prediction_invariance_verified": true
+}

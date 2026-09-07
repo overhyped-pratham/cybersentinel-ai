@@ -1,0 +1,500 @@
+[
+  {
+    "transition_index": 13,
+    "scenario": "trace_multistage_03",
+    "transition": "BENIGN -> RECONNAISSANCE",
+    "predictions_at_transition": {
+      "LR": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "WM_V1": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "WM_NoTrans": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "WM_Direct": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "BENIGN",
+        "correct": false
+      }
+    },
+    "predicted_early_1_window": {
+      "LR": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "GRU": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_V1": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_NoTrans": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_Direct": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_Conditioned": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      }
+    },
+    "predicted_after_1_window": {
+      "LR": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_NoTrans": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      }
+    }
+  },
+  {
+    "transition_index": 16,
+    "scenario": "trace_multistage_03",
+    "transition": "RECONNAISSANCE -> CREDENTIAL_ACCESS",
+    "predictions_at_transition": {
+      "LR": {
+        "pred": "RECONNAISSANCE",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "RECONNAISSANCE",
+        "correct": false
+      },
+      "WM_NoTrans": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      }
+    },
+    "predicted_early_1_window": {
+      "LR": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "GRU": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_V1": {
+        "pred": "RECONNAISSANCE",
+        "predicted_target": false
+      },
+      "WM_NoTrans": {
+        "pred": "RECONNAISSANCE",
+        "predicted_target": false
+      },
+      "WM_Direct": {
+        "pred": "RECONNAISSANCE",
+        "predicted_target": false
+      },
+      "WM_Conditioned": {
+        "pred": "RECONNAISSANCE",
+        "predicted_target": false
+      }
+    },
+    "predicted_after_1_window": {
+      "LR": {
+        "pred": "RECONNAISSANCE",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_NoTrans": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      }
+    }
+  },
+  {
+    "transition_index": 19,
+    "scenario": "trace_multistage_03",
+    "transition": "CREDENTIAL_ACCESS -> LATERAL_MOVEMENT",
+    "predictions_at_transition": {
+      "LR": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": false
+      },
+      "WM_NoTrans": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      }
+    },
+    "predicted_early_1_window": {
+      "LR": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "GRU": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "WM_V1": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "WM_NoTrans": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "WM_Direct": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "WM_Conditioned": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      }
+    },
+    "predicted_after_1_window": {
+      "LR": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "GRU": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_NoTrans": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      }
+    }
+  },
+  {
+    "transition_index": 24,
+    "scenario": "trace_multistage_theta",
+    "transition": "BENIGN -> RECONNAISSANCE",
+    "predictions_at_transition": {
+      "LR": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "WM_V1": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "WM_NoTrans": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "WM_Direct": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "WM_Conditioned": {
+        "pred": "BENIGN",
+        "correct": false
+      }
+    },
+    "predicted_early_1_window": {
+      "LR": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "GRU": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_V1": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_NoTrans": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_Direct": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_Conditioned": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      }
+    },
+    "predicted_after_1_window": {
+      "LR": {
+        "pred": "BENIGN",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_NoTrans": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "RECONNAISSANCE",
+        "correct": true
+      }
+    }
+  },
+  {
+    "transition_index": 27,
+    "scenario": "trace_multistage_theta",
+    "transition": "RECONNAISSANCE -> CREDENTIAL_ACCESS",
+    "predictions_at_transition": {
+      "LR": {
+        "pred": "RECONNAISSANCE",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "RECONNAISSANCE",
+        "correct": false
+      },
+      "WM_NoTrans": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      }
+    },
+    "predicted_early_1_window": {
+      "LR": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "GRU": {
+        "pred": "BENIGN",
+        "predicted_target": false
+      },
+      "WM_V1": {
+        "pred": "RECONNAISSANCE",
+        "predicted_target": false
+      },
+      "WM_NoTrans": {
+        "pred": "RECONNAISSANCE",
+        "predicted_target": false
+      },
+      "WM_Direct": {
+        "pred": "RECONNAISSANCE",
+        "predicted_target": false
+      },
+      "WM_Conditioned": {
+        "pred": "RECONNAISSANCE",
+        "predicted_target": false
+      }
+    },
+    "predicted_after_1_window": {
+      "LR": {
+        "pred": "RECONNAISSANCE",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_NoTrans": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": true
+      }
+    }
+  },
+  {
+    "transition_index": 30,
+    "scenario": "trace_multistage_theta",
+    "transition": "CREDENTIAL_ACCESS -> LATERAL_MOVEMENT",
+    "predictions_at_transition": {
+      "LR": {
+        "pred": "CREDENTIAL_ACCESS",
+        "correct": false
+      },
+      "GRU": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_NoTrans": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      }
+    },
+    "predicted_early_1_window": {
+      "LR": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "GRU": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "WM_V1": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "WM_NoTrans": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "WM_Direct": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      },
+      "WM_Conditioned": {
+        "pred": "CREDENTIAL_ACCESS",
+        "predicted_target": false
+      }
+    },
+    "predicted_after_1_window": {
+      "LR": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "GRU": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_V1": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_NoTrans": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_Direct": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      },
+      "WM_Conditioned": {
+        "pred": "LATERAL_MOVEMENT",
+        "correct": true
+      }
+    }
+  }
+]

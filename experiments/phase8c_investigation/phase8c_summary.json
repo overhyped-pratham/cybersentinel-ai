@@ -1,0 +1,56 @@
+{
+  "Logistic_Regression": {
+    "next_stage_top1": 0.5,
+    "next_stage_top3": 0.7272727272727273,
+    "transition_accuracy": 0.0,
+    "brier_score": 0.7206114371599306,
+    "attack_acc": 0.7727272727272727,
+    "fpr": 0.0,
+    "k4_path_accuracy": null
+  },
+  "Temporal_GRU": {
+    "next_stage_top1": 0.8181818181818182,
+    "next_stage_top3": 0.9772727272727273,
+    "transition_accuracy": 0.6666666666666666,
+    "brier_score": 0.2913125784207922,
+    "attack_acc": 0.7727272727272727,
+    "fpr": 0.5333333333333333,
+    "k4_path_accuracy": null
+  },
+  "WORLD_MODEL_V1": {
+    "next_stage_top1": 0.8863636363636364,
+    "next_stage_top3": 1.0,
+    "transition_accuracy": 0.16666666666666666,
+    "brier_score": 0.18530730079142987,
+    "attack_acc": 0.9545454545454546,
+    "fpr": 0.0,
+    "k4_path_accuracy": 0.25
+  },
+  "Ablation_A_No_Transition": {
+    "next_stage_top1": 0.9545454545454546,
+    "next_stage_top3": 1.0,
+    "transition_accuracy": 0.6666666666666666,
+    "brier_score": 0.09084203615336113,
+    "attack_acc": 0.9545454545454546,
+    "fpr": 0.0,
+    "k4_path_accuracy": null
+  },
+  "Ablation_B_Direct_Transition": {
+    "next_stage_top1": 0.9772727272727273,
+    "next_stage_top3": 1.0,
+    "transition_accuracy": 0.8333333333333334,
+    "brier_score": 0.04523983140839408,
+    "attack_acc": 0.9545454545454546,
+    "fpr": 0.0,
+    "k4_path_accuracy": 0.25
+  },
+  "Ablation_C_Stage_Conditioned": {
+    "next_stage_top1": 0.9545454545454546,
+    "next_stage_top3": 1.0,
+    "transition_accuracy": 0.6666666666666666,
+    "brier_score": 0.08993281420353973,
+    "attack_acc": 0.9545454545454546,
+    "fpr": 0.0,
+    "k4_path_accuracy": 0.25
+  }
+}

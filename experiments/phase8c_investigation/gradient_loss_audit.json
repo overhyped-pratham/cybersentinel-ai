@@ -1,0 +1,18 @@
+{
+  "L_stage": {
+    "loss_magnitude": 0.0,
+    "gradient_norm": 1.8288131235193466e-12
+  },
+  "L_attack": {
+    "loss_magnitude": 1.3281936617204337e-07,
+    "gradient_norm": 1.802539263892374e-05
+  },
+  "L_transition": {
+    "loss_magnitude": 0.19290003180503845,
+    "gradient_norm": 0.13131437850963326
+  },
+  "L_next_stage": {
+    "loss_magnitude": 0.004038643557578325,
+    "gradient_norm": 0.059131898837351864
+  }
+}

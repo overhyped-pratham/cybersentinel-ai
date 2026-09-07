@@ -1,0 +1,172 @@
+{
+  "WORLD_MODEL_V1": {
+    "K=1": {
+      "class_distribution": {
+        "BENIGN": 17,
+        "RECONNAISSANCE": 17,
+        "CREDENTIAL_ACCESS": 6,
+        "LATERAL_MOVEMENT": 4
+      },
+      "distribution_entropy": 1.2245308166924602,
+      "collapse_detected": false
+    },
+    "K=2": {
+      "class_distribution": {
+        "BENIGN": 17,
+        "RECONNAISSANCE": 17,
+        "EXFILTRATION": 5,
+        "LATERAL_MOVEMENT": 4,
+        "CREDENTIAL_ACCESS": 1
+      },
+      "distribution_entropy": 1.2859709815368654,
+      "collapse_detected": false
+    },
+    "K=3": {
+      "class_distribution": {
+        "BENIGN": 17,
+        "RECONNAISSANCE": 17,
+        "EXFILTRATION": 5,
+        "LATERAL_MOVEMENT": 5
+      },
+      "distribution_entropy": 1.2291070697721624,
+      "collapse_detected": false
+    },
+    "K=4": {
+      "class_distribution": {
+        "BENIGN": 17,
+        "RECONNAISSANCE": 17,
+        "LATERAL_MOVEMENT": 5,
+        "CREDENTIAL_ACCESS": 4,
+        "EXFILTRATION": 1
+      },
+      "distribution_entropy": 1.2859709815368654,
+      "collapse_detected": false
+    },
+    "seq12_path_accuracy": {
+      "true_path": [
+        "BENIGN",
+        "RECONNAISSANCE",
+        "RECONNAISSANCE",
+        "RECONNAISSANCE"
+      ],
+      "pred_path": [
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN"
+      ],
+      "accuracy": 0.25
+    }
+  },
+  "WM_DIRECT": {
+    "K=1": {
+      "class_distribution": {
+        "BENIGN": 16,
+        "RECONNAISSANCE": 16,
+        "CREDENTIAL_ACCESS": 6,
+        "LATERAL_MOVEMENT": 6
+      },
+      "distribution_entropy": 1.279099798859496,
+      "collapse_detected": false
+    },
+    "K=2": {
+      "class_distribution": {
+        "BENIGN": 16,
+        "RECONNAISSANCE": 16,
+        "CREDENTIAL_ACCESS": 6,
+        "LATERAL_MOVEMENT": 6
+      },
+      "distribution_entropy": 1.279099798859496,
+      "collapse_detected": false
+    },
+    "K=3": {
+      "class_distribution": {
+        "LATERAL_MOVEMENT": 22,
+        "RECONNAISSANCE": 16,
+        "CREDENTIAL_ACCESS": 6
+      },
+      "distribution_entropy": 0.9861234897087208,
+      "collapse_detected": false
+    },
+    "K=4": {
+      "class_distribution": {
+        "LATERAL_MOVEMENT": 28,
+        "RECONNAISSANCE": 16
+      },
+      "distribution_entropy": 0.6554817738993928,
+      "collapse_detected": false
+    },
+    "seq12_path_accuracy": {
+      "true_path": [
+        "BENIGN",
+        "RECONNAISSANCE",
+        "RECONNAISSANCE",
+        "RECONNAISSANCE"
+      ],
+      "pred_path": [
+        "BENIGN",
+        "BENIGN",
+        "LATERAL_MOVEMENT",
+        "LATERAL_MOVEMENT"
+      ],
+      "accuracy": 0.25
+    }
+  },
+  "WM_CONDITIONED": {
+    "K=1": {
+      "class_distribution": {
+        "BENIGN": 17,
+        "RECONNAISSANCE": 15,
+        "CREDENTIAL_ACCESS": 6,
+        "LATERAL_MOVEMENT": 6
+      },
+      "distribution_entropy": 1.2776784180909546,
+      "collapse_detected": false
+    },
+    "K=2": {
+      "class_distribution": {
+        "BENIGN": 17,
+        "RECONNAISSANCE": 15,
+        "CREDENTIAL_ACCESS": 6,
+        "LATERAL_MOVEMENT": 6
+      },
+      "distribution_entropy": 1.2776784180909546,
+      "collapse_detected": false
+    },
+    "K=3": {
+      "class_distribution": {
+        "BENIGN": 17,
+        "RECONNAISSANCE": 15,
+        "CREDENTIAL_ACCESS": 6,
+        "LATERAL_MOVEMENT": 6
+      },
+      "distribution_entropy": 1.2776784180909546,
+      "collapse_detected": false
+    },
+    "K=4": {
+      "class_distribution": {
+        "BENIGN": 17,
+        "RECONNAISSANCE": 15,
+        "CREDENTIAL_ACCESS": 6,
+        "LATERAL_MOVEMENT": 6
+      },
+      "distribution_entropy": 1.2776784180909546,
+      "collapse_detected": false
+    },
+    "seq12_path_accuracy": {
+      "true_path": [
+        "BENIGN",
+        "RECONNAISSANCE",
+        "RECONNAISSANCE",
+        "RECONNAISSANCE"
+      ],
+      "pred_path": [
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN"
+      ],
+      "accuracy": 0.25
+    }
+  }
+}
