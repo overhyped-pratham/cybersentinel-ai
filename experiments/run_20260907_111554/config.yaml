@@ -1,0 +1,94 @@
+date: '2026-09-07T11:16:04.096368'
+features:
+- flow_count
+- total_packets
+- total_bytes
+- pkt_rate
+- byte_rate
+- unique_src_ips
+- unique_dst_ips
+- unique_dst_ports
+- syn_count
+- rst_count
+- fin_count
+- syn_ratio
+- rst_ratio
+- dst_ip_entropy
+- dst_port_entropy
+- failed_flow_count
+- failed_flow_ratio
+- tcp_flag_diversity
+- port_445_share
+- port_3389_share
+- port_22_share
+- port_80_443_share
+- mean_flow_duration
+- bytes_per_packet
+gru_config:
+  batch_size: 16
+  dropout: 0.1
+  epochs: 35
+  hidden_dim: 64
+  input_dim: 24
+  learning_rate: 0.002
+  num_classes: 10
+  num_layers: 2
+  patience: 8
+  random_seed: 42
+  weight_decay: 0.0001
+logistic_config:
+  C: 1.0
+  class_weight: balanced
+  max_iter: 1000
+  random_state: 42
+  solver: lbfgs
+run_id: run_20260907_111554
+sequence_length: 8
+splits:
+  test_scenarios:
+  - trace_benign_02
+  - trace_benign_05
+  - trace_bruteforce_01
+  - trace_exfil_01
+  - trace_recon_03
+  train_scenarios:
+  - trace_benign_01
+  - trace_benign_04
+  - trace_benign_06
+  - trace_benign_alpha
+  - trace_benign_beta
+  - trace_bruteforce_02
+  - trace_bruteforce_03
+  - trace_bruteforce_delta
+  - trace_exfil_zeta
+  - trace_lateral_01
+  - trace_lateral_02
+  - trace_lateral_03
+  - trace_lateral_04
+  - trace_lateral_epsilon
+  - trace_multistage_02
+  - trace_multistage_03
+  - trace_multistage_04
+  - trace_multistage_iota
+  - trace_multistage_theta
+  - trace_recon_01
+  - trace_recon_02
+  - trace_recon_gamma
+  val_scenarios:
+  - trace_benign_03
+  - trace_bruteforce_04
+  - trace_exfil_02
+  - trace_multistage_01
+  - trace_recon_04
+taxonomy:
+- BENIGN
+- RECONNAISSANCE
+- INITIAL_ACCESS
+- EXECUTION
+- CREDENTIAL_ACCESS
+- DISCOVERY
+- LATERAL_MOVEMENT
+- COMMAND_AND_CONTROL
+- EXFILTRATION
+- UNKNOWN
+window_size_seconds: 30.0

@@ -187,14 +187,36 @@ def generate_sample_dataset(output_dir: Path) -> List[Path]:
     generated_files = []
 
     scenarios = [
-        ("trace_benign_alpha", "benign", 100),
-        ("trace_benign_beta", "benign", 101),
-        ("trace_recon_gamma", "reconnaissance", 102),
-        ("trace_bruteforce_delta", "credential_access", 103),
-        ("trace_lateral_epsilon", "lateral_movement", 104),
-        ("trace_exfil_zeta", "exfiltration", 105),
-        ("trace_multistage_theta", "multi_stage", 106),
-        ("trace_multistage_iota", "multi_stage", 107),
+        # Benign baseline traces (6)
+        ("trace_benign_01", "benign", 101),
+        ("trace_benign_02", "benign", 102),
+        ("trace_benign_03", "benign", 103),
+        ("trace_benign_04", "benign", 104),
+        ("trace_benign_05", "benign", 105),
+        ("trace_benign_06", "benign", 106),
+        # Reconnaissance sweeps (4)
+        ("trace_recon_01", "reconnaissance", 201),
+        ("trace_recon_02", "reconnaissance", 202),
+        ("trace_recon_03", "reconnaissance", 203),
+        ("trace_recon_04", "reconnaissance", 204),
+        # Credential Access brute-force (4)
+        ("trace_bruteforce_01", "credential_access", 301),
+        ("trace_bruteforce_02", "credential_access", 302),
+        ("trace_bruteforce_03", "credential_access", 303),
+        ("trace_bruteforce_04", "credential_access", 304),
+        # Lateral Movement SMB / RDP (4)
+        ("trace_lateral_01", "lateral_movement", 401),
+        ("trace_lateral_02", "lateral_movement", 402),
+        ("trace_lateral_03", "lateral_movement", 403),
+        ("trace_lateral_04", "lateral_movement", 404),
+        # Exfiltration outbound bursts (2)
+        ("trace_exfil_01", "exfiltration", 501),
+        ("trace_exfil_02", "exfiltration", 502),
+        # Complex multi-stage kill chains (4)
+        ("trace_multistage_01", "multi_stage", 601),
+        ("trace_multistage_02", "multi_stage", 602),
+        ("trace_multistage_03", "multi_stage", 603),
+        ("trace_multistage_04", "multi_stage", 604),
     ]
 
     for sc_id, sc_type, seed in scenarios:

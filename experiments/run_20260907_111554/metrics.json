@@ -1,0 +1,177 @@
+{
+  "run_id": "run_20260907_111554",
+  "dataset_summary": {
+    "total_windows": 384,
+    "train_sequences": 242,
+    "val_sequences": 55,
+    "test_sequences": 55
+  },
+  "logistic_regression": {
+    "attack_detection": {
+      "accuracy": 1.0,
+      "precision_macro": 1.0,
+      "precision_weighted": 1.0,
+      "recall_macro": 1.0,
+      "recall_weighted": 1.0,
+      "f1_macro": 1.0,
+      "f1_weighted": 1.0,
+      "fpr": 0.0,
+      "roc_auc": 1.0,
+      "pr_auc": 0.9999999999999998,
+      "confusion_matrix": [
+        [
+          22,
+          0
+        ],
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    "current_stage": {
+      "accuracy": 1.0,
+      "precision_macro": 1.0,
+      "precision_weighted": 1.0,
+      "recall_macro": 1.0,
+      "recall_weighted": 1.0,
+      "f1_macro": 1.0,
+      "f1_weighted": 1.0,
+      "fpr": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "confusion_matrix": [
+        [
+          22,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          11,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          11,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          11
+        ]
+      ]
+    },
+    "next_stage_forecasting": {
+      "next_stage_accuracy": 1.0,
+      "top_3_accuracy": 1.0,
+      "brier_score": 0.011367599754946184,
+      "accuracy": 1.0,
+      "precision_macro": 1.0,
+      "precision_weighted": 1.0,
+      "recall_macro": 1.0,
+      "recall_weighted": 1.0,
+      "f1_macro": 1.0,
+      "f1_weighted": 1.0,
+      "fpr": 0.0,
+      "roc_auc": null,
+      "pr_auc": null,
+      "confusion_matrix": [
+        [
+          22,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          11,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          11,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          11
+        ]
+      ]
+    }
+  },
+  "temporal_gru": {
+    "attack_detection": {
+      "accuracy": 0.8181818181818182,
+      "precision_macro": 0.8837209302325582,
+      "precision_weighted": 0.8604651162790697,
+      "recall_macro": 0.7727272727272727,
+      "recall_weighted": 0.8181818181818182,
+      "f1_macro": 0.7871517027863777,
+      "f1_weighted": 0.803405572755418,
+      "fpr": 0.45454545454545453,
+      "roc_auc": 0.9256198347107438,
+      "pr_auc": 0.9449836235282595,
+      "confusion_matrix": [
+        [
+          12,
+          10
+        ],
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    "next_stage_forecasting": {
+      "next_stage_accuracy": 0.7090909090909091,
+      "top_3_accuracy": 0.8909090909090909,
+      "brier_score": 0.3176906285614937,
+      "accuracy": 0.7090909090909091,
+      "precision_macro": 0.8002392344497608,
+      "precision_weighted": 0.785645933014354,
+      "recall_macro": 0.7045454545454545,
+      "recall_weighted": 0.7090909090909091,
+      "f1_macro": 0.7207070707070706,
+      "f1_weighted": 0.7220202020202021,
+      "fpr": 0.10227272727272727,
+      "roc_auc": null,
+      "pr_auc": null,
+      "confusion_matrix": [
+        [
+          16,
+          6,
+          0,
+          0
+        ],
+        [
+          2,
+          9,
+          0,
+          0
+        ],
+        [
+          2,
+          2,
+          7,
+          0
+        ],
+        [
+          2,
+          2,
+          0,
+          7
+        ]
+      ]
+    }
+  }
+}
