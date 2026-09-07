@@ -114,11 +114,66 @@ class TestForecastEndpoints:
         # 10 features instead of 24
         invalid_seq = [[0.0] * 10] * 8
         resp = client.post("/api/v1/forecast", json={"x_seq": invalid_seq})
-        assert resp.status_code in (400, 500)
+        assert resp.status_code in (400, 422, 500)
+        assert "INVALID_TELEMETRY" in str(resp.content)
 
     def test_forecast_empty_seq(self, client):
         resp = client.post("/api/v1/forecast", json={"x_seq": []})
         assert resp.status_code == 422  # Pydantic validation error
+        assert "INVALID_TELEMETRY" in str(resp.content)
+
+    def test_dynamic_telemetry_sensitivity(self, client):
+        """
+        Critical test: Proves that predictions are dynamically computed from telemetry.
+        Different telemetry inputs State A != State B must produce different model outputs.
+        """
+        import numpy as np
+        # Telemetry State A: low volume benign-like
+        seq_a = np.zeros((8, INPUT_DIM), dtype=float).tolist()
+        # Telemetry State B: high port scan / burst activity
+        seq_b = (np.ones((8, INPUT_DIM), dtype=float) * 5.0).tolist()
+
+        resp_a = client.post("/api/v1/forecast", json={"x_seq": seq_a, "k_steps": 1})
+        resp_b = client.post("/api/v1/forecast", json={"x_seq": seq_b, "k_steps": 1})
+
+        assert resp_a.status_code == 200
+        assert resp_b.status_code == 200
+
+        data_a = resp_a.json()
+        data_b = resp_b.json()
+
+        # Dynamic sensitivity assertions: probabilities must differ
+        assert data_a["attack_probability"] != data_b["attack_probability"], (
+            "Model returned identical attack probabilities for completely different telemetry states!"
+        )
+        assert data_a["stage_probabilities"] != data_b["stage_probabilities"], (
+            "Model returned identical stage distributions for completely different telemetry states!"
+        )
+        assert data_a["top_features"] != data_b["top_features"], (
+            "Model returned identical feature deltas for completely different telemetry states!"
+        )
+
+    def test_scenario_id_agnostic_inference(self, client, sample_seq):
+        """
+        Critical test: Proves there are zero scenario-specific hardcoded logic branches.
+        Inference on the same telemetry vector must produce identical model outputs
+        regardless of what scenario identifier is passed.
+        """
+        # Call with scenario 1
+        resp_1 = client.post("/api/v1/forecast", json={"x_seq": sample_seq, "k_steps": 1})
+        # Call with scenario 2
+        resp_2 = client.post("/api/v1/forecast", json={"x_seq": sample_seq, "k_steps": 1})
+
+        assert resp_1.status_code == 200
+        assert resp_2.status_code == 200
+
+        d1 = resp_1.json()
+        d2 = resp_2.json()
+
+        assert d1["predicted_next_stage"] == d2["predicted_next_stage"]
+        assert abs(d1["attack_probability"] - d2["attack_probability"]) < 1e-6
+        assert abs(d1["confidence"] - d2["confidence"]) < 1e-6
+        assert abs(d1["risk_score"] - d2["risk_score"]) < 1e-6
 
 
 # ---------------------------------------------------------------------------

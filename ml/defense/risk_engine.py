@@ -150,6 +150,30 @@ class RiskEngineConfig:
     threshold_high: float = 50.0
     threshold_medium: float = 30.0
 
+    @classmethod
+    def from_yaml(cls, config_path: Optional[str | Path] = None) -> "RiskEngineConfig":
+        """Load configuration dynamically from YAML file."""
+        import yaml
+        from pathlib import Path
+        path = Path(config_path) if config_path else Path(__file__).resolve().parent.parent.parent / "configs" / "default_config.yaml"
+        if not path.exists():
+            return cls()
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                raw = yaml.safe_load(f) or {}
+            re_cfg = raw.get("risk_engine", {})
+            w = re_cfg.get("weights", {})
+            sev = re_cfg.get("stage_severity_scores", {})
+            return cls(
+                weight_attack=w.get("attack_probability", 0.40),
+                weight_severity=w.get("stage_severity", 0.35),
+                weight_forecast_confidence=w.get("confidence_weight", 0.15),
+                weight_urgency=w.get("forecast_probability", 0.10),
+                severity_scores=sev if sev else dict(DEFAULT_SEVERITY),
+            )
+        except Exception:
+            return cls()
+
 
 @dataclass
 class RiskAssessment:
@@ -197,7 +221,7 @@ class RiskEngine:
     """
 
     def __init__(self, config: Optional[RiskEngineConfig] = None) -> None:
-        self.config = config or RiskEngineConfig()
+        self.config = config if config is not None else RiskEngineConfig.from_yaml()
 
     def evaluate(self, event: ForecastEvent, horizon_steps: int = 1) -> RiskAssessment:
         """

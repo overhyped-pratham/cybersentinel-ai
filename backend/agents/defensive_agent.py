@@ -103,6 +103,12 @@ def _template_answer(route: str, fc: Dict[str, Any], query: str) -> str:
     GUARANTEE: Every statement in the output is traceable to a specific fc field.
     No hallucinated probabilities, stage names, or technique IDs.
     """
+    if route != "metrics" and (not fc or "current_stage" not in fc):
+        return (
+            "No active telemetry or model forecast is currently available. "
+            "Please run inference on a network trace or advance replay mode to observe real-time predictions."
+        )
+
     cur = fc.get("current_stage", "UNKNOWN")
     nxt = fc.get("predicted_next_stage", "UNKNOWN")
     conf = fc.get("confidence", 0.0)
@@ -118,6 +124,7 @@ def _template_answer(route: str, fc: Dict[str, Any], query: str) -> str:
     narrative = fc.get("explanation_narrative", "")
     rollout = fc.get("rollout_steps", [])
     feats = fc.get("top_features", []) or fc.get("stage_relevant_features", [])
+    cal_temp = float(fc.get("calibrated_temperature") or fc.get("temperature", 1.5680))
 
     if route == "current_state":
         out = (
@@ -134,7 +141,7 @@ def _template_answer(route: str, fc: Dict[str, Any], query: str) -> str:
     elif route == "forecast":
         out = (
             f"CyberWorldModelV2 forecasts **{nxt}** as the most likely next stage "
-            f"(confidence {conf:.1%}, calibrated temperature T=1.568). "
+            f"(confidence {conf:.1%}, calibrated temperature T={cal_temp:.4f}). "
         )
         if trans:
             out += f"A genuine stage transition from {cur} to {nxt} is predicted. "

@@ -88,7 +88,7 @@ def model_info(request: Request):
 def forecast(body: ForecastRequest, request: Request):
     svc = _get_svc(request)
     if not svc.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+        raise HTTPException(status_code=503, detail="MODEL_UNAVAILABLE")
     try:
         fc = svc.forecast(
             x_seq=body.x_seq,
@@ -106,7 +106,7 @@ def rollout(body: ForecastRequest, request: Request):
     """Return only the K-step rollout portion of the forecast."""
     svc = _get_svc(request)
     if not svc.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+        raise HTTPException(status_code=503, detail="MODEL_UNAVAILABLE")
     try:
         fc = svc.forecast(x_seq=body.x_seq, mask_list=body.mask, k_steps=body.k_steps)
         return JSONResponse(content={
@@ -125,7 +125,7 @@ def explain(body: ForecastRequest, request: Request):
     """Return explainability output for the given sequence."""
     svc = _get_svc(request)
     if not svc.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+        raise HTTPException(status_code=503, detail="MODEL_UNAVAILABLE")
     try:
         fc = svc.forecast(x_seq=body.x_seq, mask_list=body.mask, k_steps=1)
         return JSONResponse(content={
@@ -145,7 +145,7 @@ def mitre(body: ForecastRequest, request: Request):
     """Return MITRE ATT&CK mapping for predicted next stage."""
     svc = _get_svc(request)
     if not svc.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+        raise HTTPException(status_code=503, detail="MODEL_UNAVAILABLE")
     try:
         fc = svc.forecast(x_seq=body.x_seq, mask_list=body.mask, k_steps=1)
         return JSONResponse(content={
@@ -164,7 +164,7 @@ def risk(body: ForecastRequest, request: Request):
     """Return risk assessment for the given sequence."""
     svc = _get_svc(request)
     if not svc.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+        raise HTTPException(status_code=503, detail="MODEL_UNAVAILABLE")
     try:
         fc = svc.forecast(x_seq=body.x_seq, mask_list=body.mask, k_steps=1)
         return JSONResponse(content={
@@ -229,7 +229,7 @@ def replay_step(session_id: str, request: Request):
     svc = _get_replay(request)
     model_svc = _get_svc(request)
     if not model_svc.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+        raise HTTPException(status_code=503, detail="MODEL_UNAVAILABLE")
     try:
         result = svc.step(session_id)
         # Remove internal tensor fields before serialization

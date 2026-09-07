@@ -103,6 +103,7 @@ class CyberSentinelForecast(BaseModel):
 
     # Uncertainty
     uncertainty_entropy: float = Field(ge=0.0, le=1.0)
+    calibrated_temperature: Optional[float] = None
 
     # Full stage probability distribution
     stage_probabilities: Dict[str, float] = Field(default_factory=dict)
@@ -157,13 +158,13 @@ class ForecastRequest(BaseModel):
     @classmethod
     def validate_x_seq(cls, v):
         if len(v) == 0:
-            raise ValueError("x_seq must not be empty")
+            raise ValueError("INVALID_TELEMETRY: x_seq must not be empty")
         d = len(v[0])
-        if d == 0:
-            raise ValueError("Feature vectors must not be empty")
+        if d != 24:
+            raise ValueError(f"INVALID_TELEMETRY: Feature vector dimension must be 24, got {d}")
         for row in v:
             if len(row) != d:
-                raise ValueError("All feature vectors must have the same length")
+                raise ValueError("INVALID_TELEMETRY: All feature vectors must have the same length")
         return v
 
 

@@ -329,6 +329,7 @@ class ModelService:
                 "transition_detected": transition,
                 "transition_confidence": round(confidence if transition else 0.0, 4),
                 "uncertainty_entropy": round(norm_ent, 4),
+                "calibrated_temperature": round(float(self.temperature), 4),
                 "stage_probabilities": sp,
                 "rollout_steps": rollout_steps,
                 "top_features": explanation["top_k_changed_features"][:5],
