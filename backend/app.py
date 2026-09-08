@@ -54,6 +54,7 @@ async def lifespan(app: FastAPI):
     app.state.replay_service = ReplayService()
     app.state.live_ingest_service = LiveIngestService()
     app.state.agent = CyberSentinelDefensiveAgent()
+    app.state.agent._ensure_ollama_checked()
 
     if app.state.model_service.is_loaded:
         logger.info("✓ CyberWorldModelV2 loaded (T=%.4f)", app.state.model_service.temperature)

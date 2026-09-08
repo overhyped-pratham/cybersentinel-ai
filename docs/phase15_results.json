@@ -1,0 +1,1705 @@
+[
+  {
+    "name": "GET /api/v1/health returns 200",
+    "passed": true,
+    "detail": "status_code=200",
+    "observed": {
+      "status": "ok",
+      "model_loaded": true,
+      "calibration_loaded": true,
+      "dataset_available": true,
+      "ollama_available": false,
+      "timestamp": "2026-09-08T17:03:05.489745+00:00"
+    },
+    "elapsed_ms": 38.69040000063251
+  },
+  {
+    "name": "health.status is present",
+    "passed": true,
+    "detail": "keys=['status', 'model_loaded', 'calibration_loaded', 'dataset_available', 'ollama_available', 'timestamp']",
+    "observed": {
+      "status": "ok",
+      "model_loaded": true,
+      "calibration_loaded": true,
+      "dataset_available": true,
+      "ollama_available": false,
+      "timestamp": "2026-09-08T17:03:05.489745+00:00"
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "health.model_loaded is true",
+    "passed": true,
+    "detail": "model_loaded=True",
+    "observed": {
+      "status": "ok",
+      "model_loaded": true,
+      "calibration_loaded": true,
+      "dataset_available": true,
+      "ollama_available": false,
+      "timestamp": "2026-09-08T17:03:05.489745+00:00"
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "health.calibration_loaded is true",
+    "passed": true,
+    "detail": "calibration_loaded=True",
+    "observed": {
+      "status": "ok",
+      "model_loaded": true,
+      "calibration_loaded": true,
+      "dataset_available": true,
+      "ollama_available": false,
+      "timestamp": "2026-09-08T17:03:05.489745+00:00"
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "health.timestamp is present",
+    "passed": true,
+    "detail": "timestamp=2026-09-08T17:03:05.489745+00:00",
+    "observed": {
+      "status": "ok",
+      "model_loaded": true,
+      "calibration_loaded": true,
+      "dataset_available": true,
+      "ollama_available": false,
+      "timestamp": "2026-09-08T17:03:05.489745+00:00"
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "GET /api/v1/model/info returns 200",
+    "passed": true,
+    "detail": "status_code=200",
+    "observed": {
+      "model_version": "CyberWorldModelV2",
+      "model_class": "CyberWorldModelV2",
+      "input_dim": 24,
+      "hidden_dim": 128,
+      "num_stages": 10,
+      "num_heads": 4,
+      "num_layers": 2,
+      "temperature": 1.5680352262105373,
+      "is_calibrated": true,
+      "checkpoint_path": "D:\\uec sih\\models\\world_model_v2.pt",
+      "benchmark": {
+        "WorldModelV2_DirectTransition": {
+          "next_stage_top1": 0.9773,
+          "next_stage_top3": 1.0,
+          "true_transition_accuracy": 0.8333,
+          "brier_score_uncalibrated": 0.0452,
+          "attack_fpr": 0.0,
+          "k4_path_accuracy": 0.25,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "TemporalGRU_Baseline": {
+          "next_stage_top1": 0.8182,
+          "next_stage_top3": 0.9773,
+          "true_transition_accuracy": 0.6667,
+          "brier_score_uncalibrated": 0.2913,
+          "attack_fpr": 0.5333,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "LogisticRegression_Baseline": {
+          "next_stage_top1": 0.5,
+          "next_stage_top3": 0.7273,
+          "true_transition_accuracy": 0.0,
+          "brier_score_uncalibrated": 0.7206,
+          "attack_fpr": 0.0,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        }
+      }
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "model_info.temperature is ~1.5680",
+    "passed": true,
+    "detail": "T=1.5680352262105373",
+    "observed": {
+      "model_version": "CyberWorldModelV2",
+      "model_class": "CyberWorldModelV2",
+      "input_dim": 24,
+      "hidden_dim": 128,
+      "num_stages": 10,
+      "num_heads": 4,
+      "num_layers": 2,
+      "temperature": 1.5680352262105373,
+      "is_calibrated": true,
+      "checkpoint_path": "D:\\uec sih\\models\\world_model_v2.pt",
+      "benchmark": {
+        "WorldModelV2_DirectTransition": {
+          "next_stage_top1": 0.9773,
+          "next_stage_top3": 1.0,
+          "true_transition_accuracy": 0.8333,
+          "brier_score_uncalibrated": 0.0452,
+          "attack_fpr": 0.0,
+          "k4_path_accuracy": 0.25,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "TemporalGRU_Baseline": {
+          "next_stage_top1": 0.8182,
+          "next_stage_top3": 0.9773,
+          "true_transition_accuracy": 0.6667,
+          "brier_score_uncalibrated": 0.2913,
+          "attack_fpr": 0.5333,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "LogisticRegression_Baseline": {
+          "next_stage_top1": 0.5,
+          "next_stage_top3": 0.7273,
+          "true_transition_accuracy": 0.0,
+          "brier_score_uncalibrated": 0.7206,
+          "attack_fpr": 0.0,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        }
+      }
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "model_info.num_stages >= 6",
+    "passed": true,
+    "detail": "stages=10",
+    "observed": {
+      "model_version": "CyberWorldModelV2",
+      "model_class": "CyberWorldModelV2",
+      "input_dim": 24,
+      "hidden_dim": 128,
+      "num_stages": 10,
+      "num_heads": 4,
+      "num_layers": 2,
+      "temperature": 1.5680352262105373,
+      "is_calibrated": true,
+      "checkpoint_path": "D:\\uec sih\\models\\world_model_v2.pt",
+      "benchmark": {
+        "WorldModelV2_DirectTransition": {
+          "next_stage_top1": 0.9773,
+          "next_stage_top3": 1.0,
+          "true_transition_accuracy": 0.8333,
+          "brier_score_uncalibrated": 0.0452,
+          "attack_fpr": 0.0,
+          "k4_path_accuracy": 0.25,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "TemporalGRU_Baseline": {
+          "next_stage_top1": 0.8182,
+          "next_stage_top3": 0.9773,
+          "true_transition_accuracy": 0.6667,
+          "brier_score_uncalibrated": 0.2913,
+          "attack_fpr": 0.5333,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "LogisticRegression_Baseline": {
+          "next_stage_top1": 0.5,
+          "next_stage_top3": 0.7273,
+          "true_transition_accuracy": 0.0,
+          "brier_score_uncalibrated": 0.7206,
+          "attack_fpr": 0.0,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        }
+      }
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "model_info.input_dim is 24",
+    "passed": true,
+    "detail": "input_dim=24",
+    "observed": {
+      "model_version": "CyberWorldModelV2",
+      "model_class": "CyberWorldModelV2",
+      "input_dim": 24,
+      "hidden_dim": 128,
+      "num_stages": 10,
+      "num_heads": 4,
+      "num_layers": 2,
+      "temperature": 1.5680352262105373,
+      "is_calibrated": true,
+      "checkpoint_path": "D:\\uec sih\\models\\world_model_v2.pt",
+      "benchmark": {
+        "WorldModelV2_DirectTransition": {
+          "next_stage_top1": 0.9773,
+          "next_stage_top3": 1.0,
+          "true_transition_accuracy": 0.8333,
+          "brier_score_uncalibrated": 0.0452,
+          "attack_fpr": 0.0,
+          "k4_path_accuracy": 0.25,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "TemporalGRU_Baseline": {
+          "next_stage_top1": 0.8182,
+          "next_stage_top3": 0.9773,
+          "true_transition_accuracy": 0.6667,
+          "brier_score_uncalibrated": 0.2913,
+          "attack_fpr": 0.5333,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "LogisticRegression_Baseline": {
+          "next_stage_top1": 0.5,
+          "next_stage_top3": 0.7273,
+          "true_transition_accuracy": 0.0,
+          "brier_score_uncalibrated": 0.7206,
+          "attack_fpr": 0.0,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        }
+      }
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "model_info.hidden_dim >= 64",
+    "passed": true,
+    "detail": "hidden_dim=128",
+    "observed": {
+      "model_version": "CyberWorldModelV2",
+      "model_class": "CyberWorldModelV2",
+      "input_dim": 24,
+      "hidden_dim": 128,
+      "num_stages": 10,
+      "num_heads": 4,
+      "num_layers": 2,
+      "temperature": 1.5680352262105373,
+      "is_calibrated": true,
+      "checkpoint_path": "D:\\uec sih\\models\\world_model_v2.pt",
+      "benchmark": {
+        "WorldModelV2_DirectTransition": {
+          "next_stage_top1": 0.9773,
+          "next_stage_top3": 1.0,
+          "true_transition_accuracy": 0.8333,
+          "brier_score_uncalibrated": 0.0452,
+          "attack_fpr": 0.0,
+          "k4_path_accuracy": 0.25,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "TemporalGRU_Baseline": {
+          "next_stage_top1": 0.8182,
+          "next_stage_top3": 0.9773,
+          "true_transition_accuracy": 0.6667,
+          "brier_score_uncalibrated": 0.2913,
+          "attack_fpr": 0.5333,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "LogisticRegression_Baseline": {
+          "next_stage_top1": 0.5,
+          "next_stage_top3": 0.7273,
+          "true_transition_accuracy": 0.0,
+          "brier_score_uncalibrated": 0.7206,
+          "attack_fpr": 0.0,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        }
+      }
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "model_info.benchmark is present",
+    "passed": true,
+    "detail": "models=['WorldModelV2_DirectTransition', 'TemporalGRU_Baseline', 'LogisticRegression_Baseline']",
+    "observed": {
+      "model_version": "CyberWorldModelV2",
+      "model_class": "CyberWorldModelV2",
+      "input_dim": 24,
+      "hidden_dim": 128,
+      "num_stages": 10,
+      "num_heads": 4,
+      "num_layers": 2,
+      "temperature": 1.5680352262105373,
+      "is_calibrated": true,
+      "checkpoint_path": "D:\\uec sih\\models\\world_model_v2.pt",
+      "benchmark": {
+        "WorldModelV2_DirectTransition": {
+          "next_stage_top1": 0.9773,
+          "next_stage_top3": 1.0,
+          "true_transition_accuracy": 0.8333,
+          "brier_score_uncalibrated": 0.0452,
+          "attack_fpr": 0.0,
+          "k4_path_accuracy": 0.25,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "TemporalGRU_Baseline": {
+          "next_stage_top1": 0.8182,
+          "next_stage_top3": 0.9773,
+          "true_transition_accuracy": 0.6667,
+          "brier_score_uncalibrated": 0.2913,
+          "attack_fpr": 0.5333,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        },
+        "LogisticRegression_Baseline": {
+          "next_stage_top1": 0.5,
+          "next_stage_top3": 0.7273,
+          "true_transition_accuracy": 0.0,
+          "brier_score_uncalibrated": 0.7206,
+          "attack_fpr": 0.0,
+          "test_split": "hard_multistage_holdout",
+          "test_n": 44,
+          "genuine_transitions": 6,
+          "source": "experiments/phase8c_investigation/phase8c_summary.json"
+        }
+      }
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /forecast (seq_A) returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {
+      "timestamp": "2026-09-08T17:03:05.501302+00:00",
+      "model_version": "CyberWorldModelV2",
+      "forecast_horizon": 30,
+      "current_stage": "BENIGN",
+      "attack_probability": 0.9989,
+      "predicted_next_stage": "RECONNAISSANCE",
+      "next_stage_probability": 0.3324,
+      "confidence": 0.3324,
+      "transition_detected": true,
+      "transition_confidence": 0.3324,
+      "uncertainty_entropy": 0.7042,
+      "calibrated_temperature": 1.568,
+      "stage_probabilities": {
+        "BENIGN": 0.0521,
+        "RECONNAISSANCE": 0.3324,
+        "INITIAL_ACCESS": 0.0276,
+        "EXECUTION": 0.0038,
+        "CREDENTIAL_ACCESS": 0.2601,
+        "DISCOVERY": 0.0306,
+        "LATERAL_MOVEMENT": 0.2519,
+        "COMMAND_AND_CONTROL": 0.0113,
+        "EXFILTRATION": 0.0128,
+        "UNKNOWN": 0.0175
+      },
+      "rollout_steps": [
+        {
+          "step": 1,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.4987,
+          "uncertainty": 0.6332,
+          "attack_probability": 0.9988
+        },
+        {
+          "step": 2,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.4531,
+          "uncertainty": 0.6128,
+          "attack_probability": 0.9917
+        },
+        {
+          "step": 3,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.3497,
+          "uncertainty": 0.6569,
+          "attack_probability": 0.9155
+        },
+        {
+          "step": 4,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.3867,
+          "uncertainty": 0.6359,
+          "attack_probability": 0.9186
+        }
+      ],
+      "top_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 0.7442,
+          "predicted": 6.2581,
+          "abs_change": 5.5138,
+          "rel_change_pct": 740.87,
+          "direction": "increase"
+        },
+        {
+          "feature": "byte_rate",
+          "current": -0.2043,
+          "predicted": 3.8098,
+          "abs_change": 4.0142,
+          "rel_change_pct": 1964.55,
+          "direction": "increase"
+        },
+        {
+          "feature": "total_bytes",
+          "current": 0.1489,
+          "predicted": 3.4479,
+          "abs_change": 3.299,
+          "rel_change_pct": 2215.75,
+          "direction": "increase"
+        },
+        {
+          "feature": "syn_ratio",
+          "current": -0.7197,
+          "predicted": 1.395,
+          "abs_change": 2.1147,
+          "rel_change_pct": 293.84,
+          "direction": "increase"
+        },
+        {
+          "feature": "unique_src_ips",
+          "current": 1.0191,
+          "predicted": -0.5821,
+          "abs_change": 1.6012,
+          "rel_change_pct": -157.11,
+          "direction": "decrease"
+        }
+      ],
+      "stage_relevant_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 0.7442,
+          "predicted": 6.2581,
+          "abs_change": 5.5138,
+          "rel_change_pct": 740.87,
+          "direction": "increase"
+        },
+        {
+          "feature": "syn_ratio",
+          "current": -0.7197,
+          "predicted": 1.395,
+          "abs_change": 2.1147,
+          "rel_change_pct": 293.84,
+          "direction": "increase"
+        },
+        {
+          "feature": "syn_count",
+          "current": 1.0414,
+          "predicted": -0.344,
+          "abs_change": 1.3854,
+          "rel_change_pct": -133.03,
+          "direction": "decrease"
+        },
+        {
+          "feature": "dst_ip_entropy",
+          "current": 0.9416,
+          "predicted": 0.0374,
+          "abs_change": 0.9043,
+          "rel_change_pct": -96.03,
+          "direction": "decrease"
+        },
+        {
+          "feature": "dst_port_entropy",
+          "current": -0.9452,
+          "predicted": -0.2493,
+          "abs_change": 0.6959,
+          "rel_change_pct": 73.62,
+          "direction": "increase"
+        }
+      ],
+      "explanation_narrative": "Stage transition predicted: BENIGN \u2192 RECONNAISSANCE. Key indicators for RECONNAISSANCE:   \u2022 unique_dst_ports: 0.744 \u2192 6.258 (+740.9% increase)   \u2022 syn_ratio: -0.720 \u2192 1.395 (+293.8% increase)   \u2022 syn_count: 1.041 \u2192 -0.344 (-133.0% decrease)",
+      "mitre_techniques": [
+        {
+          "technique_id": "T1595",
+          "name": "Active Scanning",
+          "tactic": "Reconnaissance",
+          "rationale": "SYN flooding, port entropy spikes, and high unique-destination-port counts are characteristic of active network scanning (nmap, masscan).",
+          "sub_techniques": [
+            "T1595.001",
+            "T1595.002"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1046",
+          "name": "Network Service Discovery",
+          "tactic": "Discovery",
+          "rationale": "High unique_dst_ports, elevated syn_ratio, and broad dst_ip_entropy indicate active service enumeration of discovered hosts.",
+          "sub_techniques": [],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1590",
+          "name": "Gather Victim Network Information",
+          "tactic": "Reconnaissance",
+          "rationale": "Network scanning often precedes enumeration of network topology, live hosts, and exposed services.",
+          "sub_techniques": [
+            "T1590.004"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        }
+      ],
+      "primary_technique_id": "T1595",
+      "primary_technique_name": "Active Scanning",
+      "risk_score": 67.03,
+      "risk_level": "HIGH",
+      "recommended_priority": "URGENT \u2014 activate monitoring, prepare containment actions",
+      "time_to_transition_hint": "Transition BENIGN \u2192 RECONNAISSANCE predicted within the next 30s window.",
+      "safety_flags": {
+        "nan_detected": false,
+        "collapse_detected": false,
+        "feature_dim_valid": true
+      },
+      "provenance": {
+        "prediction": "CyberWorldModelV2",
+        "explanation": "physical_state_delta",
+        "mitre": "MITRE_ATT&CK_v14_static_mapping",
+        "risk": "RiskEngine_deterministic",
+        "narrative": "CyberSentinel_defensive_agent"
+      }
+    },
+    "elapsed_ms": 16.601799999989453
+  },
+  {
+    "name": "POST /forecast (seq_B) returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {
+      "timestamp": "2026-09-08T17:03:05.517746+00:00",
+      "model_version": "CyberWorldModelV2",
+      "forecast_horizon": 30,
+      "current_stage": "LATERAL_MOVEMENT",
+      "attack_probability": 0.9973,
+      "predicted_next_stage": "RECONNAISSANCE",
+      "next_stage_probability": 0.7653,
+      "confidence": 0.7653,
+      "transition_detected": true,
+      "transition_confidence": 0.7653,
+      "uncertainty_entropy": 0.3586,
+      "calibrated_temperature": 1.568,
+      "stage_probabilities": {
+        "BENIGN": 0.0187,
+        "RECONNAISSANCE": 0.7653,
+        "INITIAL_ACCESS": 0.0096,
+        "EXECUTION": 0.0016,
+        "CREDENTIAL_ACCESS": 0.1588,
+        "DISCOVERY": 0.009,
+        "LATERAL_MOVEMENT": 0.0252,
+        "COMMAND_AND_CONTROL": 0.0047,
+        "EXFILTRATION": 0.0018,
+        "UNKNOWN": 0.0052
+      },
+      "rollout_steps": [
+        {
+          "step": 1,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.7906,
+          "uncertainty": 0.3306,
+          "attack_probability": 0.9967
+        },
+        {
+          "step": 2,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.5628,
+          "uncertainty": 0.5205,
+          "attack_probability": 0.9815
+        },
+        {
+          "step": 3,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.4314,
+          "uncertainty": 0.6247,
+          "attack_probability": 0.9092
+        },
+        {
+          "step": 4,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.4152,
+          "uncertainty": 0.6302,
+          "attack_probability": 0.9465
+        }
+      ],
+      "top_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 1.3495,
+          "predicted": 6.3304,
+          "abs_change": 4.9809,
+          "rel_change_pct": 369.1,
+          "direction": "increase"
+        },
+        {
+          "feature": "total_bytes",
+          "current": -2.2767,
+          "predicted": 1.2399,
+          "abs_change": 3.5166,
+          "rel_change_pct": 154.46,
+          "direction": "increase"
+        },
+        {
+          "feature": "port_3389_share",
+          "current": 2.1912,
+          "predicted": -0.8101,
+          "abs_change": 3.0013,
+          "rel_change_pct": -136.97,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_ratio",
+          "current": -2.0496,
+          "predicted": 0.5967,
+          "abs_change": 2.6463,
+          "rel_change_pct": 129.11,
+          "direction": "increase"
+        },
+        {
+          "feature": "failed_flow_count",
+          "current": 1.5352,
+          "predicted": -0.625,
+          "abs_change": 2.1602,
+          "rel_change_pct": -140.71,
+          "direction": "decrease"
+        }
+      ],
+      "stage_relevant_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 1.3495,
+          "predicted": 6.3304,
+          "abs_change": 4.9809,
+          "rel_change_pct": 369.1,
+          "direction": "increase"
+        },
+        {
+          "feature": "syn_ratio",
+          "current": -2.0496,
+          "predicted": 0.5967,
+          "abs_change": 2.6463,
+          "rel_change_pct": 129.11,
+          "direction": "increase"
+        },
+        {
+          "feature": "dst_port_entropy",
+          "current": 1.6649,
+          "predicted": -0.3153,
+          "abs_change": 1.9802,
+          "rel_change_pct": -118.94,
+          "direction": "decrease"
+        },
+        {
+          "feature": "dst_ip_entropy",
+          "current": -0.9491,
+          "predicted": 0.1344,
+          "abs_change": 1.0834,
+          "rel_change_pct": 114.16,
+          "direction": "increase"
+        },
+        {
+          "feature": "pkt_rate",
+          "current": 0.0708,
+          "predicted": 0.9118,
+          "abs_change": 0.841,
+          "rel_change_pct": 1188.32,
+          "direction": "increase"
+        }
+      ],
+      "explanation_narrative": "Stage transition predicted: LATERAL_MOVEMENT \u2192 RECONNAISSANCE. Key indicators for RECONNAISSANCE:   \u2022 unique_dst_ports: 1.349 \u2192 6.330 (+369.1% increase)   \u2022 syn_ratio: -2.050 \u2192 0.597 (+129.1% increase)   \u2022 dst_port_entropy: 1.665 \u2192 -0.315 (-118.9% decrease)",
+      "mitre_techniques": [
+        {
+          "technique_id": "T1595",
+          "name": "Active Scanning",
+          "tactic": "Reconnaissance",
+          "rationale": "SYN flooding, port entropy spikes, and high unique-destination-port counts are characteristic of active network scanning (nmap, masscan).",
+          "sub_techniques": [
+            "T1595.001",
+            "T1595.002"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1046",
+          "name": "Network Service Discovery",
+          "tactic": "Discovery",
+          "rationale": "High unique_dst_ports, elevated syn_ratio, and broad dst_ip_entropy indicate active service enumeration of discovered hosts.",
+          "sub_techniques": [],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1590",
+          "name": "Gather Victim Network Information",
+          "tactic": "Reconnaissance",
+          "rationale": "Network scanning often precedes enumeration of network topology, live hosts, and exposed services.",
+          "sub_techniques": [
+            "T1590.004"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        }
+      ],
+      "primary_technique_id": "T1595",
+      "primary_technique_name": "Active Scanning",
+      "risk_score": 71.3,
+      "risk_level": "HIGH",
+      "recommended_priority": "URGENT \u2014 activate monitoring, prepare containment actions",
+      "time_to_transition_hint": "Transition LATERAL_MOVEMENT \u2192 RECONNAISSANCE predicted within the next 30s window.",
+      "safety_flags": {
+        "nan_detected": false,
+        "collapse_detected": false,
+        "feature_dim_valid": true
+      },
+      "provenance": {
+        "prediction": "CyberWorldModelV2",
+        "explanation": "physical_state_delta",
+        "mitre": "MITRE_ATT&CK_v14_static_mapping",
+        "risk": "RiskEngine_deterministic",
+        "narrative": "CyberSentinel_defensive_agent"
+      }
+    },
+    "elapsed_ms": 19.891300000381307
+  },
+  {
+    "name": "forecast_A: all required fields present",
+    "passed": true,
+    "detail": "missing=[]",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_A: attack_probability in [0,1]",
+    "passed": true,
+    "detail": "attack_probability=0.9989",
+    "observed": {
+      "attack_probability": 0.9989
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_A: confidence in [0,1]",
+    "passed": true,
+    "detail": "confidence=0.3324",
+    "observed": {
+      "confidence": 0.3324
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_A: risk_score in [0,100]",
+    "passed": true,
+    "detail": "risk_score=67.03",
+    "observed": {
+      "risk_score": 67.03
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_A: stage_probabilities sum ~1.0",
+    "passed": true,
+    "detail": "sum=1.0001",
+    "observed": {
+      "BENIGN": 0.0521,
+      "RECONNAISSANCE": 0.3324,
+      "INITIAL_ACCESS": 0.0276,
+      "EXECUTION": 0.0038,
+      "CREDENTIAL_ACCESS": 0.2601,
+      "DISCOVERY": 0.0306,
+      "LATERAL_MOVEMENT": 0.2519,
+      "COMMAND_AND_CONTROL": 0.0113,
+      "EXFILTRATION": 0.0128,
+      "UNKNOWN": 0.0175
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_A: rollout_steps has 4 items",
+    "passed": true,
+    "detail": "len=4",
+    "observed": {
+      "rollout_len": 4
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_A: top_features non-empty",
+    "passed": true,
+    "detail": "len=5",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_B: all required fields present",
+    "passed": true,
+    "detail": "missing=[]",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_B: attack_probability in [0,1]",
+    "passed": true,
+    "detail": "attack_probability=0.9973",
+    "observed": {
+      "attack_probability": 0.9973
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_B: confidence in [0,1]",
+    "passed": true,
+    "detail": "confidence=0.7653",
+    "observed": {
+      "confidence": 0.7653
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_B: risk_score in [0,100]",
+    "passed": true,
+    "detail": "risk_score=71.3",
+    "observed": {
+      "risk_score": 71.3
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_B: stage_probabilities sum ~1.0",
+    "passed": true,
+    "detail": "sum=0.9999",
+    "observed": {
+      "BENIGN": 0.0187,
+      "RECONNAISSANCE": 0.7653,
+      "INITIAL_ACCESS": 0.0096,
+      "EXECUTION": 0.0016,
+      "CREDENTIAL_ACCESS": 0.1588,
+      "DISCOVERY": 0.009,
+      "LATERAL_MOVEMENT": 0.0252,
+      "COMMAND_AND_CONTROL": 0.0047,
+      "EXFILTRATION": 0.0018,
+      "UNKNOWN": 0.0052
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_B: rollout_steps has 4 items",
+    "passed": true,
+    "detail": "len=4",
+    "observed": {
+      "rollout_len": 4
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast_B: top_features non-empty",
+    "passed": true,
+    "detail": "len=5",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast: different inputs produce different attack_probability",
+    "passed": true,
+    "detail": "A=0.9989 B=0.9973 diff=0.0016",
+    "observed": {
+      "prob_A": 0.9989,
+      "prob_B": 0.9973
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "forecast: different inputs produce different risk_score",
+    "passed": true,
+    "detail": "A=67.03 B=71.30 diff=4.27",
+    "observed": {
+      "risk_A": 67.03,
+      "risk_B": 71.3
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /rollout returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {
+      "rollout_steps": [
+        {
+          "step": 1,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.7906,
+          "uncertainty": 0.3306,
+          "attack_probability": 0.9967
+        },
+        {
+          "step": 2,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.5628,
+          "uncertainty": 0.5205,
+          "attack_probability": 0.9815
+        },
+        {
+          "step": 3,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.4314,
+          "uncertainty": 0.6247,
+          "attack_probability": 0.9092
+        },
+        {
+          "step": 4,
+          "predicted_stage": "RECONNAISSANCE",
+          "confidence": 0.4152,
+          "uncertainty": 0.6302,
+          "attack_probability": 0.9465
+        }
+      ],
+      "safety_flags": {
+        "nan_detected": false,
+        "collapse_detected": false,
+        "feature_dim_valid": true
+      },
+      "current_stage": "LATERAL_MOVEMENT",
+      "horizon_steps": 4,
+      "provenance": {
+        "prediction": "CyberWorldModelV2",
+        "explanation": "physical_state_delta",
+        "mitre": "MITRE_ATT&CK_v14_static_mapping",
+        "risk": "RiskEngine_deterministic",
+        "narrative": "CyberSentinel_defensive_agent"
+      }
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "rollout: 4 steps returned",
+    "passed": true,
+    "detail": "len=4",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "rollout: step has 'step'",
+    "passed": true,
+    "detail": "keys=['step', 'predicted_stage', 'confidence', 'uncertainty', 'attack_probability']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "rollout: step has 'predicted_stage'",
+    "passed": true,
+    "detail": "keys=['step', 'predicted_stage', 'confidence', 'uncertainty', 'attack_probability']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "rollout: step has 'confidence'",
+    "passed": true,
+    "detail": "keys=['step', 'predicted_stage', 'confidence', 'uncertainty', 'attack_probability']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "rollout: step has 'attack_probability'",
+    "passed": true,
+    "detail": "keys=['step', 'predicted_stage', 'confidence', 'uncertainty', 'attack_probability']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /explain returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {
+      "current_stage": "LATERAL_MOVEMENT",
+      "predicted_next_stage": "RECONNAISSANCE",
+      "top_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 1.3495,
+          "predicted": 6.3304,
+          "abs_change": 4.9809,
+          "rel_change_pct": 369.1,
+          "direction": "increase"
+        },
+        {
+          "feature": "total_bytes",
+          "current": -2.2767,
+          "predicted": 1.2399,
+          "abs_change": 3.5166,
+          "rel_change_pct": 154.46,
+          "direction": "increase"
+        },
+        {
+          "feature": "port_3389_share",
+          "current": 2.1912,
+          "predicted": -0.8101,
+          "abs_change": 3.0013,
+          "rel_change_pct": -136.97,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_ratio",
+          "current": -2.0496,
+          "predicted": 0.5967,
+          "abs_change": 2.6463,
+          "rel_change_pct": 129.11,
+          "direction": "increase"
+        },
+        {
+          "feature": "failed_flow_count",
+          "current": 1.5352,
+          "predicted": -0.625,
+          "abs_change": 2.1602,
+          "rel_change_pct": -140.71,
+          "direction": "decrease"
+        }
+      ],
+      "stage_relevant_features": [
+        {
+          "feature": "unique_dst_ports",
+          "current": 1.3495,
+          "predicted": 6.3304,
+          "abs_change": 4.9809,
+          "rel_change_pct": 369.1,
+          "direction": "increase"
+        },
+        {
+          "feature": "syn_ratio",
+          "current": -2.0496,
+          "predicted": 0.5967,
+          "abs_change": 2.6463,
+          "rel_change_pct": 129.11,
+          "direction": "increase"
+        },
+        {
+          "feature": "dst_port_entropy",
+          "current": 1.6649,
+          "predicted": -0.3153,
+          "abs_change": 1.9802,
+          "rel_change_pct": -118.94,
+          "direction": "decrease"
+        },
+        {
+          "feature": "dst_ip_entropy",
+          "current": -0.9491,
+          "predicted": 0.1344,
+          "abs_change": 1.0834,
+          "rel_change_pct": 114.16,
+          "direction": "increase"
+        },
+        {
+          "feature": "pkt_rate",
+          "current": 0.0708,
+          "predicted": 0.9118,
+          "abs_change": 0.841,
+          "rel_change_pct": 1188.32,
+          "direction": "increase"
+        }
+      ],
+      "explanation_narrative": "Stage transition predicted: LATERAL_MOVEMENT \u2192 RECONNAISSANCE. Key indicators for RECONNAISSANCE:   \u2022 unique_dst_ports: 1.349 \u2192 6.330 (+369.1% increase)   \u2022 syn_ratio: -2.050 \u2192 0.597 (+129.1% increase)   \u2022 dst_port_entropy: 1.665 \u2192 -0.315 (-118.9% decrease)",
+      "provenance": {
+        "prediction": "CyberWorldModelV2",
+        "explanation": "physical_state_delta",
+        "mitre": "MITRE_ATT&CK_v14_static_mapping",
+        "risk": "RiskEngine_deterministic",
+        "narrative": "CyberSentinel_defensive_agent"
+      }
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: 'top_features' present",
+    "passed": true,
+    "detail": "keys=['current_stage', 'predicted_next_stage', 'top_features', 'stage_relevant_features', 'explanation_narrative', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: 'stage_relevant_features' present",
+    "passed": true,
+    "detail": "keys=['current_stage', 'predicted_next_stage', 'top_features', 'stage_relevant_features', 'explanation_narrative', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: 'explanation_narrative' present",
+    "passed": true,
+    "detail": "keys=['current_stage', 'predicted_next_stage', 'top_features', 'stage_relevant_features', 'explanation_narrative', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: 'current_stage' present",
+    "passed": true,
+    "detail": "keys=['current_stage', 'predicted_next_stage', 'top_features', 'stage_relevant_features', 'explanation_narrative', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: 'predicted_next_stage' present",
+    "passed": true,
+    "detail": "keys=['current_stage', 'predicted_next_stage', 'top_features', 'stage_relevant_features', 'explanation_narrative', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: top_features non-empty",
+    "passed": true,
+    "detail": "len=5",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: top_feature has abs_change",
+    "passed": true,
+    "detail": "{'feature': 'unique_dst_ports', 'current': 1.3495, 'predicted': 6.3304, 'abs_change': 4.9809, 'rel_change_pct': 369.1, 'direction': 'increase'}",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: abs_change >= 0",
+    "passed": true,
+    "detail": "val=4.9809",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "explain: different inputs produce different narrative",
+    "passed": true,
+    "detail": "A[:40]='Stage transition predicted: BENIGN \u2192 REC' B[:40]='Stage transition predicted: LATERAL_MOVE'",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /mitre returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {
+      "predicted_next_stage": "RECONNAISSANCE",
+      "primary_technique_id": "T1595",
+      "primary_technique_name": "Active Scanning",
+      "mitre_techniques": [
+        {
+          "technique_id": "T1595",
+          "name": "Active Scanning",
+          "tactic": "Reconnaissance",
+          "rationale": "SYN flooding, port entropy spikes, and high unique-destination-port counts are characteristic of active network scanning (nmap, masscan).",
+          "sub_techniques": [
+            "T1595.001",
+            "T1595.002"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1046",
+          "name": "Network Service Discovery",
+          "tactic": "Discovery",
+          "rationale": "High unique_dst_ports, elevated syn_ratio, and broad dst_ip_entropy indicate active service enumeration of discovered hosts.",
+          "sub_techniques": [],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1590",
+          "name": "Gather Victim Network Information",
+          "tactic": "Reconnaissance",
+          "rationale": "Network scanning often precedes enumeration of network topology, live hosts, and exposed services.",
+          "sub_techniques": [
+            "T1590.004"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        }
+      ],
+      "note": "MITRE ATT&CK Enterprise v14 static mapping \u2014 not LLM-generated."
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "mitre: 'predicted_next_stage' present",
+    "passed": true,
+    "detail": "keys=['predicted_next_stage', 'primary_technique_id', 'primary_technique_name', 'mitre_techniques', 'note']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "mitre: 'primary_technique_id' present",
+    "passed": true,
+    "detail": "keys=['predicted_next_stage', 'primary_technique_id', 'primary_technique_name', 'mitre_techniques', 'note']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "mitre: 'primary_technique_name' present",
+    "passed": true,
+    "detail": "keys=['predicted_next_stage', 'primary_technique_id', 'primary_technique_name', 'mitre_techniques', 'note']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "mitre: 'mitre_techniques' present",
+    "passed": true,
+    "detail": "keys=['predicted_next_stage', 'primary_technique_id', 'primary_technique_name', 'mitre_techniques', 'note']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "mitre: primary_technique_id starts with 'T'",
+    "passed": true,
+    "detail": "tid=T1595",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /risk (seq_A) returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /risk (seq_B) returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "risk_A: 'risk_score' present",
+    "passed": true,
+    "detail": "keys=['risk_score', 'risk_level', 'recommended_priority', 'time_to_transition_hint', 'attack_probability', 'predicted_next_stage', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "risk_A: 'risk_level' present",
+    "passed": true,
+    "detail": "keys=['risk_score', 'risk_level', 'recommended_priority', 'time_to_transition_hint', 'attack_probability', 'predicted_next_stage', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "risk_A: 'recommended_priority' present",
+    "passed": true,
+    "detail": "keys=['risk_score', 'risk_level', 'recommended_priority', 'time_to_transition_hint', 'attack_probability', 'predicted_next_stage', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "risk_A: 'attack_probability' present",
+    "passed": true,
+    "detail": "keys=['risk_score', 'risk_level', 'recommended_priority', 'time_to_transition_hint', 'attack_probability', 'predicted_next_stage', 'provenance']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "risk: different inputs produce different risk_score",
+    "passed": true,
+    "detail": "A=67.03 B=71.30",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "GET /replay/scenarios returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay: >= 1 scenario available",
+    "passed": true,
+    "detail": "count=32",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /replay/start returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {
+      "session_id": "2d193d89",
+      "scenario_id": "trace_benign_01",
+      "total_windows": 11,
+      "stage_sequence": [
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN",
+        "BENIGN"
+      ],
+      "message": "Session ready. Use POST /replay/step with session_id='2d193d89'."
+    },
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay: session_id returned",
+    "passed": true,
+    "detail": "sid=2d193d89",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay/step #1 returns 200 or 204",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay step#1: ap in [0,1]",
+    "passed": true,
+    "detail": "ap=0.0008",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay step#1: risk in [0,100]",
+    "passed": true,
+    "detail": "rs=23.46",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay/step #2 returns 200 or 204",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay step#2: ap in [0,1]",
+    "passed": true,
+    "detail": "ap=0.001",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay step#2: risk in [0,100]",
+    "passed": true,
+    "detail": "rs=23.47",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay/step #3 returns 200 or 204",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay step#3: ap in [0,1]",
+    "passed": true,
+    "detail": "ap=0.0006",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay step#3: risk in [0,100]",
+    "passed": true,
+    "detail": "rs=23.79",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay/step #4 returns 200 or 204",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay step#4: ap in [0,1]",
+    "passed": true,
+    "detail": "ap=0.0007",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "replay step#4: risk in [0,100]",
+    "passed": true,
+    "detail": "rs=23.63",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /stream/start (netflow) returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "stream/start: session_id present",
+    "passed": true,
+    "detail": "sid=86b4d6bf-53d5-4783-bbeb-004338b296f8",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "live_ingest: sent 15 UDP packets for normal_background",
+    "passed": true,
+    "detail": "sent=15",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "live_ingest: sent 15 UDP packets for large_data_transfer",
+    "passed": true,
+    "detail": "sent=15",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "GET /stream/status returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "GET /stream/health returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "stream/health: model_available true",
+    "passed": true,
+    "detail": "{'status': 'healthy', 'mode': 'LIVE', 'telemetry_source': 'none', 'flows_per_second': 0.0, 'current_window_id': None, 'inference_latency_ms': 0.0, 'model_version': 'CyberWorldModelV2-Phase8C', 'model_available': True, 'scaler_available': True, 'websocket_subscribers': 0, 'active_ws_connections': 0, 'max_ws_connections': 50, 'dropped_malformed_count': 0, 'queue_backpressure_status': 'nominal', 'last_inference_timestamp': None, 'uptime_windows_inferred': 0, 'timestamp': '2026-09-08T17:03:08.872721+00:00'}",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "stream/health: scaler_available true",
+    "passed": true,
+    "detail": "{'status': 'healthy', 'mode': 'LIVE', 'telemetry_source': 'none', 'flows_per_second': 0.0, 'current_window_id': None, 'inference_latency_ms': 0.0, 'model_version': 'CyberWorldModelV2-Phase8C', 'model_available': True, 'scaler_available': True, 'websocket_subscribers': 0, 'active_ws_connections': 0, 'max_ws_connections': 50, 'dropped_malformed_count': 0, 'queue_backpressure_status': 'nominal', 'last_inference_timestamp': None, 'uptime_windows_inferred': 0, 'timestamp': '2026-09-08T17:03:08.872721+00:00'}",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /stream/stop returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "feature: FEATURE_NAMES has 24 entries",
+    "passed": true,
+    "detail": "len=24",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "feature: models/scaler.pkl exists",
+    "passed": true,
+    "detail": "models\\scaler.pkl",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "feature: scaler has transform()",
+    "passed": true,
+    "detail": "type=FeatureScaler",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "feature: diff raw -> diff scaled",
+    "passed": true,
+    "detail": "mean_diff=3.7453",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "feature: scaled_normal is finite",
+    "passed": true,
+    "detail": "",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "feature: scaled_anomal is finite",
+    "passed": true,
+    "detail": "",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "websocket: connected without error",
+    "passed": true,
+    "detail": "err=None",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "websocket: received greeting and pong",
+    "passed": true,
+    "detail": "count=2",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "websocket: greeting type is 'connected'",
+    "passed": true,
+    "detail": "type=connected",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "websocket: greeting has timestamp",
+    "passed": true,
+    "detail": "{'type': 'connected', 'timestamp': '2026-09-08T17:03:11.186527+00:00', 'message': 'CyberSentinel AI live stream active'}",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "websocket: pong response type is 'pong'",
+    "passed": true,
+    "detail": "type=pong",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "websocket: pong has timestamp",
+    "passed": true,
+    "detail": "{'type': 'pong', 'timestamp': '2026-09-08T17:03:11.188161+00:00'}",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "k=6 forecast returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "k=6: 6 steps returned",
+    "passed": true,
+    "detail": "len=6",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "rollout: conf[0] >= conf[-1] (uncertainty accumulates)",
+    "passed": true,
+    "detail": "traj=[0.7906, 0.5628, 0.4314, 0.4152, 0.5809, 0.5296]",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "rollout: all ap in [0,1]",
+    "passed": true,
+    "detail": "",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "POST /agent/query returns 200",
+    "passed": true,
+    "detail": "code=200",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "agent: 'answer' present",
+    "passed": true,
+    "detail": "['answer', 'tool_calls', 'provenance', 'llm_backend', 'grounded_in_model_output']",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "agent: answer non-empty",
+    "passed": true,
+    "detail": "",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "agent: grounded_in_model_output present",
+    "passed": true,
+    "detail": "",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "fail_closed: missing x_seq -> 422",
+    "passed": true,
+    "detail": "code=422",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "fail_closed: empty x_seq -> non-200",
+    "passed": true,
+    "detail": "code=422",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "fail_closed: wrong dim (23) -> non-200 or error",
+    "passed": true,
+    "detail": "code=422",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "fail_closed: 10MB+ payload header -> 413",
+    "passed": true,
+    "detail": "code=413",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "fail_closed: unknown session -> 404",
+    "passed": true,
+    "detail": "code=404",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "fail_closed: unknown scenario -> 404/422/500",
+    "passed": true,
+    "detail": "code=404",
+    "observed": {},
+    "elapsed_ms": 0.0
+  },
+  {
+    "name": "fail_closed: rate limiter 429 OR all 200 (no silent drops)",
+    "passed": true,
+    "detail": "got_429=True",
+    "observed": {},
+    "elapsed_ms": 0.0
+  }
+]
