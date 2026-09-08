@@ -60,6 +60,7 @@ class LiveIngestService:
 
     def __init__(self) -> None:
         self._state_builder = NetworkStateBuilder()
+        self._scaler = self._load_scaler()
         self._subscribers: Set[asyncio.Queue] = set()
         self._active_tasks: Dict[str, asyncio.Task] = {}
         self._closed = False
@@ -73,6 +74,34 @@ class LiveIngestService:
             "windows_skipped": 0,
             "broadcast_errors": 0,
         }
+        self._last_health = {
+            "telemetry_source": "none",
+            "flows_per_second": 0.0,
+            "current_window_id": None,
+            "inference_latency_ms": 0.0,
+            "dropped_malformed_count": 0,
+            "backpressure_status": "nominal",
+            "last_inference_timestamp": None,
+            "mode": "LIVE",
+        }
+
+    def _load_scaler(self):
+        try:
+            from ml.preprocessing.scaler import FeatureScaler
+            from pathlib import Path
+            workspace = Path(__file__).resolve().parent.parent.parent
+            paths = [
+                workspace / "models" / "scaler.pkl",
+                workspace / "experiments" / "run_20260907_111554" / "scaler.pkl",
+                workspace / "experiments" / "run_20260907_120029" / "world_model" / "scaler.pkl",
+            ]
+            for p in paths:
+                if p.exists():
+                    logger.info("[LiveIngest] Loaded FeatureScaler from %s", p)
+                    return FeatureScaler.load(p)
+        except Exception as exc:
+            logger.warning("[LiveIngest] Scaler load failed: %s", exc)
+        return None
 
     @property
     def stats(self) -> Dict[str, Any]:
@@ -81,6 +110,31 @@ class LiveIngestService:
     @property
     def event_log(self) -> List[Dict[str, Any]]:
         return list(self._event_log)
+
+    def get_system_health(self) -> Dict[str, Any]:
+        from backend.services.model_service import ModelService
+        from backend.middleware.security import security_manager
+
+        model_svc = ModelService.get_instance()
+        return {
+            "status": "healthy" if (model_svc.is_loaded and self._scaler is not None) else "degraded",
+            "mode": self._last_health.get("mode", "LIVE"),
+            "telemetry_source": self._last_health.get("telemetry_source", "none"),
+            "flows_per_second": self._last_health.get("flows_per_second", 0.0),
+            "current_window_id": self._last_health.get("current_window_id"),
+            "inference_latency_ms": self._last_health.get("inference_latency_ms", 0.0),
+            "model_version": _MODEL_VERSION,
+            "model_available": model_svc.is_loaded,
+            "scaler_available": self._scaler is not None,
+            "websocket_subscribers": len(self._subscribers),
+            "active_ws_connections": security_manager.active_ws_count,
+            "max_ws_connections": security_manager.max_ws_connections,
+            "dropped_malformed_count": self._last_health.get("dropped_malformed_count", 0),
+            "queue_backpressure_status": self._last_health.get("backpressure_status", "nominal"),
+            "last_inference_timestamp": self._last_health.get("last_inference_timestamp"),
+            "uptime_windows_inferred": self._stats["windows_inferred"],
+            "timestamp": _utcnow(),
+        }
 
     def subscribe(self) -> asyncio.Queue:
         """Register a new subscriber queue.  Returns the queue to read events from."""
@@ -118,6 +172,7 @@ class LiveIngestService:
         window_seconds: float = 30.0,
         stride_seconds: Optional[float] = None,
         k_steps: int = 4,
+        mode: str = "LIVE",
     ) -> str:
         """
         Start a live ingestion session from the given TelemetrySource.
@@ -130,6 +185,7 @@ class LiveIngestService:
         session_id = session_id or str(uuid.uuid4())
         self._seq_buffers[session_id] = deque(maxlen=_MAX_SEQ_LEN)
         self._stats["sessions_started"] += 1
+        self._last_health["mode"] = mode
 
         processor = StreamProcessor(
             source,
@@ -246,13 +302,20 @@ class LiveIngestService:
             self._stats["windows_skipped"] += 1
             return
 
-        # ---- 4. Extract raw feature vector from last state row -------------
+        # ---- 4. Extract raw feature vector and scale ------------------------
         try:
             raw_row = df_state[FEATURE_NAMES].iloc[-1].to_numpy(dtype=np.float32)
             if not np.all(np.isfinite(raw_row)):
                 logger.warning("[LiveIngest] Non-finite features in window %s, replacing with 0",
                                window.window_id)
                 raw_row = np.nan_to_num(raw_row, nan=0.0, posinf=0.0, neginf=0.0)
+
+            if self._scaler is not None:
+                import pandas as pd
+                df_single = pd.DataFrame([raw_row], columns=FEATURE_NAMES)
+                scaled_row = self._scaler.transform(df_single)[0]
+            else:
+                scaled_row = raw_row
         except Exception as exc:
             logger.error("[LiveIngest] Feature extraction error: %s", exc)
             await self._broadcast({
@@ -269,7 +332,7 @@ class LiveIngestService:
         if seq_buf is None:
             seq_buf = deque(maxlen=_MAX_SEQ_LEN)
             self._seq_buffers[session_id] = seq_buf
-        seq_buf.append(raw_row)
+        seq_buf.append(scaled_row)
 
         if len(seq_buf) < _MIN_SEQ_LEN:
             logger.info(
@@ -312,8 +375,18 @@ class LiveIngestService:
 
         t_elapsed_ms = (time.perf_counter() - t0) * 1000
 
+        self._last_health.update({
+            "telemetry_source": window.source_id,
+            "flows_per_second": round(window.flows_per_second, 2),
+            "current_window_id": window.window_id,
+            "inference_latency_ms": round(t_elapsed_ms, 2),
+            "dropped_malformed_count": window.dropped_malformed,
+            "last_inference_timestamp": _utcnow(),
+            "backpressure_status": "warning" if self._stats["broadcast_errors"] > 0 else "nominal",
+        })
+
         # ---- 8. Compose telemetry-enriched event ---------------------------
-        event = _build_live_event(fc, window, session_id, t_elapsed_ms)
+        event = _build_live_event(fc, window, session_id, t_elapsed_ms, mode=self._last_health.get("mode", "LIVE"))
 
         # ---- 9. Structured observability log --------------------------------
         logger.info(
@@ -344,6 +417,7 @@ def _build_live_event(
     window: TelemetryWindowEvent,
     session_id: str,
     latency_ms: float,
+    mode: str = "LIVE",
 ) -> Dict[str, Any]:
     """
     Merge the ML ForecastEvent with live telemetry metadata.
@@ -357,6 +431,7 @@ def _build_live_event(
 
     return {
         "status": "FORECAST",
+        "mode": mode,
         "event_id": str(uuid.uuid4()),
         "window_id": window.window_id,
         "session_id": session_id,

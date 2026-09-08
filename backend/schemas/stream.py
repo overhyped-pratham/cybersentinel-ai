@@ -18,6 +18,7 @@ class StartSessionRequest(BaseModel):
     k_steps: int = Field(4, ge=1, le=10, description="K-step rollout depth")
     session_id: Optional[str] = Field(None, description="Optional custom session ID")
     realtime_factor: float = Field(0.0, ge=0.0, description="Replay speed: 0=fast, 1=wall-clock")
+    mode: Optional[str] = Field("LIVE", description="'LIVE' or 'DEMO'")
 
 
 class StopSessionRequest(BaseModel):
@@ -26,6 +27,7 @@ class StopSessionRequest(BaseModel):
 
 class StreamEvent(BaseModel):
     status: str
+    mode: Optional[str] = "LIVE"
     event_id: Optional[str] = None
     window_id: Optional[str] = None
     session_id: Optional[str] = None

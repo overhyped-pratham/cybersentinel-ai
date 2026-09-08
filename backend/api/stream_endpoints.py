@@ -111,10 +111,12 @@ async def start_session(body: StartSessionRequest, request: Request):
             window_seconds=body.window_seconds,
             stride_seconds=body.stride_seconds,
             k_steps=body.k_steps,
+            mode=body.mode or "LIVE",
         )
         return JSONResponse(content={
             "status": "started",
             "session_id": session_id,
+            "mode": body.mode or "LIVE",
             "source_kind": body.source_kind,
             "window_seconds": body.window_seconds,
             "stride_seconds": body.stride_seconds or body.window_seconds,
@@ -150,6 +152,13 @@ async def stream_status(request: Request):
     })
 
 
+@stream_router.get("/health")
+async def stream_health(request: Request):
+    """Return comprehensive system health and observability metrics."""
+    svc = _get_live_svc(request)
+    return JSONResponse(content=svc.get_system_health())
+
+
 @stream_router.get("/history")
 async def stream_history(request: Request, limit: int = 50):
     """Return the last N forecast events from the bounded event log."""
@@ -182,6 +191,15 @@ async def websocket_stream(websocket: WebSocket, request: Request = None):
     live_svc = getattr(websocket.app.state, "live_ingest_service", None)
     if live_svc is None:
         await websocket.close(code=1011, reason="LIVE_INGEST_SERVICE_UNAVAILABLE")
+        return
+
+    from backend.middleware.security import security_manager
+
+    # Enforce connection limits
+    if not security_manager.acquire_ws_slot():
+        logger.warning("[WS] Connection limit reached (%d max) — rejecting client %s",
+                       security_manager.max_ws_connections, websocket.client)
+        await websocket.close(code=1013, reason="MAX_CONNECTIONS_REACHED")
         return
 
     await websocket.accept()
@@ -270,6 +288,8 @@ async def websocket_stream(websocket: WebSocket, request: Request = None):
     except Exception as exc:
         logger.error("[WS] Error: %s", exc, exc_info=True)
     finally:
+        from backend.middleware.security import security_manager
+        security_manager.release_ws_slot()
         live_svc.unsubscribe(q)
         try:
             await websocket.close()

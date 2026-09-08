@@ -225,6 +225,7 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
     <div class="logo-icon">🛡</div>
     <span>CyberSentinel AI</span>
     <span style="color:var(--muted);font-weight:400;font-size:12px">Command Center</span>
+    <span id="systemModeBadge" class="badge badge-observed" style="margin-left:14px;font-size:11px">LIVE STREAMING MODE</span>
   </div>
   <div class="header-status">
     <div id="hModelDot" class="status-dot"></div>
@@ -350,6 +351,7 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
     <button class="tab" onclick="showTab('tabExplain',this)">🔍 Explainability</button>
     <button class="tab" onclick="showTab('tabBenchmark',this)">📊 Benchmark</button>
     <button class="tab" onclick="showTab('tabState24',this)">🌐 24-D State</button>
+    <button class="tab" onclick="showTab('tabHealth',this)">🏥 System Health</button>
   </div>
 
   <!-- Tab: Timeline -->
@@ -462,6 +464,51 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
         </thead>
         <tbody id="state24TableBody">
           <tr><td colspan="4" class="empty-state">No state data yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tab: System Health & Observability (Phase 14) -->
+  <div id="tabHealth" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">🏥</span>Production System Health &amp; Observability
+        <span id="healthOverallBadge" class="badge badge-observed" style="margin-left:auto">HEALTHY</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">
+        Real-time telemetry and service metrics from <code>/api/v1/stream/health</code>. All telemetry and inference values derived dynamically at runtime.
+      </div>
+      <div class="metric-row" style="margin-bottom:12px">
+        <div class="metric-box">
+          <div id="obsThroughput" class="metric-big" style="font-size:18px;color:var(--accent)">—</div>
+          <div class="metric-label">Flows / Second</div>
+        </div>
+        <div class="metric-box">
+          <div id="obsLatency" class="metric-big" style="font-size:18px;color:var(--green)">—</div>
+          <div class="metric-label">Inference Latency</div>
+        </div>
+        <div class="metric-box">
+          <div id="obsWsCount" class="metric-big" style="font-size:18px">—</div>
+          <div class="metric-label">Active Sockets</div>
+        </div>
+        <div class="metric-box">
+          <div id="obsBackpressure" class="metric-big" style="font-size:18px;color:var(--green)">—</div>
+          <div class="metric-label">Queue Backpressure</div>
+        </div>
+      </div>
+      <table class="bench-table">
+        <thead>
+          <tr><th>System Metric</th><th>Current Value</th><th>Operational Status</th></tr>
+        </thead>
+        <tbody id="healthTableBody">
+          <tr><td>Operational Mode</td><td id="hModeVal" class="text-mono">—</td><td><span class="badge badge-observed">ACTIVE</span></td></tr>
+          <tr><td>Telemetry Source</td><td id="hSourceVal" class="text-mono">—</td><td><span class="badge badge-low">NOMINAL</span></td></tr>
+          <tr><td>Current Window UUID</td><td id="hWindowVal" class="text-mono">—</td><td><span class="badge badge-low">SEALED</span></td></tr>
+          <tr><td>CyberWorldModelV2 Availability</td><td id="hModelVal" class="text-mono">—</td><td id="hModelBadge"><span class="badge badge-low">ONLINE</span></td></tr>
+          <tr><td>FeatureScaler Availability</td><td id="hScalerVal" class="text-mono">—</td><td id="hScalerBadge"><span class="badge badge-low">ONLINE</span></td></tr>
+          <tr><td>Dropped / Malformed Flows</td><td id="hDroppedVal" class="text-mono">0</td><td id="hDroppedBadge"><span class="badge badge-low">0 DROPPED</span></td></tr>
+          <tr><td>Total Windows Inferred</td><td id="hTotalInferredVal" class="text-mono">0</td><td><span class="badge badge-observed">CUMULATIVE</span></td></tr>
+          <tr><td>Last Inference Timestamp</td><td id="hLastInferenceVal" class="text-mono">—</td><td><span class="badge badge-low">UTC</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -598,6 +645,11 @@ async function startReplay() {
   document.getElementById('timelineRows').innerHTML='<div class="empty-state loading">Starting session…</div>';
 
   try {
+    const mb = document.getElementById('systemModeBadge');
+    if (mb) {
+      mb.textContent = '▶ REPLAY / DEMO MODE';
+      mb.className = 'badge badge-simulated';
+    }
     const resp = await api('/replay/start','POST',{scenario_id:scenario,k_steps:4});
     state.sessionId = resp.session_id;
     state.currentWindow = 0;
@@ -793,6 +845,11 @@ async function startLiveStream() {
     };
     const resp = await api('/stream/start', 'POST', payload);
     state.liveSessionId = resp.session_id;
+    const mb = document.getElementById('systemModeBadge');
+    if (mb) {
+      mb.textContent = '🔴 LIVE STREAMING MODE';
+      mb.className = 'badge badge-observed';
+    }
     showAlert(`Live ingest session started: ${resp.session_id.slice(0,8)} (${kind})`, 'info');
     document.getElementById('liveStreamInfo').textContent = `Session: ${resp.session_id.slice(0,8)} (${kind})`;
   } catch(e) {
@@ -1032,11 +1089,43 @@ function md(text) {
     .replace(/\n/g,'<br>');
 }
 
+async function pollSystemHealth() {
+  try {
+    const h = await api('/stream/health');
+    if (!h) return;
+    if (document.getElementById('obsThroughput')) document.getElementById('obsThroughput').textContent = (h.flows_per_second||0).toFixed(1);
+    if (document.getElementById('obsLatency')) document.getElementById('obsLatency').textContent = (h.inference_latency_ms||0).toFixed(1) + ' ms';
+    if (document.getElementById('obsWsCount')) document.getElementById('obsWsCount').textContent = `${h.websocket_subscribers||0} / ${h.max_ws_connections||50}`;
+    if (document.getElementById('obsBackpressure')) {
+      const bp = h.queue_backpressure_status || 'nominal';
+      document.getElementById('obsBackpressure').textContent = bp.toUpperCase();
+      document.getElementById('obsBackpressure').style.color = bp === 'nominal' ? 'var(--green)' : 'var(--yellow)';
+    }
+
+    if (document.getElementById('hModeVal')) document.getElementById('hModeVal').textContent = h.mode || 'LIVE';
+    if (document.getElementById('hSourceVal')) document.getElementById('hSourceVal').textContent = h.telemetry_source || 'none';
+    if (document.getElementById('hWindowVal')) document.getElementById('hWindowVal').textContent = h.current_window_id ? h.current_window_id.slice(0, 8) : '—';
+    if (document.getElementById('hModelVal')) document.getElementById('hModelVal').textContent = h.model_available ? `${h.model_version} (ONLINE)` : 'OFFLINE';
+    if (document.getElementById('hScalerVal')) document.getElementById('hScalerVal').textContent = h.scaler_available ? 'RobustScaler (ONLINE)' : 'OFFLINE';
+    if (document.getElementById('hDroppedVal')) document.getElementById('hDroppedVal').textContent = h.dropped_malformed_count || 0;
+    if (document.getElementById('hTotalInferredVal')) document.getElementById('hTotalInferredVal').textContent = h.uptime_windows_inferred || 0;
+    if (document.getElementById('hLastInferenceVal')) document.getElementById('hLastInferenceVal').textContent = h.last_inference_timestamp || '—';
+
+    if (document.getElementById('healthOverallBadge')) {
+      const isOk = h.status === 'healthy';
+      document.getElementById('healthOverallBadge').className = 'badge ' + (isOk ? 'badge-observed' : 'badge-critical');
+      document.getElementById('healthOverallBadge').textContent = isOk ? 'HEALTHY' : 'DEGRADED';
+    }
+  } catch(e) {}
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────
 (async()=>{
   await checkHealth();
   await loadScenarios();
+  await pollSystemHealth();
   setInterval(checkHealth, 30000);
+  setInterval(pollSystemHealth, 5000);
 })();
 </script>
 </body>

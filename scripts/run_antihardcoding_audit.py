@@ -38,8 +38,8 @@ for pattern, desc in patterns:
                         pass
     findings[pattern] = {"desc": desc, "hits": hits}
     status = "CLEAN" if not hits else f"{len(hits)} HIT(S)"
-    print(f"[{status}] {pattern!r} — {desc}")
+    print(f"[{status}] {pattern!r} -- {desc}")
     for h in hits:
         print(f"  -> {h}")
 
-print("\nDONE — Anti-hardcoding audit complete.")
+print("\nDONE -- Anti-hardcoding audit complete.")

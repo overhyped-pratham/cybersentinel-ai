@@ -68,7 +68,7 @@ cybersentinel-ai/
 ├── datasets/           # Multi-scenario flow traces (multistage attack traces)
 ├── docs/               # Architecture, audit reports, benchmarks, validation docs
 ├── scripts/            # Inference benchmarks, training pipelines, start launcher
-└── tests/              # Test suite (197/197 passing: causality, live ingest, WS, equivalence)
+└── tests/              # Test suite (229/229 passing: causality, live ingest, WS, equivalence, Phase 14)
 ```
 
 ---
@@ -96,12 +96,23 @@ python scripts/start_server.py
   - `POST /api/v1/stream/start`: Start live ingestion session.
   - `POST /api/v1/stream/stop`: Stop active session.
   - `GET /api/v1/stream/status`: Active session statistics and queue depth.
+  - `GET /api/v1/stream/health`: System health, mode, scaler/model availability, WebSocket slot usage.
+
+### Multi-Host Traffic Validation (Phase 14)
+Transmit controlled traffic patterns from an authorized secondary device:
+```powershell
+# From secondary laptop (192.168.1.105):
+python scripts/multi_host_traffic_generator.py \
+    --target-host 192.168.1.100 --target-port 9995 \
+    --pattern large_data_transfer --windows 5
+```
+Available patterns: `normal_background`, `connection_burst`, `repeated_attempts`, `port_diversity`, `large_data_transfer`.
 
 ---
 
 ## 6. Verification & Benchmarking
 
-Run the complete 197-test automated suite:
+Run the complete 229-test automated suite:
 ```powershell
 pytest tests/ -v
 ```
@@ -121,16 +132,22 @@ python scripts/benchmark_phase13.py --runs 100
 
 ---
 
-## 7. Security Boundaries & Fail-Closed Behavior
+## 7. Security Boundaries, Hardening & Fail-Closed Behavior
 
 - **Strictly Defensive**: Operates exclusively as a passive observer, forecaster, and explainer. Does not inject packets, perform port scans, or execute offensive actions.
 - **Zero Hardcoded Intelligence**: No stage transitions, risk scores, probabilities, or feature importances are hardcoded or scenario-dependent. All intelligence is computed at runtime from observed telemetry.
 - **Fail-Closed Design**: If required model checkpoints, scalers, or valid telemetry are unavailable, the system explicitly returns error states (`MODEL_UNAVAILABLE`, `INVALID_TELEMETRY`) and refuses to emit mock or static predictions.
+- **Rate Limiting**: Sliding-window limiter (120 requests/minute per client IP), configurable via `CYBERSENTINEL_RATE_LIMIT`.
+- **WebSocket Connection Limiter**: Maximum 50 concurrent live streaming subscribers, configurable via `CYBERSENTINEL_MAX_WS_CONNECTIONS`.
+- **API Key Authentication**: Optional `X-API-Key` header enforcement via `CYBERSENTINEL_API_KEY` environment variable.
+- **Payload Bounding**: Requests bearing `Content-Length > 10 MB` are rejected with HTTP 413.
+- **Safe Response Headers**: All HTTP responses include `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection: 1; mode=block`.
+- **Subscriber Backpressure**: Full subscriber queues drop events with warning log rather than blocking the ingestion thread.
 
 ---
 
 ## 8. Limitations
 
-- **Window Granularity**: High-frequency attacks occurring entirely within $< 1$ second are aggregated into the containing 30-second window.
+- **Window Granularity**: High-frequency attacks occurring entirely within < 1 second are aggregated into the containing 30-second window.
 - **Zero Lookahead Constraint**: The model cannot predict unprecedented external zero-day vectors that do not perturb network traffic patterns.
 - **Replay vs. Live**: CSV replay serves as an evaluation and testing adapter only; production deployments require live NetFlow or PCAP streams.

@@ -30,6 +30,7 @@ from backend.services.model_service import ModelService
 from backend.services.replay_service import ReplayService
 from backend.services.live_ingest_service import LiveIngestService
 from backend.agents.defensive_agent import CyberSentinelDefensiveAgent
+from backend.middleware.security import SecurityMiddleware
 
 logging.basicConfig(
     level=logging.INFO,
@@ -103,6 +104,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityMiddleware)
 
 # Mount dashboard as static files at /ui
 _DASHBOARD = _ROOT / "dashboard"

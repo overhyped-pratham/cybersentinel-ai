@@ -54,8 +54,10 @@ def _clean_fc(fc: Dict[str, Any]) -> Dict[str, Any]:
 def health(request: Request):
     svc = _get_svc(request)
     agent = _get_agent(request)
-    from backend.agents.defensive_agent import _check_ollama_available
-    ollama_ok, _ = _check_ollama_available()
+    ollama_ok = False
+    if agent is not None:
+        agent._ensure_ollama_checked()
+        ollama_ok = bool(agent._ollama_available)
 
     from pathlib import Path
     dataset_ok = (Path(__file__).resolve().parent.parent.parent / "datasets" / "sample").exists()

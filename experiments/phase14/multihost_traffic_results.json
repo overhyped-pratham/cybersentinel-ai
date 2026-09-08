@@ -1,0 +1,567 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-08T15:27:34.617801+00:00",
+    "source_host": "192.168.1.105",
+    "monitored_host": "192.168.1.100",
+    "model_version": "CyberWorldModelV2",
+    "device": "cpu",
+    "test_environment": "Isolated LAN Multi-Host Emulation"
+  },
+  "experiments": {
+    "normal_background": {
+      "pattern": "normal_background",
+      "source_ip": "192.168.1.105",
+      "target_ip": "192.168.1.100",
+      "window_count": 5,
+      "total_flows_last_window": 26,
+      "total_packets_last_window": 342,
+      "total_bytes_last_window": 105155,
+      "physical_state_24d": {
+        "flow_count": 26.0,
+        "total_packets": 342.0,
+        "total_bytes": 105155.0,
+        "pkt_rate": 11.4,
+        "byte_rate": 3505.1666666666665,
+        "unique_src_ips": 1.0,
+        "unique_dst_ips": 2.0,
+        "unique_dst_ports": 4.0,
+        "syn_count": 18.0,
+        "rst_count": 0.0,
+        "fin_count": 15.0,
+        "syn_ratio": 0.6923076923076923,
+        "rst_ratio": 0.0,
+        "dst_ip_entropy": 0.8904916402194913,
+        "dst_port_entropy": 1.8702932210074805,
+        "failed_flow_count": 0.0,
+        "failed_flow_ratio": 0.0,
+        "tcp_flag_diversity": 2.329228777587122,
+        "port_445_share": 0.0,
+        "port_3389_share": 0.0,
+        "port_22_share": 0.0,
+        "port_80_443_share": 0.6923076923076923,
+        "mean_flow_duration": 1.5201340446950289,
+        "bytes_per_packet": 307.47076023391816
+      },
+      "model_forecast": {
+        "current_stage": "EXFILTRATION",
+        "predicted_next_stage": "EXFILTRATION",
+        "attack_probability": 0.9989,
+        "confidence": 0.9681,
+        "transition_detected": false,
+        "transition_probability": 0.0,
+        "risk_score": 99.64,
+        "risk_level": "CRITICAL",
+        "recommended_priority": "IMMEDIATE \u2014 isolate affected hosts, escalate to incident response",
+        "rollout_k4_stages": [
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "CREDENTIAL_ACCESS"
+        ]
+      },
+      "top_feature_deltas": [
+        {
+          "feature": "total_bytes",
+          "current": 105155.0,
+          "predicted": 29.6495,
+          "abs_change": 105125.3505,
+          "rel_change_pct": -99.97,
+          "direction": "decrease"
+        },
+        {
+          "feature": "byte_rate",
+          "current": 3505.1667,
+          "predicted": 28.7496,
+          "abs_change": 3476.4172,
+          "rel_change_pct": -99.18,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_packets",
+          "current": 342.0,
+          "predicted": 10.5749,
+          "abs_change": 331.4251,
+          "rel_change_pct": -96.91,
+          "direction": "decrease"
+        },
+        {
+          "feature": "bytes_per_packet",
+          "current": 307.4708,
+          "predicted": 1.9651,
+          "abs_change": 305.5057,
+          "rel_change_pct": -99.36,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        {
+          "technique_id": "T1048",
+          "name": "Exfiltration Over Alternative Protocol",
+          "tactic": "Exfiltration",
+          "rationale": "Large total_bytes and high byte_rate with unusual destination ports indicate data exfiltration over non-standard protocols.",
+          "sub_techniques": [
+            "T1048.003"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1041",
+          "name": "Exfiltration Over C2 Channel",
+          "tactic": "Exfiltration",
+          "rationale": "Data may be exfiltrated over established C2 channels (high bytes_per_packet, sustained byte_rate).",
+          "sub_techniques": [],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        }
+      ],
+      "agent_response": {
+        "answer": "Risk score: **100/100** \u2192 **CRITICAL**. IMMEDIATE \u2014 isolate affected hosts, escalate to incident response. Stage EXFILTRATION continuation predicted for the next 30s window.",
+        "backend": "template_fallback",
+        "grounded": true
+      }
+    },
+    "connection_burst": {
+      "pattern": "connection_burst",
+      "source_ip": "192.168.1.105",
+      "target_ip": "192.168.1.100",
+      "window_count": 5,
+      "total_flows_last_window": 183,
+      "total_packets_last_window": 737,
+      "total_bytes_last_window": 44220,
+      "physical_state_24d": {
+        "flow_count": 183.0,
+        "total_packets": 737.0,
+        "total_bytes": 44220.0,
+        "pkt_rate": 24.566666666666666,
+        "byte_rate": 1474.0,
+        "unique_src_ips": 1.0,
+        "unique_dst_ips": 1.0,
+        "unique_dst_ports": 3.0,
+        "syn_count": 183.0,
+        "rst_count": 0.0,
+        "fin_count": 0.0,
+        "syn_ratio": 1.0,
+        "rst_ratio": 0.0,
+        "dst_ip_entropy": 0.0,
+        "dst_port_entropy": 1.584833255924297,
+        "failed_flow_count": 0.0,
+        "failed_flow_ratio": 0.0,
+        "tcp_flag_diversity": 0.0,
+        "port_445_share": 0.0,
+        "port_3389_share": 0.0,
+        "port_22_share": 0.0,
+        "port_80_443_share": 1.0,
+        "mean_flow_duration": 0.10422136228723258,
+        "bytes_per_packet": 60.0
+      },
+      "model_forecast": {
+        "current_stage": "EXFILTRATION",
+        "predicted_next_stage": "EXFILTRATION",
+        "attack_probability": 0.9989,
+        "confidence": 0.9682,
+        "transition_detected": false,
+        "transition_probability": 0.0,
+        "risk_score": 99.64,
+        "risk_level": "CRITICAL",
+        "recommended_priority": "IMMEDIATE \u2014 isolate affected hosts, escalate to incident response",
+        "rollout_k4_stages": [
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "CREDENTIAL_ACCESS"
+        ]
+      },
+      "top_feature_deltas": [
+        {
+          "feature": "total_bytes",
+          "current": 44220.0,
+          "predicted": 29.6942,
+          "abs_change": 44190.3058,
+          "rel_change_pct": -99.93,
+          "direction": "decrease"
+        },
+        {
+          "feature": "byte_rate",
+          "current": 1474.0,
+          "predicted": 28.772,
+          "abs_change": 1445.228,
+          "rel_change_pct": -98.05,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_packets",
+          "current": 737.0,
+          "predicted": 10.5935,
+          "abs_change": 726.4065,
+          "rel_change_pct": -98.56,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_count",
+          "current": 183.0,
+          "predicted": -1.2604,
+          "abs_change": 184.2604,
+          "rel_change_pct": -100.69,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        {
+          "technique_id": "T1048",
+          "name": "Exfiltration Over Alternative Protocol",
+          "tactic": "Exfiltration",
+          "rationale": "Large total_bytes and high byte_rate with unusual destination ports indicate data exfiltration over non-standard protocols.",
+          "sub_techniques": [
+            "T1048.003"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1041",
+          "name": "Exfiltration Over C2 Channel",
+          "tactic": "Exfiltration",
+          "rationale": "Data may be exfiltrated over established C2 channels (high bytes_per_packet, sustained byte_rate).",
+          "sub_techniques": [],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        }
+      ],
+      "agent_response": {
+        "answer": "Risk score: **100/100** \u2192 **CRITICAL**. IMMEDIATE \u2014 isolate affected hosts, escalate to incident response. Stage EXFILTRATION continuation predicted for the next 30s window.",
+        "backend": "template_fallback",
+        "grounded": true
+      }
+    },
+    "repeated_attempts": {
+      "pattern": "repeated_attempts",
+      "source_ip": "192.168.1.105",
+      "target_ip": "192.168.1.100",
+      "window_count": 5,
+      "total_flows_last_window": 83,
+      "total_packets_last_window": 481,
+      "total_bytes_last_window": 38480,
+      "physical_state_24d": {
+        "flow_count": 83.0,
+        "total_packets": 481.0,
+        "total_bytes": 38480.0,
+        "pkt_rate": 16.033333333333335,
+        "byte_rate": 1282.6666666666667,
+        "unique_src_ips": 1.0,
+        "unique_dst_ips": 1.0,
+        "unique_dst_ports": 3.0,
+        "syn_count": 83.0,
+        "rst_count": 83.0,
+        "fin_count": 0.0,
+        "syn_ratio": 1.0,
+        "rst_ratio": 1.0,
+        "dst_ip_entropy": 0.0,
+        "dst_port_entropy": 1.5834873910098055,
+        "failed_flow_count": 83.0,
+        "failed_flow_ratio": 1.0,
+        "tcp_flag_diversity": 0.0,
+        "port_445_share": 0.3493975903614458,
+        "port_3389_share": 0.3132530120481928,
+        "port_22_share": 0.3373493975903614,
+        "port_80_443_share": 0.0,
+        "mean_flow_duration": 0.4159130568775748,
+        "bytes_per_packet": 80.0
+      },
+      "model_forecast": {
+        "current_stage": "EXFILTRATION",
+        "predicted_next_stage": "EXFILTRATION",
+        "attack_probability": 0.9989,
+        "confidence": 0.9681,
+        "transition_detected": false,
+        "transition_probability": 0.0,
+        "risk_score": 99.64,
+        "risk_level": "CRITICAL",
+        "recommended_priority": "IMMEDIATE \u2014 isolate affected hosts, escalate to incident response",
+        "rollout_k4_stages": [
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "CREDENTIAL_ACCESS"
+        ]
+      },
+      "top_feature_deltas": [
+        {
+          "feature": "total_bytes",
+          "current": 38480.0,
+          "predicted": 29.6566,
+          "abs_change": 38450.3434,
+          "rel_change_pct": -99.92,
+          "direction": "decrease"
+        },
+        {
+          "feature": "byte_rate",
+          "current": 1282.6666,
+          "predicted": 28.7445,
+          "abs_change": 1253.9222,
+          "rel_change_pct": -97.76,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_packets",
+          "current": 481.0,
+          "predicted": 10.5773,
+          "abs_change": 470.4227,
+          "rel_change_pct": -97.8,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_count",
+          "current": 83.0,
+          "predicted": -1.2557,
+          "abs_change": 84.2557,
+          "rel_change_pct": -101.51,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        {
+          "technique_id": "T1048",
+          "name": "Exfiltration Over Alternative Protocol",
+          "tactic": "Exfiltration",
+          "rationale": "Large total_bytes and high byte_rate with unusual destination ports indicate data exfiltration over non-standard protocols.",
+          "sub_techniques": [
+            "T1048.003"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1041",
+          "name": "Exfiltration Over C2 Channel",
+          "tactic": "Exfiltration",
+          "rationale": "Data may be exfiltrated over established C2 channels (high bytes_per_packet, sustained byte_rate).",
+          "sub_techniques": [],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        }
+      ],
+      "agent_response": {
+        "answer": "Risk score: **100/100** \u2192 **CRITICAL**. IMMEDIATE \u2014 isolate affected hosts, escalate to incident response. Stage EXFILTRATION continuation predicted for the next 30s window.",
+        "backend": "template_fallback",
+        "grounded": true
+      }
+    },
+    "port_diversity": {
+      "pattern": "port_diversity",
+      "source_ip": "192.168.1.105",
+      "target_ip": "192.168.1.100",
+      "window_count": 5,
+      "total_flows_last_window": 123,
+      "total_packets_last_window": 245,
+      "total_bytes_last_window": 9948,
+      "physical_state_24d": {
+        "flow_count": 123.0,
+        "total_packets": 245.0,
+        "total_bytes": 9948.0,
+        "pkt_rate": 8.166666666666666,
+        "byte_rate": 331.6,
+        "unique_src_ips": 1.0,
+        "unique_dst_ips": 2.0,
+        "unique_dst_ports": 114.0,
+        "syn_count": 123.0,
+        "rst_count": 58.0,
+        "fin_count": 0.0,
+        "syn_ratio": 1.0,
+        "rst_ratio": 0.4715447154471545,
+        "dst_ip_entropy": 0.9999523196862128,
+        "dst_port_entropy": 6.796173041924596,
+        "failed_flow_count": 79.0,
+        "failed_flow_ratio": 0.6422764227642277,
+        "tcp_flag_diversity": 0.9976624275811201,
+        "port_445_share": 0.0,
+        "port_3389_share": 0.0,
+        "port_22_share": 0.0,
+        "port_80_443_share": 0.0,
+        "mean_flow_duration": 0.025399679491057203,
+        "bytes_per_packet": 40.60408163265306
+      },
+      "model_forecast": {
+        "current_stage": "EXFILTRATION",
+        "predicted_next_stage": "EXFILTRATION",
+        "attack_probability": 0.9989,
+        "confidence": 0.9682,
+        "transition_detected": false,
+        "transition_probability": 0.0,
+        "risk_score": 99.64,
+        "risk_level": "CRITICAL",
+        "recommended_priority": "IMMEDIATE \u2014 isolate affected hosts, escalate to incident response",
+        "rollout_k4_stages": [
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "CREDENTIAL_ACCESS"
+        ]
+      },
+      "top_feature_deltas": [
+        {
+          "feature": "total_bytes",
+          "current": 9948.0,
+          "predicted": 29.5178,
+          "abs_change": 9918.4822,
+          "rel_change_pct": -99.7,
+          "direction": "decrease"
+        },
+        {
+          "feature": "byte_rate",
+          "current": 331.6,
+          "predicted": 28.561,
+          "abs_change": 303.039,
+          "rel_change_pct": -91.39,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_packets",
+          "current": 245.0,
+          "predicted": 10.4785,
+          "abs_change": 234.5215,
+          "rel_change_pct": -95.72,
+          "direction": "decrease"
+        },
+        {
+          "feature": "syn_count",
+          "current": 123.0,
+          "predicted": -1.2859,
+          "abs_change": 124.2859,
+          "rel_change_pct": -101.05,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        {
+          "technique_id": "T1048",
+          "name": "Exfiltration Over Alternative Protocol",
+          "tactic": "Exfiltration",
+          "rationale": "Large total_bytes and high byte_rate with unusual destination ports indicate data exfiltration over non-standard protocols.",
+          "sub_techniques": [
+            "T1048.003"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1041",
+          "name": "Exfiltration Over C2 Channel",
+          "tactic": "Exfiltration",
+          "rationale": "Data may be exfiltrated over established C2 channels (high bytes_per_packet, sustained byte_rate).",
+          "sub_techniques": [],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        }
+      ],
+      "agent_response": {
+        "answer": "Risk score: **100/100** \u2192 **CRITICAL**. IMMEDIATE \u2014 isolate affected hosts, escalate to incident response. Stage EXFILTRATION continuation predicted for the next 30s window.",
+        "backend": "template_fallback",
+        "grounded": true
+      }
+    },
+    "large_data_transfer": {
+      "pattern": "large_data_transfer",
+      "source_ip": "192.168.1.105",
+      "target_ip": "192.168.1.100",
+      "window_count": 5,
+      "total_flows_last_window": 15,
+      "total_packets_last_window": 11781,
+      "total_bytes_last_window": 17200260,
+      "physical_state_24d": {
+        "flow_count": 15.0,
+        "total_packets": 11781.0,
+        "total_bytes": 17200260.0,
+        "pkt_rate": 392.7,
+        "byte_rate": 573342.0,
+        "unique_src_ips": 1.0,
+        "unique_dst_ips": 2.0,
+        "unique_dst_ports": 2.0,
+        "syn_count": 15.0,
+        "rst_count": 0.0,
+        "fin_count": 15.0,
+        "syn_ratio": 1.0,
+        "rst_ratio": 0.0,
+        "dst_ip_entropy": 0.9182958340544896,
+        "dst_port_entropy": 0.9967916319816366,
+        "failed_flow_count": 0.0,
+        "failed_flow_ratio": 0.0,
+        "tcp_flag_diversity": 0.0,
+        "port_445_share": 0.0,
+        "port_3389_share": 0.0,
+        "port_22_share": 0.0,
+        "port_80_443_share": 1.0,
+        "mean_flow_duration": 13.993504933412119,
+        "bytes_per_packet": 1460.0
+      },
+      "model_forecast": {
+        "current_stage": "EXFILTRATION",
+        "predicted_next_stage": "EXFILTRATION",
+        "attack_probability": 0.9989,
+        "confidence": 0.9681,
+        "transition_detected": false,
+        "transition_probability": 0.0,
+        "risk_score": 99.64,
+        "risk_level": "CRITICAL",
+        "recommended_priority": "IMMEDIATE \u2014 isolate affected hosts, escalate to incident response",
+        "rollout_k4_stages": [
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "EXFILTRATION",
+          "CREDENTIAL_ACCESS"
+        ]
+      },
+      "top_feature_deltas": [
+        {
+          "feature": "total_bytes",
+          "current": 17200260.0,
+          "predicted": 29.6842,
+          "abs_change": 17200230.3158,
+          "rel_change_pct": -100.0,
+          "direction": "decrease"
+        },
+        {
+          "feature": "byte_rate",
+          "current": 573342.0,
+          "predicted": 28.786,
+          "abs_change": 573313.214,
+          "rel_change_pct": -99.99,
+          "direction": "decrease"
+        },
+        {
+          "feature": "total_packets",
+          "current": 11781.0,
+          "predicted": 10.5902,
+          "abs_change": 11770.4098,
+          "rel_change_pct": -99.91,
+          "direction": "decrease"
+        },
+        {
+          "feature": "bytes_per_packet",
+          "current": 1460.0,
+          "predicted": 1.9767,
+          "abs_change": 1458.0233,
+          "rel_change_pct": -99.86,
+          "direction": "decrease"
+        }
+      ],
+      "mitre_techniques": [
+        {
+          "technique_id": "T1048",
+          "name": "Exfiltration Over Alternative Protocol",
+          "tactic": "Exfiltration",
+          "rationale": "Large total_bytes and high byte_rate with unusual destination ports indicate data exfiltration over non-standard protocols.",
+          "sub_techniques": [
+            "T1048.003"
+          ],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        },
+        {
+          "technique_id": "T1041",
+          "name": "Exfiltration Over C2 Channel",
+          "tactic": "Exfiltration",
+          "rationale": "Data may be exfiltrated over established C2 channels (high bytes_per_packet, sustained byte_rate).",
+          "sub_techniques": [],
+          "mapping_provenance": "MITRE ATT&CK Enterprise v14 static mapping"
+        }
+      ],
+      "agent_response": {
+        "answer": "Risk score: **100/100** \u2192 **CRITICAL**. IMMEDIATE \u2014 isolate affected hosts, escalate to incident response. Stage EXFILTRATION continuation predicted for the next 30s window.",
+        "backend": "template_fallback",
+        "grounded": true
+      }
+    }
+  }
+}
