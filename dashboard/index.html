@@ -294,6 +294,47 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
     <div class="replay-info" id="replayInfo">Select a scenario and press Start</div>
   </div>
 
+  <!-- Live Stream Controls -->
+  <div class="replay-controls" style="margin-top:12px;border-color:rgba(59,130,246,.4)">
+    <div class="card-title" style="margin-bottom:8px">
+      <span class="icon">📡</span>Live Telemetry Stream
+      <span id="wsStatusDot" class="status-dot" style="margin-left:auto"></span>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <select id="liveSourceKind" class="scenario-select" style="margin-bottom:0" onchange="onLiveSourceChange()">
+        <option value="replay">CSV Trace Replay</option>
+        <option value="netflow">NetFlow v5 (UDP:9995)</option>
+        <option value="pcap">Live PCAP Capture</option>
+      </select>
+    </div>
+    <input id="liveSourcePath" type="text" class="scenario-select" style="display:none;margin-bottom:8px" placeholder="Path to PCAP / CSV file" />
+    <div class="btn-row" style="margin-bottom:6px">
+      <button class="btn btn-primary" onclick="startLiveStream()" id="btnLiveStart">🔴 Ingest</button>
+      <button class="btn btn-danger" onclick="stopLiveStream()" id="btnLiveStop" disabled>⏹ Stop</button>
+      <button class="btn btn-secondary" onclick="toggleWebSocket()" id="btnWsToggle">🔌 WS</button>
+    </div>
+    <div class="replay-info" id="liveStreamInfo">WebSocket disconnected</div>
+  </div>
+
+  <!-- Live Telemetry Stats -->
+  <div class="card" id="liveMetricsCard" style="margin-top:12px;display:none">
+    <div class="card-title"><span class="icon">📊</span>Live Ingest Metrics</div>
+    <div class="metric-row" style="margin-bottom:8px">
+      <div class="metric-box">
+        <div id="liveFlowRate" class="metric-big" style="font-size:16px;color:var(--accent)">—</div>
+        <div class="metric-label">Flows/sec</div>
+      </div>
+      <div class="metric-box">
+        <div id="liveTotalFlows" class="metric-big" style="font-size:16px">—</div>
+        <div class="metric-label">Window Flows</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.6">
+      Latency: <span id="liveLatency" class="text-mono">—</span><br>
+      Window ID: <span id="liveWindowId" class="text-mono">—</span>
+    </div>
+  </div>
+
 </aside>
 
 <!-- ══════════════ CENTER ══════════════ -->
@@ -308,6 +349,7 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
     <button class="tab" onclick="showTab('tabSimulation',this)">🔮 K=4 Simulation</button>
     <button class="tab" onclick="showTab('tabExplain',this)">🔍 Explainability</button>
     <button class="tab" onclick="showTab('tabBenchmark',this)">📊 Benchmark</button>
+    <button class="tab" onclick="showTab('tabState24',this)">🌐 24-D State</button>
   </div>
 
   <!-- Tab: Timeline -->
@@ -405,6 +447,26 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
     </div>
   </div>
 
+  <!-- Tab: 24-D State -->
+  <div id="tabState24" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">🌐</span>Physical Network State Vector S_t (24-D)
+        <span class="badge badge-observed" style="margin-left:auto">OBSERVED FEATURES</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
+        Current 30-second window statistical and behavioral aggregation across 24 dimensions. Zero future lookahead.
+      </div>
+      <table class="feat-table">
+        <thead>
+          <tr><th>#</th><th>Feature Name</th><th>Observed Value S_t</th><th>Predicted Next S_hat_{t+1}</th></tr>
+        </thead>
+        <tbody id="state24TableBody">
+          <tr><td colspan="4" class="empty-state">No state data yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </main>
 
 <!-- ══════════════ RIGHT SIDEBAR ══════════════ -->
@@ -479,6 +541,8 @@ let state = {
   lastForecast: null,
   timeline: [],
   autoPlayInterval: null,
+  liveSessionId: null,
+  ws: null,
 };
 
 // ─── API helpers ──────────────────────────────────────────────────────────
@@ -589,6 +653,168 @@ function updateProgress() {
     `Window ${state.currentWindow}/${state.totalWindows} | Session ${state.sessionId||'—'}`;
 }
 
+// ─── Live Streaming (Phase 13) ───────────────────────────────────────────
+function onLiveSourceChange() {
+  const kind = document.getElementById('liveSourceKind').value;
+  const pathInput = document.getElementById('liveSourcePath');
+  if (kind === 'pcap') {
+    pathInput.style.display = 'block';
+    pathInput.placeholder = 'Path to .pcap capture file';
+  } else if (kind === 'replay') {
+    pathInput.style.display = 'none';
+  } else if (kind === 'netflow') {
+    pathInput.style.display = 'none';
+  }
+}
+
+function toggleWebSocket() {
+  if (state.ws && (state.ws.readyState === WebSocket.OPEN || state.ws.readyState === WebSocket.CONNECTING)) {
+    state.ws.close();
+    setWsStatus(false, 'Disconnected');
+  } else {
+    connectWebSocket();
+  }
+}
+
+function setWsStatus(connected, text) {
+  const dot = document.getElementById('wsStatusDot');
+  if (dot) dot.className = 'status-dot ' + (connected ? 'ok' : 'err');
+  const info = document.getElementById('liveStreamInfo');
+  if (info) info.textContent = text;
+}
+
+function connectWebSocket() {
+  const wsUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + (location.host || 'localhost:8000') + '/api/v1/stream/ws';
+  setWsStatus(false, 'Connecting…');
+  try {
+    const ws = new WebSocket(wsUrl);
+    state.ws = ws;
+
+    ws.onopen = () => {
+      setWsStatus(true, 'Connected (Live WS)');
+      showAlert('WebSocket stream connected ✓', 'info');
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        handleStreamMessage(msg);
+      } catch(e) {
+        console.error('Error parsing WS message:', e);
+      }
+    };
+
+    ws.onerror = (err) => {
+      console.error('WebSocket error:', err);
+      setWsStatus(false, 'WS Error');
+    };
+
+    ws.onclose = () => {
+      setWsStatus(false, 'Disconnected');
+      state.ws = null;
+    };
+  } catch(e) {
+    setWsStatus(false, 'Cannot connect WS');
+  }
+}
+
+function handleStreamMessage(msg) {
+  if (msg.type === 'connected' || msg.type === 'heartbeat' || msg.type === 'pong') {
+    return;
+  }
+  if (msg.status === 'BUFFERING') {
+    showAlert(`Buffering telemetry window (${msg.sequence_accumulated}/${msg.sequence_required})…`, 'info');
+    return;
+  }
+  if (msg.status === 'MODEL_UNAVAILABLE') {
+    showAlert('FAIL-CLOSED: CyberWorldModelV2 model unavailable. No inference emitted.', 'error');
+    return;
+  }
+  if (msg.status === 'INVALID_TELEMETRY') {
+    showAlert(`FAIL-CLOSED: Invalid telemetry received: ${msg.detail||'Empty flows'}`, 'warn');
+    return;
+  }
+  if (msg.status === 'FORECAST') {
+    // Show live metrics card
+    const mc = document.getElementById('liveMetricsCard');
+    if (mc) mc.style.display = 'block';
+    if (msg.flows_per_second != null) document.getElementById('liveFlowRate').textContent = msg.flows_per_second;
+    if (msg.flow_count != null) document.getElementById('liveTotalFlows').textContent = msg.flow_count;
+    if (msg.window_id) document.getElementById('liveWindowId').textContent = msg.window_id.slice(0, 8);
+    if (msg.inference_latency_ms != null) document.getElementById('liveLatency').textContent = msg.inference_latency_ms + 'ms';
+
+    // Render 24-D State table
+    render24DState(msg);
+
+    // Render all forecast components
+    state.lastForecast = msg;
+    renderForecast(msg);
+  }
+}
+
+function render24DState(msg) {
+  const tbody = document.getElementById('state24TableBody');
+  if (!tbody) return;
+  const feats = msg.top_features || [];
+  if (!feats.length) return;
+
+  tbody.innerHTML = feats.map((f, i) => `
+    <tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td class="feat-name">${f.feature}</td>
+      <td class="feat-val">${typeof f.current === 'number' ? f.current.toFixed(4) : f.current}</td>
+      <td class="feat-val">${typeof f.predicted === 'number' ? f.predicted.toFixed(4) : f.predicted}</td>
+    </tr>
+  `).join('');
+}
+
+async function startLiveStream() {
+  const kind = document.getElementById('liveSourceKind').value;
+  let sourcePath = document.getElementById('liveSourcePath').value;
+
+  if (kind === 'replay' && !sourcePath) {
+    sourcePath = 'datasets/sample/trace_multistage_01.csv';
+  }
+
+  // Ensure WS is connected
+  if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
+    connectWebSocket();
+  }
+
+  document.getElementById('btnLiveStart').disabled = true;
+  document.getElementById('btnLiveStop').disabled = false;
+
+  try {
+    const payload = {
+      source_kind: kind,
+      source_path: sourcePath || undefined,
+      window_seconds: 30.0,
+      k_steps: 4,
+    };
+    const resp = await api('/stream/start', 'POST', payload);
+    state.liveSessionId = resp.session_id;
+    showAlert(`Live ingest session started: ${resp.session_id.slice(0,8)} (${kind})`, 'info');
+    document.getElementById('liveStreamInfo').textContent = `Session: ${resp.session_id.slice(0,8)} (${kind})`;
+  } catch(e) {
+    document.getElementById('btnLiveStart').disabled = false;
+    document.getElementById('btnLiveStop').disabled = true;
+  }
+}
+
+async function stopLiveStream() {
+  if (!state.liveSessionId) return;
+  try {
+    await api('/stream/stop', 'POST', {session_id: state.liveSessionId});
+    showAlert(`Live ingest session stopped`, 'info');
+    document.getElementById('liveStreamInfo').textContent = 'Ingest stopped';
+  } catch(e) {
+  } finally {
+    state.liveSessionId = null;
+    document.getElementById('btnLiveStart').disabled = false;
+    document.getElementById('btnLiveStop').disabled = true;
+  }
+}
+
 // ─── Render forecast ──────────────────────────────────────────────────────
 function renderForecast(fc) {
   renderThreatStatus(fc);
@@ -597,6 +823,7 @@ function renderForecast(fc) {
   renderRollout(fc);
   renderExplainability(fc);
   renderMitre(fc);
+  render24DState(fc);
 }
 
 function renderThreatStatus(fc) {

@@ -49,45 +49,88 @@ The system strictly enforces architectural boundaries:
 
 ```
 cybersentinel-ai/
-├── backend/            # FastAPI REST services & Pydantic validation schemas
-├── ml/
-│   ├── preprocessing/  # FeatureScaler, FeatureValidator, SequenceBuilder, ScenarioSplitter
-│   ├── state/          # NetworkStateBuilder (24 curated features per 30s window)
-│   ├── baseline/       # Logistic Regression & XGBoost baselines
-│   ├── temporal/       # LSTM / GRU sequential baseline
-│   ├── world_model/    # PyTorch CyberWorldModel with latent transition head
-│   ├── forecasting/    # Autoregressive K-step rollout simulation engine
-│   ├── evaluation/     # Lead time, Brier score, calibration curves
-│   └── explainability/ # SHAP & temporal attention attribution
+├── backend/            # FastAPI REST services, WebSockets, SSE & Pydantic schemas
+│   ├── api/            # Route endpoints & WebSocket stream handler (/api/v1/stream/ws)
+│   ├── services/       # ModelService, ReplayService, LiveIngestService
+│   └── agents/         # CyberSentinelDefensiveAgent (evidence-grounded analyst agent)
+├── dashboard/          # Real-time SOC Command Center UI (HTML5 / WebSocket / SVG)
 ├── network/
-│   ├── flow/           # FlowRecord definition & robust CSVFlowLoader
-│   └── pcap/           # Pure-Python offline PCAPFlowLoader (0 external C dependencies)
-├── mitre/              # Machine-readable ATT&CK knowledge base and mapper
-├── agent/              # Read-only SOC query tools and deterministic fallbacks
-├── datasets/           # Multi-scenario flow traces (synthetic and benchmark)
-├── configs/            # Declarative pipeline & model configurations
-├── docs/               # Architectural, data pipeline, and state specifications
-└── tests/              # Leakage, unit, and integration test suites
+│   ├── flow/           # Standardized FlowRecord representation & CSV loader
+│   ├── pcap/           # Pure-Python libpcap capture parser
+│   └── telemetry/      # TelemetrySource ABC, PCAPSource, NetFlowSource, StreamProcessor
+├── ml/
+│   ├── world_model/    # CyberWorldModelV2 (Direct Physical Transition Network)
+│   ├── state/          # NetworkStateBuilder (24-D physical state vector, 0 leakage)
+│   ├── defense/        # Dynamic RiskEngine (multi-factor severity scoring)
+│   ├── calibration/    # Temperature scaling calibration artifact (T*=1.5680)
+│   └── preprocessing/  # FeatureScaler, SequenceBuilder, StageLabeler
+├── mitre/              # MITRE ATT&CK v14 deterministic stage-to-technique mapper
+├── datasets/           # Multi-scenario flow traces (multistage attack traces)
+├── docs/               # Architecture, audit reports, benchmarks, validation docs
+├── scripts/            # Inference benchmarks, training pipelines, start launcher
+└── tests/              # Test suite (197/197 passing: causality, live ingest, WS, equivalence)
 ```
 
 ---
 
-## 5. Verification & Testing
+## 5. Live Telemetry & Streaming Configuration
 
-Run the automated test suite:
-```powershell
-pytest -v
-```
+CyberSentinel AI supports three ingestion modes via a modular adapter interface (`TelemetrySource`):
 
-Run the end-to-end data pipeline validation script:
-```powershell
-python scripts/validate_pipeline.py
+1. **PCAP Capture (`PCAPSource`)**: Ingests offline or live-tailed `.pcap` files without third-party C driver dependencies.
+2. **NetFlow v5 (`NetFlowSource`)**: Listens on UDP port `9995` for standard NetFlow v5 datagrams with malformed header resilience.
+3. **Trace Replay (`ReplaySource`)**: Paced testing playback of recorded CSV/JSON multi-stage network attack traces.
+
+### Starting the Command Center
+Launch backend server and SOC UI:
+```bash
+python scripts/start_server.py
 ```
+- API Docs: `http://localhost:8000/docs`
+- SOC Dashboard: `http://localhost:8000/ui/index.html`
+
+### Real-Time Streaming API
+- **WebSocket**: Connect to `ws://localhost:8000/api/v1/stream/ws` to receive continuous, JSON-encoded threat forecasts per completed 30s window.
+- **Server-Sent Events**: Connect to `http://localhost:8000/api/v1/stream/events` for browser `EventSource` consumption.
+- **Session Control**:
+  - `POST /api/v1/stream/start`: Start live ingestion session.
+  - `POST /api/v1/stream/stop`: Stop active session.
+  - `GET /api/v1/stream/status`: Active session statistics and queue depth.
 
 ---
 
-## 6. Limitations
+## 6. Verification & Benchmarking
 
-- **Labeling Policy**: Public datasets (such as CICIDS2017) do not provide standardized MITRE ATT&CK ground truth. Stage labels are derived approximations based on our documented policy.
+Run the complete 197-test automated suite:
+```powershell
+pytest tests/ -v
+```
+
+Run the Phase 13 performance and memory stability benchmark:
+```powershell
+python scripts/benchmark_phase13.py --runs 100
+```
+
+**Measured Latency Breakdown (Intel x86_64, PyTorch CPU):**
+- 24-D State Extraction: **2.58 ms** median
+- Feature Scaling: **0.80 ms** median
+- 1-Step Model Forecast + Risk + MITRE: **6.28 ms** median
+- K=4 Autoregressive Rollout: **10.25 ms** median
+- Complete End-to-End Live Pipeline: **15.14 ms** median (66.0 windows/sec)
+- Long-running Memory Stability: +4.53 MB delta over 1,000 continuous windows (~8.3 hours traffic)
+
+---
+
+## 7. Security Boundaries & Fail-Closed Behavior
+
+- **Strictly Defensive**: Operates exclusively as a passive observer, forecaster, and explainer. Does not inject packets, perform port scans, or execute offensive actions.
+- **Zero Hardcoded Intelligence**: No stage transitions, risk scores, probabilities, or feature importances are hardcoded or scenario-dependent. All intelligence is computed at runtime from observed telemetry.
+- **Fail-Closed Design**: If required model checkpoints, scalers, or valid telemetry are unavailable, the system explicitly returns error states (`MODEL_UNAVAILABLE`, `INVALID_TELEMETRY`) and refuses to emit mock or static predictions.
+
+---
+
+## 8. Limitations
+
 - **Window Granularity**: High-frequency attacks occurring entirely within $< 1$ second are aggregated into the containing 30-second window.
 - **Zero Lookahead Constraint**: The model cannot predict unprecedented external zero-day vectors that do not perturb network traffic patterns.
+- **Replay vs. Live**: CSV replay serves as an evaluation and testing adapter only; production deployments require live NetFlow or PCAP streams.

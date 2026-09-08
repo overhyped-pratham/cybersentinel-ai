@@ -25,8 +25,10 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from backend.api.endpoints import router
+from backend.api.stream_endpoints import stream_router
 from backend.services.model_service import ModelService
 from backend.services.replay_service import ReplayService
+from backend.services.live_ingest_service import LiveIngestService
 from backend.agents.defensive_agent import CyberSentinelDefensiveAgent
 
 logging.basicConfig(
@@ -49,6 +51,7 @@ async def lifespan(app: FastAPI):
     # Initialize singletons
     app.state.model_service = ModelService.get_instance()
     app.state.replay_service = ReplayService()
+    app.state.live_ingest_service = LiveIngestService()
     app.state.agent = CyberSentinelDefensiveAgent()
 
     if app.state.model_service.is_loaded:
@@ -57,6 +60,7 @@ async def lifespan(app: FastAPI):
         logger.warning("✗ Model NOT loaded — /forecast endpoints will return 503")
 
     logger.info("✓ ReplayService ready")
+    logger.info("✓ LiveIngestService ready")
     logger.info("✓ DefensiveAgent ready")
     logger.info("API docs available at: http://localhost:8000/docs")
     logger.info("Dashboard available at: http://localhost:8000/ui/index.html")
@@ -64,6 +68,8 @@ async def lifespan(app: FastAPI):
     yield
 
     logger.info("CyberSentinel AI Command Center — Shutting Down")
+    if hasattr(app.state, "live_ingest_service"):
+        await app.state.live_ingest_service.stop_all()
 
 
 # ---------------------------------------------------------------------------
@@ -86,6 +92,7 @@ app = FastAPI(
 # Default state initialization so client access works even before startup
 app.state.model_service = ModelService.get_instance()
 app.state.replay_service = ReplayService()
+app.state.live_ingest_service = LiveIngestService()
 app.state.agent = CyberSentinelDefensiveAgent()
 
 # CORS — allow dashboard (same host or file://) to call the API
@@ -104,6 +111,7 @@ if _DASHBOARD.exists():
 
 # Include API routes
 app.include_router(router, prefix="/api/v1")
+app.include_router(stream_router, prefix="/api/v1")
 
 
 # ---------------------------------------------------------------------------
