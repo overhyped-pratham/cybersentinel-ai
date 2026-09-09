@@ -34,6 +34,7 @@ from typing import Any, Callable, Deque, Dict, List, Optional, Set
 import numpy as np
 
 from network.telemetry.stream_processor import StreamProcessor, TelemetryWindowEvent
+from network.flow.flow_record import FlowRecord
 from ml.state.state_builder import NetworkStateBuilder, FEATURE_NAMES
 
 logger = logging.getLogger(__name__)
@@ -235,13 +236,120 @@ class LiveIngestService:
         for sid in list(self._active_tasks.keys()):
             await self.stop_session(sid)
 
+    async def ingest_flows(
+        self,
+        flows: List[Any],
+        *,
+        session_id: Optional[str] = None,
+        source_id: str = "MobileSimulator",
+        k_steps: int = 4,
+        window_seconds: float = 10.0,
+        immediate_inference: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Directly ingest a batch of synthetic flow records from the Mobile Simulator or API client.
+
+        Converts inputs into standardized FlowRecords (strictly setting label='UNKNOWN'),
+        packages them into a TelemetryWindowEvent, runs through the 24-D feature scaler and
+        CyberWorldModelV2, broadcasts the result over WebSocket, and returns the live event.
+        """
+        from backend.services.model_service import ModelService
+        model_svc = ModelService.get_instance()
+
+        session_id = session_id or f"sim_{uuid.uuid4().hex[:8]}"
+
+        if not flows:
+            err_event = {
+                "status": "INVALID_TELEMETRY",
+                "timestamp": _utcnow(),
+                "session_id": session_id,
+                "source_id": source_id,
+                "detail": "No flow records provided in ingestion batch",
+            }
+            await self._broadcast(err_event)
+            return err_event
+
+        now_ts = time.time()
+        start_ts = now_ts - window_seconds
+        records: List[FlowRecord] = []
+        dropped_count = 0
+
+        for i, item in enumerate(flows):
+            try:
+                d = item.model_dump() if hasattr(item, "model_dump") else (item.dict() if hasattr(item, "dict") else dict(item))
+
+                ts = d.get("timestamp")
+                if ts is None:
+                    ts = start_ts + (float(i) / max(len(flows), 1)) * window_seconds
+
+                rec = FlowRecord(
+                    timestamp=float(ts),
+                    src_ip=str(d["src_ip"]),
+                    dst_ip=str(d["dst_ip"]),
+                    src_port=int(d["src_port"]),
+                    dst_port=int(d["dst_port"]),
+                    protocol=int(d.get("protocol", 6)),
+                    packets=int(d.get("packets", 1)),
+                    bytes=int(d.get("bytes", 60)),
+                    duration=float(d.get("duration", 0.01)),
+                    syn_flag=int(d.get("syn_flag", 0)),
+                    ack_flag=int(d.get("ack_flag", 0)),
+                    rst_flag=int(d.get("rst_flag", 0)),
+                    fin_flag=int(d.get("fin_flag", 0)),
+                    psh_flag=int(d.get("psh_flag", 0)),
+                    urg_flag=int(d.get("urg_flag", 0)),
+                    failed=bool(d.get("failed", False)),
+                    scenario_id=session_id,
+                    label="UNKNOWN",  # STRICT DEFENSIVE DISCIPLINE: zero ground truth leakage
+                )
+                records.append(rec)
+            except Exception as exc:
+                logger.warning("[LiveIngest] Dropping malformed simulator flow %d: %s", i, exc)
+                dropped_count += 1
+
+        if not records:
+            err_event = {
+                "status": "INVALID_TELEMETRY",
+                "timestamp": _utcnow(),
+                "session_id": session_id,
+                "source_id": source_id,
+                "detail": "All flows in batch were malformed or invalid",
+                "dropped_malformed": dropped_count,
+            }
+            await self._broadcast(err_event)
+            return err_event
+
+        records.sort(key=lambda r: r.timestamp)
+        win_start = records[0].timestamp
+        win_end = max(records[-1].timestamp + 0.001, win_start + window_seconds)
+
+        window = TelemetryWindowEvent(
+            window_id=str(uuid.uuid4()),
+            window_start=win_start,
+            window_end=win_end,
+            flows=records,
+            flow_count=len(records),
+            dropped_malformed=dropped_count,
+            source_id=source_id,
+            wall_time=time.time(),
+        )
+
+        return await self._process_window(
+            window=window,
+            session_id=session_id,
+            model_svc=model_svc,
+            k_steps=k_steps,
+            immediate_inference=immediate_inference,
+        )
+
     async def _process_window(
         self,
         window: TelemetryWindowEvent,
         session_id: str,
         model_svc,
         k_steps: int = 4,
-    ) -> None:
+        immediate_inference: bool = False,
+    ) -> Dict[str, Any]:
         """
         Core inference pipeline for a single completed telemetry window.
 
@@ -253,29 +361,33 @@ class LiveIngestService:
 
         # ---- 1. Guard: model must be loaded --------------------------------
         if not model_svc.is_loaded:
-            await self._broadcast({
+            event = {
                 "status": "MODEL_UNAVAILABLE",
                 "window_id": window.window_id,
                 "timestamp": _utcnow(),
                 "source_id": window.source_id,
-            })
+            }
+            await self._broadcast(event)
             self._stats["windows_skipped"] += 1
-            return
+            return event
 
         # ---- 2. Guard: flows must be non-empty -----------------------------
         if not window.flows:
-            await self._broadcast({
+            event = {
                 "status": "INVALID_TELEMETRY",
                 "window_id": window.window_id,
                 "timestamp": _utcnow(),
                 "detail": "Window contains zero valid flows",
-            })
+            }
+            await self._broadcast(event)
             self._stats["windows_skipped"] += 1
-            return
+            return event
 
         # ---- 3. Build 24-D feature state from flows ------------------------
         try:
-            df_state = self._state_builder.build_states(
+            win_duration = max(5.0, (window.window_end - window.window_start) + 1.0)
+            builder = NetworkStateBuilder(window_size_seconds=win_duration, step_size_seconds=win_duration)
+            df_state = builder.build_states(
                 window.flows,
                 scenario_id=session_id,
                 base_timestamp=window.window_start,
@@ -283,24 +395,26 @@ class LiveIngestService:
         except Exception as exc:
             logger.error("[LiveIngest] StateBuilder error for window %s: %s",
                          window.window_id, exc)
-            await self._broadcast({
+            event = {
                 "status": "INVALID_TELEMETRY",
                 "window_id": window.window_id,
                 "timestamp": _utcnow(),
                 "detail": f"StateBuilder error: {exc}",
-            })
+            }
+            await self._broadcast(event)
             self._stats["windows_skipped"] += 1
-            return
+            return event
 
         if df_state is None or len(df_state) == 0:
-            await self._broadcast({
+            event = {
                 "status": "INVALID_TELEMETRY",
                 "window_id": window.window_id,
                 "timestamp": _utcnow(),
                 "detail": "StateBuilder produced empty DataFrame",
-            })
+            }
+            await self._broadcast(event)
             self._stats["windows_skipped"] += 1
-            return
+            return event
 
         # ---- 4. Extract raw feature vector and scale ------------------------
         try:
@@ -318,14 +432,15 @@ class LiveIngestService:
                 scaled_row = raw_row
         except Exception as exc:
             logger.error("[LiveIngest] Feature extraction error: %s", exc)
-            await self._broadcast({
+            event = {
                 "status": "INVALID_TELEMETRY",
                 "window_id": window.window_id,
                 "timestamp": _utcnow(),
                 "detail": f"Feature extraction error: {exc}",
-            })
+            }
+            await self._broadcast(event)
             self._stats["windows_skipped"] += 1
-            return
+            return event
 
         # ---- 5. Accumulate into sliding sequence buffer --------------------
         seq_buf = self._seq_buffers.get(session_id)
@@ -335,22 +450,27 @@ class LiveIngestService:
         seq_buf.append(scaled_row)
 
         if len(seq_buf) < _MIN_SEQ_LEN:
-            logger.info(
-                "[LiveIngest] Session %s: accumulating sequence (%d/%d)",
-                session_id, len(seq_buf), _MIN_SEQ_LEN
-            )
-            # Broadcast buffering status
-            await self._broadcast({
-                "status": "BUFFERING",
-                "window_id": window.window_id,
-                "timestamp": _utcnow(),
-                "session_id": session_id,
-                "sequence_accumulated": len(seq_buf),
-                "sequence_required": _MIN_SEQ_LEN,
-                "flow_count": window.flow_count,
-                "source_id": window.source_id,
-            })
-            return
+            if immediate_inference:
+                while len(seq_buf) < _MIN_SEQ_LEN:
+                    seq_buf.appendleft(scaled_row)
+            else:
+                logger.info(
+                    "[LiveIngest] Session %s: accumulating sequence (%d/%d)",
+                    session_id, len(seq_buf), _MIN_SEQ_LEN
+                )
+                # Broadcast buffering status
+                event = {
+                    "status": "BUFFERING",
+                    "window_id": window.window_id,
+                    "timestamp": _utcnow(),
+                    "session_id": session_id,
+                    "sequence_accumulated": len(seq_buf),
+                    "sequence_required": _MIN_SEQ_LEN,
+                    "flow_count": window.flow_count,
+                    "source_id": window.source_id,
+                }
+                await self._broadcast(event)
+                return event
 
         # ---- 6. Build model input sequence ---------------------------------
         seq_list = list(seq_buf)  # chronological order, shape (T, 24)
@@ -364,14 +484,15 @@ class LiveIngestService:
             )
         except Exception as exc:
             logger.error("[LiveIngest] ModelService.forecast() error: %s", exc, exc_info=True)
-            await self._broadcast({
+            event = {
                 "status": "MODEL_UNAVAILABLE",
                 "window_id": window.window_id,
                 "timestamp": _utcnow(),
                 "detail": f"Inference error: {exc}",
-            })
+            }
+            await self._broadcast(event)
             self._stats["windows_skipped"] += 1
-            return
+            return event
 
         t_elapsed_ms = (time.perf_counter() - t0) * 1000
 
@@ -406,6 +527,7 @@ class LiveIngestService:
         self._event_log.append(event)
         self._stats["windows_inferred"] += 1
         await self._broadcast(event)
+        return event
 
 
 def _utcnow() -> str:

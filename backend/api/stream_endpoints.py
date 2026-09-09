@@ -48,7 +48,7 @@ _MAX_HISTORY = 100
 # Request/Response schemas
 # ---------------------------------------------------------------------------
 
-from backend.schemas.stream import StartSessionRequest, StopSessionRequest
+from backend.schemas.stream import StartSessionRequest, StopSessionRequest, IngestTelemetryRequest
 
 
 # ---------------------------------------------------------------------------
@@ -128,6 +128,30 @@ async def start_session(body: StartSessionRequest, request: Request):
         raise
     except Exception as exc:
         logger.error("/stream/start error: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@stream_router.post("/ingest")
+async def ingest_telemetry(body: IngestTelemetryRequest, request: Request):
+    """
+    Ingest a batch of raw synthetic network telemetry flow records (Phase 16 / Mobile Simulator).
+
+    Enforces fail-closed validation, converts to 24-D physical network state, transforms
+    via production FeatureScaler, runs live CyberWorldModelV2 inference, and broadcasts to WebSocket.
+    """
+    svc = _get_live_svc(request)
+    try:
+        event = await svc.ingest_flows(
+            flows=body.flows,
+            session_id=body.session_id,
+            source_id=body.source_id or "MobileSimulator",
+            k_steps=body.k_steps or 4,
+            window_seconds=body.window_seconds or 10.0,
+            immediate_inference=True,
+        )
+        return JSONResponse(content=event)
+    except Exception as exc:
+        logger.error("/stream/ingest error: %s", exc, exc_info=True)
         raise HTTPException(status_code=500, detail=str(exc))
 
 

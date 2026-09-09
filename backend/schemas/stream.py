@@ -61,3 +61,31 @@ class StreamEvent(BaseModel):
     primary_technique_name: Optional[str] = None
     rollout_steps: Optional[List[Dict[str, Any]]] = None
     safety_flags: Optional[List[str]] = None
+
+
+class TelemetryFlowInput(BaseModel):
+    src_ip: str = Field(..., description="Source IPv4 address")
+    dst_ip: str = Field(..., description="Destination IPv4 address")
+    src_port: int = Field(..., ge=0, le=65535, description="Source port")
+    dst_port: int = Field(..., ge=0, le=65535, description="Destination port")
+    protocol: int = Field(6, description="IP protocol number (6=TCP, 17=UDP, 1=ICMP)")
+    packets: int = Field(1, ge=1, description="Packet count in flow")
+    bytes: int = Field(60, ge=1, description="Byte count in flow")
+    duration: float = Field(0.01, ge=0.0, description="Flow duration in seconds")
+    syn_flag: int = Field(0, ge=0, le=1)
+    ack_flag: int = Field(0, ge=0, le=1)
+    rst_flag: int = Field(0, ge=0, le=1)
+    fin_flag: int = Field(0, ge=0, le=1)
+    psh_flag: int = Field(0, ge=0, le=1)
+    urg_flag: int = Field(0, ge=0, le=1)
+    failed: bool = Field(False)
+    timestamp: Optional[float] = Field(None, description="Unix timestamp of flow start")
+    label: Optional[str] = Field("UNKNOWN", description="Defense label: always UNKNOWN")
+
+
+class IngestTelemetryRequest(BaseModel):
+    flows: List[TelemetryFlowInput] = Field(..., min_length=1, description="List of raw synthetic flow records")
+    session_id: Optional[str] = Field(None, description="Client session identifier")
+    source_id: Optional[str] = Field("MobileSimulator", description="Source tag")
+    k_steps: Optional[int] = Field(4, ge=1, le=10, description="K-step rollout depth")
+    window_seconds: Optional[float] = Field(10.0, ge=1.0, le=300.0, description="Window time span")

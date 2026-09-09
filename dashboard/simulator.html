@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>CyberSentinel — Mobile Traffic Simulator</title>
+<link rel="manifest" href="/ui/manifest.json">
+<style>
+/* ─── Variables & Reset ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0d14;--surface:#111827;--surface2:#1a2035;--surface3:#222e45;
+  --border:#2a3550;--text:#e2e8f0;--muted:#94a3b8;--accent:#3b82f6;
+  --cyan:#06b6d4;--green:#10b981;--yellow:#f59e0b;--orange:#f97316;
+  --red:#ef4444;--purple:#8b5cf6;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'Cascadia Code','SFMono-Regular',Consolas,'Courier New',monospace;
+}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--font);
+  font-size:14px;line-height:1.4;min-height:100vh;padding-bottom:30px;
+}
+input,select,button{font-family:inherit;font-size:inherit}
+
+/* ─── Container ─────────────────────────────────────────────────────────── */
+.container{
+  max-width:520px;margin:0 auto;padding:12px;
+  display:flex;flex-direction:column;gap:12px;
+}
+
+/* ─── Safety Banner ─────────────────────────────────────────────────────── */
+.safety-banner{
+  background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(239,68,68,.12));
+  border:1px solid rgba(245,158,11,.4);border-radius:10px;padding:10px 14px;
+  display:flex;flex-direction:column;gap:3px;text-align:center;
+}
+.safety-title{
+  color:var(--yellow);font-weight:700;font-size:12px;letter-spacing:.06em;
+  display:flex;align-items:center;justify-content:center;gap:6px;text-transform:uppercase;
+}
+.safety-sub{font-size:11px;color:var(--muted);letter-spacing:.02em}
+
+/* ─── Header ────────────────────────────────────────────────────────────── */
+.app-header{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-badge{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.logo-text{font-weight:700;font-size:15px;color:var(--text)}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.05em}
+
+/* ─── Cards ─────────────────────────────────────────────────────────────── */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;
+}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-title{
+  font-size:11px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;
+}
+
+/* ─── Connection Section ────────────────────────────────────────────────── */
+.conn-row{display:flex;gap:8px;align-items:center}
+.input-field{
+  flex:1;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);padding:8px 12px;font-size:13px;
+  font-family:var(--mono);outline:none;
+}
+.input-field:focus{border-color:var(--accent)}
+.btn-secondary{
+  background:var(--surface2);color:var(--text);border:1px solid var(--border);
+  border-radius:8px;padding:8px 12px;font-weight:600;font-size:12px;cursor:pointer;
+  display:flex;align-items:center;gap:4px;white-space:nowrap;
+}
+.btn-secondary:active{background:var(--surface3)}
+.status-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;
+  border-radius:20px;font-size:11px;font-weight:600;
+}
+.status-pill.online{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.status-pill.offline{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.status-pill.checking{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.dot.pulse{box-shadow:0 0 8px currentColor;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ─── Profile Grid ──────────────────────────────────────────────────────── */
+.profile-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.profile-btn{
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:10px;text-align:left;cursor:pointer;display:flex;flex-direction:column;
+  gap:4px;transition:all .15s ease;
+}
+.profile-btn:active{transform:scale(0.98)}
+.profile-btn.active{
+  border-color:var(--accent);background:rgba(59,130,246,.12);
+  box-shadow:0 0 10px rgba(59,130,246,.2);
+}
+.profile-btn-header{display:flex;align-items:center;justify-content:space-between}
+.profile-icon{font-size:16px}
+.profile-tag{
+  font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+.tag-normal{background:rgba(16,185,129,.2);color:var(--green)}
+.tag-burst{background:rgba(6,182,212,.2);color:var(--cyan)}
+.tag-recon{background:rgba(59,130,246,.2);color:var(--accent)}
+.tag-cred{background:rgba(245,158,11,.2);color:var(--yellow)}
+.tag-exfil{background:rgba(239,68,68,.2);color:var(--red)}
+.tag-beacon{background:rgba(139,92,246,.2);color:var(--purple)}
+.profile-name{font-weight:700;font-size:12px;color:var(--text)}
+.profile-desc{font-size:10px;color:var(--muted);line-height:1.3}
+
+/* ─── Parameter Controls ─────────────────────────────────────────────────── */
+.ctrl-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 0;border-bottom:1px solid rgba(42,53,80,.4);
+}
+.ctrl-row:last-child{border-bottom:none}
+.ctrl-label{font-size:12px;color:var(--muted);font-weight:500}
+.ctrl-val{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700}
+.range-slider{
+  width:140px;accent-color:var(--accent);
+}
+.select-input{
+  background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);padding:4px 8px;font-size:12px;outline:none;
+}
+
+/* ─── Action Buttons ─────────────────────────────────────────────────────── */
+.actions-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.btn-action{
+  padding:12px;border-radius:10px;font-weight:700;font-size:13px;
+  border:none;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:6px;transition:all .15s ease;
+}
+.btn-action:active{transform:scale(0.97)}
+.btn-start{
+  background:linear-gradient(135deg,#059669,#10b981);color:#fff;
+  box-shadow:0 0 12px rgba(16,185,129,.3);
+}
+.btn-start.running{
+  background:linear-gradient(135deg,#10b981,#059669);
+  animation:pulse-btn 1.5s infinite;
+}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 12px rgba(16,185,129,.3)}50%{box-shadow:0 0 20px rgba(16,185,129,.7)}}
+.btn-stop{
+  background:var(--surface2);color:var(--muted);border:1px solid var(--border);
+}
+.btn-stop.enabled{
+  background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;
+  border:none;box-shadow:0 0 12px rgba(239,68,68,.3);
+}
+.btn-once{
+  grid-column:1 / -1;background:linear-gradient(135deg,#2563eb,#3b82f6);
+  color:#fff;box-shadow:0 0 12px rgba(59,130,246,.3);
+}
+
+/* ─── Metrics Dashboard ─────────────────────────────────────────────────── */
+.stats-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+}
+.stat-box{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  padding:8px 6px;text-align:center;
+}
+.stat-val{font-size:15px;font-weight:700;font-family:var(--mono);color:var(--text)}
+.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+
+/* ─── Real-Time Inference Feedback Card ──────────────────────────────────── */
+.feedback-card{
+  background:linear-gradient(145deg,var(--surface),var(--surface2));
+  border:1px solid var(--accent);border-radius:12px;padding:14px;
+  display:flex;flex-direction:column;gap:10px;box-shadow:0 0 15px rgba(59,130,246,.15);
+}
+.fb-header{display:flex;align-items:center;justify-content:space-between}
+.fb-badge{
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;
+  background:rgba(59,130,246,.2);color:var(--accent);border:1px solid rgba(59,130,246,.4);
+  letter-spacing:.05em;text-transform:uppercase;
+}
+.fb-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fb-item{background:rgba(10,13,20,.6);border:1px solid rgba(42,53,80,.6);border-radius:8px;padding:8px}
+.fb-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.fb-val{font-size:13px;font-weight:700;margin-top:2px;font-family:var(--mono)}
+.stage-normal{color:var(--green)}
+.stage-recon{color:var(--cyan)}
+.stage-cred{color:var(--yellow)}
+.stage-exfil{color:var(--red)}
+.stage-lateral{color:var(--orange)}
+
+.risk-meter{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.risk-bar-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.risk-bar-fill{height:100%;width:0%;transition:width .4s ease,background-color .4s ease}
+
+/* ─── Preview Table ─────────────────────────────────────────────────────── */
+.table-wrap{
+  max-height:160px;overflow-y:auto;border-radius:6px;border:1px solid var(--border);
+}
+.preview-table{
+  width:100%;border-collapse:collapse;font-size:10px;font-family:var(--mono);
+}
+.preview-table th{
+  background:var(--surface3);color:var(--muted);padding:5px 6px;text-align:left;
+  position:sticky;top:0;font-weight:600;
+}
+.preview-table td{
+  padding:4px 6px;border-bottom:1px solid rgba(42,53,80,.4);white-space:nowrap;
+}
+.preview-table tr:hover{background:var(--surface3)}
+
+/* ─── Demo Runbook / Instructions ────────────────────────────────────────── */
+.guide-toggle{
+  background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:4px;cursor:pointer;padding:4px 0;
+}
+.guide-content{
+  display:none;background:var(--surface2);border-radius:8px;padding:12px;
+  font-size:11px;color:var(--muted);line-height:1.5;margin-top:6px;
+}
+.guide-content.open{display:block}
+.guide-step{margin-bottom:8px}
+.guide-step strong{color:var(--text)}
+
+/* ─── Notification Toast ─────────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  background:var(--surface3);color:var(--text);border:1px solid var(--border);
+  padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;
+  box-shadow:0 4px 16px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .2s ease;
+  z-index:999;
+}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Safety Warning Banner -->
+  <div class="safety-banner">
+    <div class="safety-title">
+      <span>🛡️</span> [ DEMO / SYNTHETIC TELEMETRY GENERATOR ]
+    </div>
+    <div class="safety-sub">
+      Defensive Pipeline Testing Only • Local Private Subnets • Zero Hardcoded Intelligence
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="app-header">
+    <div class="logo-wrap">
+      <div class="logo-badge">⚡</div>
+      <div>
+        <div class="logo-text">CyberSentinel Traffic Sim</div>
+        <div class="logo-sub">Mobile Defensive Telemetry Generator</div>
+      </div>
+    </div>
+    <div id="connStatus" class="status-pill offline">
+      <div class="dot"></div>
+      <span id="connText">OFFLINE</span>
+    </div>
+  </div>
+
+  <!-- Connection Configuration -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span>📡</span> Laptop API Connection</span>
+      <span id="pingLatency" style="font-size:11px;color:var(--muted);font-family:var(--mono);">— ms</span>
+    </div>
+    <div class="conn-row">
+      <input type="text" id="backendUrl" class="input-field" placeholder="http://192.168.1.10:8000" spellcheck="false">
+      <button id="btnPing" class="btn-secondary" onclick="checkConnection()">Test Ping</button>
+    </div>
+  </div>
+
+  <!-- Traffic Profiles -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span>🎯</span> Select Traffic Profile</span>
+      <span id="activeProfileLabel" style="font-size:11px;color:var(--accent);font-weight:700;">Normal Background</span>
+    </div>
+    <div class="profile-grid">
+      <!-- 1. Normal -->
+      <div class="profile-btn active" onclick="selectProfile('normal')">
+        <div class="profile-btn-header">
+          <span class="profile-icon">🌐</span>
+          <span class="profile-tag tag-normal">Benign</span>
+        </div>
+        <div class="profile-name">Normal Traffic</div>
+        <div class="profile-desc">Web/DNS (80, 443, 53), typical payloads, zero failures.</div>
+      </div>
+      <!-- 2. Burst -->
+      <div class="profile-btn" onclick="selectProfile('burst')">
+        <div class="profile-btn-header">
+          <span class="profile-icon">⚡</span>
+          <span class="profile-tag tag-burst">Burst</span>
+        </div>
+        <div class="profile-name">Connection Burst</div>
+        <div class="profile-desc">Rapid TCP SYNs, short 2-5ms lifespans, heavy web flow rate.</div>
+      </div>
+      <!-- 3. Reconnaissance -->
+      <div class="profile-btn" onclick="selectProfile('recon')">
+        <div class="profile-btn-header">
+          <span class="profile-icon">🔍</span>
+          <span class="profile-tag tag-recon">Recon</span>
+        </div>
+        <div class="profile-name">Recon Scanning</div>
+        <div class="profile-desc">High port entropy across 20-1024, small packets, RST errors.</div>
+      </div>
+      <!-- 4. Credential Access -->
+      <div class="profile-btn" onclick="selectProfile('credential')">
+        <div class="profile-btn-header">
+          <span class="profile-icon">🔑</span>
+          <span class="profile-tag tag-cred">Auth</span>
+        </div>
+        <div class="profile-name">Credential Access</div>
+        <div class="profile-desc">Repeated SSH (22), RDP (3389), SMB (445), failed authentications.</div>
+      </div>
+      <!-- 5. Large Data Transfer -->
+      <div class="profile-btn" onclick="selectProfile('exfil')">
+        <div class="profile-btn-header">
+          <span class="profile-icon">📦</span>
+          <span class="profile-tag tag-exfil">Transfer</span>
+        </div>
+        <div class="profile-name">Large Transfer</div>
+        <div class="profile-desc">Massive byte rate, 300-1200 packets per flow, full MTU segments.</div>
+      </div>
+      <!-- 6. Bot Beaconing -->
+      <div class="profile-btn" onclick="selectProfile('beacon')">
+        <div class="profile-btn-header">
+          <span class="profile-icon">📡</span>
+          <span class="profile-tag tag-beacon">Beacon</span>
+        </div>
+        <div class="profile-name">Bot Beaconing</div>
+        <div class="profile-desc">Periodic 1.0s heartbeats, constant 128B size, low variance.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parameters -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span>⚙️</span> Generator Parameters</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Flow Generation Rate</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="range" id="rateSlider" class="range-slider" min="1" max="20" value="5" oninput="updateRate(this.value)">
+        <span id="rateVal" class="ctrl-val">5 flows/s</span>
+      </div>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Duration Mode</span>
+      <select id="durationSelect" class="select-input" onchange="updateDuration(this.value)">
+        <option value="5">5 Seconds</option>
+        <option value="10" selected>10 Seconds</option>
+        <option value="30">30 Seconds</option>
+        <option value="0">Continuous</option>
+      </select>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Simulated Hosts</span>
+      <select id="hostSelect" class="select-input">
+        <option value="1">1 Host (192.168.1.105)</option>
+        <option value="3" selected>3 Hosts (192.168.1.100–102)</option>
+        <option value="5">5 Hosts (Subnet Cluster)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions-grid">
+    <button id="btnStart" class="btn-action btn-start" onclick="startSimulation()">
+      <span>▶</span> START SIMULATION
+    </button>
+    <button id="btnStop" class="btn-action btn-stop" onclick="stopSimulation()" disabled>
+      <span>⏹</span> STOP
+    </button>
+    <button id="btnOnce" class="btn-action btn-once" onclick="sendSingleBatch()">
+      <span>⚡</span> SEND SINGLE TELEMETRY BATCH
+    </button>
+  </div>
+
+  <!-- Live Statistics Counters -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div id="statFlows" class="stat-val">0</div>
+      <div class="stat-lbl">Flows Sent</div>
+    </div>
+    <div class="stat-box">
+      <div id="statPkts" class="stat-val">0</div>
+      <div class="stat-lbl">Packets</div>
+    </div>
+    <div class="stat-box">
+      <div id="statBytes" class="stat-val">0 KB</div>
+      <div class="stat-lbl">Bytes Sent</div>
+    </div>
+    <div class="stat-box">
+      <div id="statLatency" class="stat-val">—</div>
+      <div class="stat-lbl">ML Latency</div>
+    </div>
+  </div>
+
+  <!-- Dynamic Backend AI Inference Feedback -->
+  <div class="feedback-card">
+    <div class="fb-header">
+      <span class="card-title" style="color:var(--accent);"><span>🧠</span> Live Backend AI Intelligence</span>
+      <span id="fbModelStatus" class="fb-badge">AWAITING TELEMETRY</span>
+    </div>
+    <div class="fb-grid">
+      <div class="fb-item">
+        <div class="fb-label">Inferred Stage</div>
+        <div id="fbStage" class="fb-val stage-normal">—</div>
+      </div>
+      <div class="fb-item">
+        <div class="fb-label">Attack Probability</div>
+        <div id="fbAtkProb" class="fb-val">—</div>
+      </div>
+      <div class="fb-item">
+        <div class="fb-label">Next Stage Forecast</div>
+        <div id="fbNextStage" class="fb-val">—</div>
+      </div>
+      <div class="fb-item">
+        <div class="fb-label">Risk Level</div>
+        <div id="fbRiskScore" class="fb-val">—</div>
+      </div>
+    </div>
+    <div class="risk-meter">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);">
+        <span>Risk Gauge</span>
+        <span id="riskPctLabel">0%</span>
+      </div>
+      <div class="risk-bar-track">
+        <div id="riskBar" class="risk-bar-fill"></div>
+      </div>
+    </div>
+    <div id="fbMitreWrap" style="display:none;background:rgba(10,13,20,.6);border:1px solid rgba(42,53,80,.6);border-radius:8px;padding:8px;">
+      <div class="fb-label">Primary MITRE Technique</div>
+      <div id="fbMitre" style="font-size:11px;font-weight:600;color:var(--accent);margin-top:2px;">—</div>
+    </div>
+  </div>
+
+  <!-- Live Event Preview Table -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><span>📋</span> Real-time Flows Preview</span>
+      <span style="font-size:10px;color:var(--muted);">Last 10 generated</span>
+    </div>
+    <div class="table-wrap">
+      <table class="preview-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Source</th>
+            <th>Dest</th>
+            <th>Port</th>
+            <th>Proto</th>
+            <th>Pkts</th>
+            <th>Bytes</th>
+            <th>Flags</th>
+          </tr>
+        </thead>
+        <tbody id="previewBody">
+          <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:12px;">No synthetic flows generated yet</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Judge Demonstration Guide -->
+  <div class="card">
+    <button class="guide-toggle" onclick="toggleGuide()">
+      <span>📖</span> <strong>Judge Demonstration Walkthrough</strong>
+      <span id="guideArrow" style="margin-left:auto;">▼</span>
+    </button>
+    <div id="guideContent" class="guide-content">
+      <div class="guide-step">
+        <strong>Step 1 — Connect Phone & Laptop:</strong> Ensure both your mobile device and the CyberSentinel host laptop are connected to the same local Wi-Fi.
+      </div>
+      <div class="guide-step">
+        <strong>Step 2 — Open UIs:</strong> On the laptop, view the Command Center at <code>http://localhost:8000/ui/index.html</code>. On your phone, open <code>http://&lt;laptop_ip&gt;:8000/ui/simulator.html</code>.
+      </div>
+      <div class="guide-step">
+        <strong>Step 3 — Test Normal Traffic:</strong> Select <em>Normal Traffic</em> and tap <em>Send Single Telemetry Batch</em>. Point out to judges that the laptop SOC dashboard remains in the safe / low-risk baseline stage.
+      </div>
+      <div class="guide-step">
+        <strong>Step 4 — Trigger Live Attack Simulation:</strong> Select <em>Recon Scanning</em> or <em>Credential Access</em> and tap <em>Start Simulation</em>. Watch the laptop's SOC dashboard immediately transition stages, update risk gauges, and map MITRE techniques in real time!
+      </div>
+      <div class="guide-step">
+        <strong>Step 5 — Explain Defense Integrity:</strong> Emphasize to judges that all flows are transmitted with <code>label="UNKNOWN"</code>. Zero canned predictions or hardcoded rules exist. The laptop's neural network (<code>CyberWorldModelV2</code>) infers every intelligence output dynamically from scaled 24-D physical state vectors.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="toast">Notice</div>
+
+<script>
+/* ─── State ─────────────────────────────────────────────────────────────── */
+let currentProfile = 'normal';
+let isRunning = false;
+let simInterval = null;
+let simTimeout = null;
+let totalFlows = 0;
+let totalPackets = 0;
+let totalBytes = 0;
+let recentFlows = [];
+let sessionId = 'mob_' + Math.random().toString(36).substring(2, 9);
+
+/* ─── Initialization ────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  const urlInput = document.getElementById('backendUrl');
+  // Auto-detect origin
+  if (window.location.protocol.startsWith('http')) {
+    urlInput.value = window.location.origin;
+  } else {
+    urlInput.value = 'http://127.0.0.1:8000';
+  }
+  checkConnection();
+});
+
+/* ─── API Connection Check ──────────────────────────────────────────────── */
+async function checkConnection() {
+  const backendUrl = getBackendUrl();
+  const statusEl = document.getElementById('connStatus');
+  const textEl = document.getElementById('connText');
+  const latEl = document.getElementById('pingLatency');
+
+  statusEl.className = 'status-pill checking';
+  textEl.textContent = 'CHECKING...';
+
+  const t0 = performance.now();
+  try {
+    const res = await fetch(`${backendUrl}/api/v1/stream/health`, {
+      method: 'GET',
+      headers: {'Accept': 'application/json'}
+    });
+    const tElapsed = Math.round(performance.now() - t0);
+
+    if (res.ok) {
+      const data = await res.json();
+      statusEl.className = 'status-pill online';
+      textEl.textContent = 'CONNECTED';
+      latEl.textContent = `${tElapsed} ms`;
+      showToast(`Connected to CyberSentinel API (${tElapsed}ms)`);
+    } else {
+      throw new Error(`HTTP ${res.status}`);
+    }
+  } catch (err) {
+    statusEl.className = 'status-pill offline';
+    textEl.textContent = 'DISCONNECTED';
+    latEl.textContent = 'err';
+    showToast('Failed to connect to backend');
+  }
+}
+
+function getBackendUrl() {
+  let url = document.getElementById('backendUrl').value.trim();
+  if (url.endsWith('/')) url = url.slice(0, -1);
+  return url;
+}
+
+/* ─── Profile Selection ─────────────────────────────────────────────────── */
+const PROFILE_NAMES = {
+  normal: 'Normal Traffic',
+  burst: 'Connection Burst',
+  recon: 'Recon Scanning',
+  credential: 'Credential Access',
+  exfil: 'Large Transfer',
+  beacon: 'Bot Beaconing'
+};
+
+function selectProfile(profileKey) {
+  currentProfile = profileKey;
+  document.getElementById('activeProfileLabel').textContent = PROFILE_NAMES[profileKey] || profileKey;
+  
+  const btns = document.querySelectorAll('.profile-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  showToast(`Profile: ${PROFILE_NAMES[profileKey]}`);
+}
+
+function updateRate(val) {
+  document.getElementById('rateVal').textContent = `${val} flows/s`;
+}
+
+function updateDuration(val) {
+  // handled on start
+}
+
+/* ─── Flow Generation Engine ────────────────────────────────────────────── */
+function getSimulatedHosts() {
+  const count = parseInt(document.getElementById('hostSelect').value, 10);
+  if (count === 1) return ['192.168.1.105'];
+  if (count === 3) return ['192.168.1.100', '192.168.1.101', '192.168.1.102'];
+  return ['192.168.1.100', '192.168.1.101', '192.168.1.102', '192.168.1.103', '192.168.1.104'];
+}
+
+function generateFlows(count) {
+  const hosts = getSimulatedHosts();
+  const flows = [];
+  const now = Date.now() / 1000;
+
+  for (let i = 0; i < count; i++) {
+    const srcIp = hosts[Math.floor(Math.random() * hosts.length)];
+    const srcPort = 40000 + Math.floor(Math.random() * 20000);
+    let dstIp = '192.168.1.10';
+    let dstPort = 80;
+    let proto = 6;
+    let pkts = 5;
+    let bytes = 500;
+    let dur = 0.05;
+    let syn = 1, ack = 1, rst = 0, fin = 0, psh = 0;
+    let failed = false;
+
+    if (currentProfile === 'normal') {
+      const benignPorts = [80, 443, 53, 8080];
+      dstPort = benignPorts[Math.floor(Math.random() * benignPorts.length)];
+      proto = (dstPort === 53) ? 17 : 6;
+      pkts = Math.floor(Math.random() * 12) + 6;
+      bytes = pkts * (Math.floor(Math.random() * 150) + 70);
+      dur = Math.random() * 0.5 + 0.05;
+      syn = (proto === 6) ? 1 : 0;
+      ack = (proto === 6) ? 1 : 0;
+      fin = (proto === 6) ? 1 : 0;
+      psh = 1;
+      failed = false;
+    } else if (currentProfile === 'burst') {
+      dstPort = Math.random() > 0.3 ? 443 : 80;
+      proto = 6;
+      pkts = Math.floor(Math.random() * 3) + 2;
+      bytes = pkts * 60;
+      dur = Math.random() * 0.015 + 0.002;
+      syn = 1; ack = 1; fin = 1;
+      failed = false;
+    } else if (currentProfile === 'recon') {
+      dstPort = Math.floor(Math.random() * 1024) + 1;
+      proto = 6;
+      pkts = 1;
+      bytes = 44;
+      dur = 0.002;
+      syn = 1; ack = 0;
+      if (Math.random() < 0.4) {
+        rst = 1;
+        failed = true;
+      }
+    } else if (currentProfile === 'credential') {
+      const authPorts = [22, 3389, 445, 1433];
+      dstPort = authPorts[Math.floor(Math.random() * authPorts.length)];
+      proto = 6;
+      pkts = Math.floor(Math.random() * 4) + 3;
+      bytes = pkts * 75;
+      dur = Math.random() * 0.06 + 0.01;
+      syn = 1; ack = 1;
+      if (Math.random() < 0.7) {
+        rst = 1;
+        failed = true;
+      }
+    } else if (currentProfile === 'exfil') {
+      dstPort = 443;
+      dstIp = '192.168.1.50';
+      proto = 6;
+      pkts = Math.floor(Math.random() * 800) + 400;
+      bytes = pkts * 1420; // Full MTU segments
+      dur = Math.random() * 3.0 + 1.0;
+      syn = 1; ack = 1; fin = 1; psh = 1;
+      failed = false;
+    } else if (currentProfile === 'beacon') {
+      dstPort = 8443;
+      dstIp = '192.168.1.99';
+      proto = 6;
+      pkts = 2;
+      bytes = 128; // Strict uniform payload
+      dur = 0.02;
+      syn = 1; ack = 1; fin = 1;
+      failed = false;
+    }
+
+    flows.push({
+      src_ip: srcIp,
+      dst_ip: dstIp,
+      src_port: srcPort,
+      dst_port: dstPort,
+      protocol: proto,
+      packets: pkts,
+      bytes: bytes,
+      duration: dur,
+      syn_flag: syn,
+      ack_flag: ack,
+      rst_flag: rst,
+      fin_flag: fin,
+      psh_flag: psh,
+      urg_flag: 0,
+      failed: failed,
+      timestamp: now + (i * 0.01),
+      label: 'UNKNOWN' // STRICT DEFENSE RULE: Zero ground truth leakage
+    });
+  }
+
+  return flows;
+}
+
+/* ─── Simulation Transmission ───────────────────────────────────────────── */
+async function transmitFlows(flows) {
+  const backendUrl = getBackendUrl();
+  const payload = {
+    flows: flows,
+    session_id: sessionId,
+    source_id: `MobileSim-${currentProfile}`,
+    k_steps: 4,
+    window_seconds: 10.0
+  };
+
+  const t0 = performance.now();
+  try {
+    const res = await fetch(`${backendUrl}/api/v1/stream/ingest`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const tElapsed = Math.round(performance.now() - t0);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    updateLiveMetrics(flows, tElapsed);
+    updateIntelligenceFeedback(data);
+    addFlowsToPreview(flows);
+    return data;
+  } catch (err) {
+    console.error('Ingest error:', err);
+    showToast(`Transmission error: ${err.message}`);
+    return null;
+  }
+}
+
+function updateLiveMetrics(flows, latencyMs) {
+  totalFlows += flows.length;
+  let pkts = 0;
+  let b = 0;
+  for (const f of flows) {
+    pkts += f.packets;
+    b += f.bytes;
+  }
+  totalPackets += pkts;
+  totalBytes += b;
+
+  document.getElementById('statFlows').textContent = totalFlows.toLocaleString();
+  document.getElementById('statPkts').textContent = totalPackets.toLocaleString();
+  
+  if (totalBytes > 1048576) {
+    document.getElementById('statBytes').textContent = (totalBytes / 1048576).toFixed(1) + ' MB';
+  } else {
+    document.getElementById('statBytes').textContent = (totalBytes / 1024).toFixed(1) + ' KB';
+  }
+  
+  document.getElementById('statLatency').textContent = `${latencyMs} ms`;
+}
+
+function updateIntelligenceFeedback(data) {
+  if (!data) return;
+
+  const modelStatus = document.getElementById('fbModelStatus');
+  const stageEl = document.getElementById('fbStage');
+  const probEl = document.getElementById('fbAtkProb');
+  const nextStageEl = document.getElementById('fbNextStage');
+  const riskEl = document.getElementById('fbRiskScore');
+  const riskBar = document.getElementById('riskBar');
+  const riskPctLabel = document.getElementById('riskPctLabel');
+  const mitreWrap = document.getElementById('fbMitreWrap');
+  const mitreEl = document.getElementById('fbMitre');
+
+  modelStatus.textContent = data.status || 'FORECAST';
+  modelStatus.style.background = 'rgba(16,185,129,.2)';
+  modelStatus.style.color = 'var(--green)';
+
+  // Stage display
+  const stage = data.current_stage || '—';
+  stageEl.textContent = stage;
+  stageEl.className = 'fb-val';
+  if (stage.toLowerCase().includes('recon')) stageEl.classList.add('stage-recon');
+  else if (stage.toLowerCase().includes('cred') || stage.toLowerCase().includes('auth')) stageEl.classList.add('stage-cred');
+  else if (stage.toLowerCase().includes('exfil') || stage.toLowerCase().includes('impact')) stageEl.classList.add('stage-exfil');
+  else if (stage.toLowerCase().includes('lateral')) stageEl.classList.add('stage-lateral');
+  else stageEl.classList.add('stage-normal');
+
+  // Probability
+  if (data.attack_probability !== undefined && data.attack_probability !== null) {
+    probEl.textContent = `p = ${Number(data.attack_probability).toFixed(3)}`;
+  } else {
+    probEl.textContent = '—';
+  }
+
+  // Next Stage
+  nextStageEl.textContent = data.predicted_next_stage || '—';
+
+  // Risk score
+  const score = data.risk_score !== undefined && data.risk_score !== null ? Number(data.risk_score) : 0;
+  const level = data.risk_level || 'LOW';
+  riskEl.textContent = `${score.toFixed(1)} (${level})`;
+  
+  // Risk Gauge
+  const clampedScore = Math.min(Math.max(score, 0), 100);
+  riskBar.style.width = `${clampedScore}%`;
+  riskPctLabel.textContent = `${Math.round(clampedScore)}%`;
+
+  if (clampedScore < 25) {
+    riskBar.style.backgroundColor = 'var(--green)';
+    riskEl.style.color = 'var(--green)';
+  } else if (clampedScore < 50) {
+    riskBar.style.backgroundColor = 'var(--yellow)';
+    riskEl.style.color = 'var(--yellow)';
+  } else if (clampedScore < 75) {
+    riskBar.style.backgroundColor = 'var(--orange)';
+    riskEl.style.color = 'var(--orange)';
+  } else {
+    riskBar.style.backgroundColor = 'var(--red)';
+    riskEl.style.color = 'var(--red)';
+  }
+
+  // MITRE
+  if (data.primary_technique_id && data.primary_technique_name) {
+    mitreWrap.style.display = 'block';
+    mitreEl.textContent = `${data.primary_technique_id}: ${data.primary_technique_name}`;
+  } else {
+    mitreWrap.style.display = 'none';
+  }
+}
+
+function addFlowsToPreview(flows) {
+  recentFlows = flows.concat(recentFlows).slice(0, 10);
+  const tbody = document.getElementById('previewBody');
+  tbody.innerHTML = '';
+
+  for (const f of recentFlows) {
+    const tr = document.createElement('tr');
+    const timeStr = new Date(f.timestamp * 1000).toTimeString().split(' ')[0];
+    const flags = [];
+    if (f.syn_flag) flags.push('SYN');
+    if (f.ack_flag) flags.push('ACK');
+    if (f.rst_flag) flags.push('RST');
+    if (f.fin_flag) flags.push('FIN');
+    const flagStr = flags.join('|') || '—';
+
+    tr.innerHTML = `
+      <td style="color:var(--muted);">${timeStr}</td>
+      <td>${f.src_ip.replace('192.168.1.', '.')}</td>
+      <td>${f.dst_ip.replace('192.168.1.', '.')}</td>
+      <td style="color:var(--accent);">${f.dst_port}</td>
+      <td>${f.protocol === 6 ? 'TCP' : 'UDP'}</td>
+      <td>${f.packets}</td>
+      <td>${f.bytes}</td>
+      <td style="color:${f.rst_flag ? 'var(--red)' : 'var(--muted)'};">${flagStr}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+/* ─── User Controls: Start / Stop / Once ─────────────────────────────────── */
+async function sendSingleBatch() {
+  const rate = parseInt(document.getElementById('rateSlider').value, 10);
+  const flows = generateFlows(rate * 2); // 2-second batch
+  showToast(`Transmitting batch (${flows.length} flows)...`);
+  await transmitFlows(flows);
+}
+
+function startSimulation() {
+  if (isRunning) return;
+  isRunning = true;
+
+  const btnStart = document.getElementById('btnStart');
+  const btnStop = document.getElementById('btnStop');
+  btnStart.classList.add('running');
+  btnStart.innerHTML = '<span>⚡</span> GENERATING...';
+  btnStop.classList.add('enabled');
+  btnStop.disabled = false;
+
+  const rate = parseInt(document.getElementById('rateSlider').value, 10);
+  const durationSec = parseInt(document.getElementById('durationSelect').value, 10);
+
+  showToast(`Simulation started (${rate} flows/sec)`);
+
+  // Periodic flow generation (every 1000ms)
+  simInterval = setInterval(async () => {
+    if (!isRunning) return;
+    const flows = generateFlows(rate);
+    await transmitFlows(flows);
+  }, 1000);
+
+  // Initial burst
+  const initialFlows = generateFlows(rate);
+  transmitFlows(initialFlows);
+
+  // Auto-stop if duration specified
+  if (durationSec > 0) {
+    simTimeout = setTimeout(() => {
+      stopSimulation();
+      showToast(`Simulation duration (${durationSec}s) completed`);
+    }, durationSec * 1000);
+  }
+}
+
+function stopSimulation() {
+  if (!isRunning) return;
+  isRunning = false;
+
+  if (simInterval) clearInterval(simInterval);
+  if (simTimeout) clearTimeout(simTimeout);
+  simInterval = null;
+  simTimeout = null;
+
+  const btnStart = document.getElementById('btnStart');
+  const btnStop = document.getElementById('btnStop');
+  btnStart.classList.remove('running');
+  btnStart.innerHTML = '<span>▶</span> START SIMULATION';
+  btnStop.classList.remove('enabled');
+  btnStop.disabled = true;
+
+  showToast('Simulation stopped');
+}
+
+/* ─── UI Helpers ─────────────────────────────────────────────────────────── */
+function toggleGuide() {
+  const content = document.getElementById('guideContent');
+  const arrow = document.getElementById('guideArrow');
+  content.classList.toggle('open');
+  arrow.textContent = content.classList.contains('open') ? '▲' : '▼';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+</script>
+
+</body>
+</html>

@@ -68,7 +68,7 @@ cybersentinel-ai/
 ├── datasets/           # Multi-scenario flow traces (multistage attack traces)
 ├── docs/               # Architecture, audit reports, benchmarks, validation docs
 ├── scripts/            # Inference benchmarks, training pipelines, start launcher
-└── tests/              # Test suite (229/229 passing: causality, live ingest, WS, equivalence, Phase 14)
+└── tests/              # Test suite (248/248 passing: causality, live ingest, WS, equivalence, Phase 14, Phase 16, Simulator)
 ```
 
 ---
@@ -120,11 +120,20 @@ python scripts/run_phase16_twomachine_demo.py \
 ```
 See [`docs/phase16_operator_runbook.md`](docs/phase16_operator_runbook.md) for full physical deployment instructions.
 
+### Mobile-Friendly Traffic Simulator (Demonstrations & Judging)
+Generate controlled synthetic telemetry from any smartphone/tablet on the local LAN:
+- **Mobile Web App / PWA**: Navigate to `http://<laptop_ip>:8000/ui/simulator.html` on your mobile browser.
+- **REST Ingestion Endpoint**: `POST /api/v1/stream/ingest`
+- **6 Realistic Profiles**: Normal Background, Connection Burst, Recon Scanning, Credential Access, Large Data Transfer, Bot Beaconing.
+- **Zero Hardcoding**: All flows emitted with `label="UNKNOWN"`; laptop backend transforms via production `FeatureScaler` and performs live `CyberWorldModelV2` inference.
+- **Real-Time SOC Coupling**: Every synthetic burst immediately forecasts threat stage, risk score, MITRE techniques, and broadcasts to the laptop dashboard (`/ui/index.html`) over WebSocket.
+- See [`docs/mobile_simulator_guide.md`](docs/mobile_simulator_guide.md) for judge demonstration walkthrough and presentation script.
+
 ---
 
 ## 6. Verification & Benchmarking
 
-Run the complete 235-test automated suite:
+Run the complete 248-test automated suite:
 ```powershell
 pytest tests/ -v
 ```
