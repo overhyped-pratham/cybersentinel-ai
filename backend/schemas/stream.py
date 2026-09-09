@@ -62,6 +62,8 @@ class StreamEvent(BaseModel):
     rollout_steps: Optional[List[Dict[str, Any]]] = None
     safety_flags: Optional[List[str]] = None
     observed_stages: Optional[List[str]] = None
+    telemetry_features: Optional[Dict[str, float]] = None
+    source_kind: Optional[str] = None
 
 
 class TelemetryFlowInput(BaseModel):

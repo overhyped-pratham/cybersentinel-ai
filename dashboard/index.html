@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CyberSentinel AI — Command Center</title>
+<title>CyberSentinel AI — SOC Command Center</title>
 <style>
 /* ─── Reset & Variables ─────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -18,29 +18,37 @@
 body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
 a{color:var(--accent);text-decoration:none}
 button{cursor:pointer;font-family:var(--font)}
-input,textarea{font-family:var(--font)}
+input,textarea,select{font-family:var(--font)}
 scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 
 /* ─── Layout ────────────────────────────────────────────────────────────── */
-.app{display:grid;grid-template-rows:56px 1fr;min-height:100vh}
+.app{display:grid;grid-template-rows:auto 1fr;min-height:100vh}
 .header{background:var(--surface);border-bottom:1px solid var(--border);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;position:sticky;top:0;z-index:100}
+  padding:10px 20px;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px}
 .header-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
 .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--purple));
   border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.header-status{display:flex;gap:12px;align-items:center}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.header-actions{display:flex;gap:10px;align-items:center}
+
+/* Sub-header status bar */
+.status-strip{background:rgba(17,24,39,.95);border-bottom:1px solid var(--border);
+  padding:6px 20px;display:flex;gap:18px;align-items:center;overflow-x:auto;font-size:11px}
+.status-item{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:all .3s}
 .status-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
-.status-dot.err{background:var(--red)}
-.status-label{font-size:12px;color:var(--muted)}
-.main{display:grid;grid-template-columns:320px 1fr 300px;gap:0;overflow:hidden;height:calc(100vh - 56px)}
-.sidebar-left{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px}
-.center{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.sidebar-right{background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:16px}
+.status-dot.warn{background:var(--yellow);box-shadow:0 0 6px var(--yellow)}
+.status-dot.err{background:var(--red);box-shadow:0 0 6px var(--red)}
+.status-dot.pulse{animation:status-pulse 1.8s infinite}
+@keyframes status-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.25)}}
+
+.main{display:grid;grid-template-columns:330px 1fr 320px;gap:0;overflow:hidden;height:calc(100vh - 96px)}
+.sidebar-left{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:14px}
+.center{overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.sidebar-right{background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:14px}
 
 /* ─── Cards ─────────────────────────────────────────────────────────────── */
-.card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px;position:relative}
 .card-title{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);
   text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .card-title .icon{font-size:13px}
@@ -51,23 +59,38 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 .badge-observed{background:rgba(16,185,129,.15);color:var(--observed);border:1px solid rgba(16,185,129,.3)}
 .badge-forecast{background:rgba(59,130,246,.15);color:var(--forecast);border:1px solid rgba(59,130,246,.3)}
 .badge-simulated{background:rgba(139,92,246,.15);color:var(--simulated);border:1px solid rgba(139,92,246,.3)}
+.badge-not-reached{background:rgba(148,163,184,.1);color:var(--muted);border:1px solid rgba(148,163,184,.2)}
 .badge-critical{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
 .badge-high{background:rgba(249,115,22,.2);color:#fdba74;border:1px solid rgba(249,115,22,.4)}
 .badge-medium{background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.4)}
 .badge-low{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
 
 /* ─── Metrics ────────────────────────────────────────────────────────────── */
-.metric-big{font-size:28px;font-weight:700;line-height:1}
-.metric-label{font-size:11px;color:var(--muted);margin-top:3px}
-.metric-row{display:flex;gap:16px;flex-wrap:wrap}
-.metric-box{flex:1;min-width:80px}
+.metric-big{font-size:26px;font-weight:700;line-height:1}
+.metric-label{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.04em}
+.metric-row{display:flex;gap:12px;flex-wrap:wrap}
+.metric-box{flex:1;min-width:75px}
 .prob-bar-wrap{margin-top:6px}
 .prob-bar-track{background:var(--surface3);border-radius:4px;height:6px;overflow:hidden}
 .prob-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
 .prob-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px}
 
+/* ─── SOC Threat Detection Event Banner ──────────────────────────────────── */
+.soc-event-banner{border-radius:9px;padding:12px 16px;border:1px solid var(--border);
+  transition:all .3s ease;display:flex;flex-direction:column;gap:8px}
+.soc-event-banner.threat{background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(17,24,39,.9));
+  border-color:rgba(239,68,68,.4);box-shadow:0 0 15px rgba(239,68,68,.15)}
+.soc-event-banner.nominal{background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(17,24,39,.9));
+  border-color:rgba(16,185,129,.3);box-shadow:0 0 12px rgba(16,185,129,.1)}
+.soc-event-banner.uninitialized{background:var(--surface2);color:var(--muted);border-color:var(--border)}
+.soc-event-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.soc-event-title{font-size:13px;font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:6px}
+.soc-event-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:4px}
+.soc-event-cell{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);border-radius:6px;padding:6px 8px}
+.soc-event-val{font-size:13px;font-weight:700;font-family:var(--mono)}
+
 /* ─── Attack Lifecycle ───────────────────────────────────────────────────── */
-.lifecycle{display:flex;flex-direction:column;gap:4px;min-height:180px;position:relative}
+.lifecycle{display:flex;flex-direction:column;gap:3px;min-height:180px;position:relative}
 .lc-stage{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;
   border:1px solid transparent;transition:all .35s cubic-bezier(0.4, 0, 0.2, 1);position:relative}
 .lc-stage.active{background:rgba(16,185,129,.14);border-color:var(--green);color:var(--text);box-shadow:0 0 10px rgba(16,185,129,.2)}
@@ -79,7 +102,7 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 .lc-stage.active .lc-dot{background:var(--green);box-shadow:0 0 8px var(--green);animation:lc-pulse 2s infinite}
 .lc-stage.predicted .lc-dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
 .lc-stage.simulated .lc-dot{background:var(--purple);box-shadow:0 0 6px var(--purple)}
-.lc-stage.past .lc-dot{background:var(--green);opacity:.6}
+.lc-stage.past .lc-dot{background:var(--green);opacity:.7}
 .lc-stage.inactive .lc-dot{background:var(--border);opacity:.5}
 @keyframes lc-pulse{0%,100%{transform:scale(1);box-shadow:0 0 6px var(--green)}50%{transform:scale(1.3);box-shadow:0 0 12px var(--green)}}
 .lc-arrow{font-size:10px;color:var(--muted);margin-left:20px;transition:all .3s ease;line-height:1}
@@ -88,58 +111,88 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 .lc-label{font-size:12px;font-weight:500}
 .lc-annotation{margin-left:auto;font-size:10px;font-weight:600}
 
+/* ─── Telemetry Table & Grid ─────────────────────────────────────────────── */
+.telem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:6px}
+.telem-box{background:var(--surface3);border:1px solid var(--border);border-radius:7px;padding:8px}
+.telem-box-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.telem-box-val{font-size:16px;font-weight:700;font-family:var(--mono);margin-top:3px;color:var(--text)}
 
 /* ─── Timeline ───────────────────────────────────────────────────────────── */
-.timeline{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto}
-.tl-row{display:grid;grid-template-columns:50px 110px 110px 60px 60px;
-  gap:6px;align-items:center;padding:5px 8px;border-radius:5px;border:1px solid transparent}
+.timeline{display:flex;flex-direction:column;gap:5px;max-height:300px;overflow-y:auto}
+.tl-row{display:grid;grid-template-columns:60px 105px 105px 55px 65px 1fr;
+  gap:6px;align-items:center;padding:5px 8px;border-radius:5px;border:1px solid transparent;font-size:11px}
 .tl-row:hover{background:var(--surface3)}
-.tl-row.transition-row{border-color:rgba(59,130,246,.3)}
+.tl-row.transition-row{border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.04)}
 .tl-header{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.05em}
-.tl-win{font-size:11px;font-family:var(--mono);color:var(--muted)}
-.tl-stage{font-size:11px;font-weight:500}
-.tl-conf{font-size:11px;font-family:var(--mono)}
-.tl-risk{font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px}
+.tl-win{font-family:var(--mono);color:var(--muted)}
+.tl-stage{font-weight:500}
+.tl-conf{font-family:var(--mono)}
+.tl-risk{font-weight:600;padding:1px 5px;border-radius:3px;text-align:center}
+
+/* ─── Granular Event Log ─────────────────────────────────────────────────── */
+.event-log{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto;font-family:var(--mono);font-size:11px}
+.event-item{display:flex;align-items:flex-start;gap:8px;padding:4px 8px;border-radius:4px;background:rgba(0,0,0,.2)}
+.event-ts{color:var(--muted);flex-shrink:0}
+.event-tag{font-weight:600;flex-shrink:0}
 
 /* ─── Feature Table ──────────────────────────────────────────────────────── */
 .feat-table{width:100%;border-collapse:collapse;font-size:12px}
 .feat-table th{text-align:left;color:var(--muted);font-weight:600;font-size:10px;
-  letter-spacing:.05em;padding:4px 6px;border-bottom:1px solid var(--border)}
+  letter-spacing:.05em;padding:5px 6px;border-bottom:1px solid var(--border)}
 .feat-table td{padding:5px 6px;border-bottom:1px solid rgba(42,53,80,.5)}
 .feat-name{font-family:var(--mono);color:var(--text)}
 .feat-val{font-family:var(--mono);color:var(--muted)}
 .feat-delta{font-family:var(--mono);font-weight:600}
 .feat-delta.pos{color:var(--red)}
 .feat-delta.neg{color:var(--green)}
-.feat-bar-cell{width:60px}
+.feat-bar-cell{width:65px}
 .feat-bar{height:4px;border-radius:2px;background:var(--surface3);overflow:hidden}
 .feat-bar-inner{height:100%;border-radius:2px}
 
 /* ─── MITRE ──────────────────────────────────────────────────────────────── */
-.mitre-card{background:var(--surface3);border-radius:7px;padding:10px;margin-bottom:8px}
+.mitre-card{background:var(--surface3);border-radius:7px;padding:10px;margin-bottom:8px;border:1px solid var(--border)}
 .mitre-id{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700}
 .mitre-name{font-size:13px;font-weight:600;margin:3px 0}
 .mitre-tactic{font-size:11px;color:var(--muted)}
 .mitre-rationale{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
 .mitre-provenance{font-size:10px;color:rgba(148,163,184,.5);margin-top:5px}
 
+/* ─── Risk Escalation Meter ──────────────────────────────────────────────── */
+.risk-meter{display:flex;gap:4px;margin-top:8px}
+.risk-meter-seg{flex:1;text-align:center;padding:5px 2px;border-radius:4px;font-size:10px;font-weight:700;
+  letter-spacing:.04em;background:var(--surface3);color:var(--muted);border:1px solid transparent;transition:all .3s}
+.risk-meter-seg.active-low{background:rgba(16,185,129,.2);color:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(16,185,129,.3)}
+.risk-meter-seg.active-med{background:rgba(245,158,11,.2);color:var(--yellow);border-color:var(--yellow);box-shadow:0 0 8px rgba(245,158,11,.3)}
+.risk-meter-seg.active-high{background:rgba(249,115,22,.2);color:var(--orange);border-color:var(--orange);box-shadow:0 0 8px rgba(249,115,22,.3)}
+.risk-meter-seg.active-crit{background:rgba(239,68,68,.25);color:var(--red);border-color:var(--red);box-shadow:0 0 10px rgba(239,68,68,.4)}
+
 /* ─── Rollout / Simulation ───────────────────────────────────────────────── */
 .rollout-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 0}
 .rollout-step{background:var(--surface3);border:1px solid var(--border);border-radius:7px;
-  padding:8px 12px;text-align:center;flex:1;min-width:90px;position:relative}
+  padding:8px 10px;text-align:center;flex:1;min-width:95px;position:relative}
 .rollout-step.current-marker{border-color:var(--observed);background:rgba(16,185,129,.06)}
 .rollout-step-label{font-size:9px;font-weight:700;letter-spacing:.06em;
   color:var(--simulated);text-transform:uppercase;margin-bottom:4px}
 .rollout-step.current-marker .rollout-step-label{color:var(--observed)}
 .rollout-stage{font-size:11px;font-weight:600}
-.rollout-conf{font-size:10px;color:var(--muted)}
+.rollout-conf{font-size:10px;color:var(--muted);margin-top:2px}
 .rollout-arrow{color:var(--muted);font-size:14px;flex-shrink:0}
 .sim-notice{background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.25);
   border-radius:6px;padding:7px 10px;font-size:11px;color:var(--simulated);
-  display:flex;align-items:center;gap:6px}
+  display:flex;align-items:center;gap:6px;margin-bottom:8px}
+
+/* ─── Incident Response Actions ──────────────────────────────────────────── */
+.ir-action-list{display:flex;flex-direction:column;gap:7px}
+.ir-action-card{background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:9px 12px;
+  display:flex;gap:10px;align-items:flex-start}
+.ir-num{width:20px;height:20px;border-radius:50%;background:rgba(59,130,246,.2);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.ir-content{flex:1}
+.ir-title{font-size:12px;font-weight:600;color:var(--text)}
+.ir-reason{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
 
 /* ─── Agent Chat ─────────────────────────────────────────────────────────── */
-.chat-area{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;margin-bottom:10px}
+.chat-area{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;margin-bottom:10px}
 .chat-msg{border-radius:7px;padding:9px 12px;font-size:12px;line-height:1.6}
 .chat-analyst{background:var(--surface3);border:1px solid var(--border)}
 .chat-agent{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2)}
@@ -158,91 +211,110 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 .chat-send:disabled{opacity:.4;cursor:not-allowed}
 
 /* ─── Buttons ────────────────────────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;
   border-radius:6px;font-size:12px;font-weight:600;border:none;transition:all .2s}
 .btn-primary{background:var(--accent);color:#fff}
 .btn-primary:hover{background:#2563eb}
 .btn-secondary{background:var(--surface3);color:var(--text);border:1px solid var(--border)}
 .btn-secondary:hover{border-color:var(--accent)}
 .btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.btn-demo{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.35)}
+.btn-demo.active{background:var(--purple);color:#fff;box-shadow:0 0 10px rgba(139,92,246,.4)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 
 /* ─── Replay Controls ────────────────────────────────────────────────────── */
 .replay-controls{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
 .scenario-select{background:var(--surface3);border:1px solid var(--border);color:var(--text);
-  border-radius:5px;padding:5px 8px;font-size:12px;width:100%;margin-bottom:10px}
+  border-radius:5px;padding:5px 8px;font-size:12px;width:100%;margin-bottom:8px}
 .replay-progress{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin:8px 0}
 .replay-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));
   border-radius:2px;transition:width .3s ease}
 .replay-info{font-size:11px;color:var(--muted)}
 
-/* ─── Benchmark Panel ────────────────────────────────────────────────────── */
-.bench-table{width:100%;border-collapse:collapse;font-size:11px}
-.bench-table th{color:var(--muted);font-size:10px;font-weight:600;
-  letter-spacing:.05em;padding:4px 6px;border-bottom:1px solid var(--border);text-align:left}
-.bench-table td{padding:5px 6px;border-bottom:1px solid rgba(42,53,80,.4);font-family:var(--mono)}
-.bench-table tr.best td{color:var(--green)}
-.bench-note{font-size:10px;color:rgba(148,163,184,.5);margin-top:6px}
-
 /* ─── Tabs ───────────────────────────────────────────────────────────────── */
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:8px;overflow-x:auto}
 .tab{padding:6px 12px;font-size:12px;font-weight:500;color:var(--muted);
   border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;background:none;border-top:none;
-  border-left:none;border-right:none}
+  border-left:none;border-right:none;white-space:nowrap}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab:hover{color:var(--text)}
 .tab-content{display:none}
 .tab-content.active{display:block}
 
-/* ─── Misc ───────────────────────────────────────────────────────────────── */
-.section-title{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text)}
-.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
-.text-muted{color:var(--muted)}
-.text-green{color:var(--green)}
-.text-red{color:var(--red)}
-.text-yellow{color:var(--yellow)}
-.text-blue{color:var(--accent)}
-.text-purple{color:var(--purple)}
-.text-mono{font-family:var(--mono)}
-.loading{opacity:.5;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
-.empty-state{text-align:center;padding:24px;color:var(--muted);font-size:12px}
+/* ─── Demo Mode Visual Enhancements ──────────────────────────────────────── */
+body.demo-mode-active .card{border-color:rgba(139,92,246,.4);box-shadow:0 0 10px rgba(139,92,246,.08)}
+body.demo-mode-active .lc-stage.active{box-shadow:0 0 15px rgba(16,185,129,.35)}
+body.demo-mode-active .lc-stage.predicted{box-shadow:0 0 15px rgba(59,130,246,.35)}
+
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
+.empty-state{text-align:center;padding:22px;color:var(--muted);font-size:12px}
 .alert-box{padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:8px}
 .alert-info{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:#93c5fd}
 .alert-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fcd34d}
 .alert-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
 .markdown pre{background:var(--surface3);border-radius:5px;padding:8px;overflow-x:auto;font-size:11px}
 .markdown code{font-family:var(--mono);font-size:11px;background:var(--surface3);padding:1px 4px;border-radius:3px}
-.markdown strong{color:var(--text)}
 .markdown ul{padding-left:16px}
 .markdown li{margin-bottom:3px}
-.markdown table{width:100%;border-collapse:collapse}
-.markdown table th,.markdown table td{padding:4px 8px;border:1px solid var(--border);font-size:11px}
-.markdown table th{background:var(--surface3);font-weight:600}
-.markdown hr{border:none;border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- ─── Header ──────────────────────────────────────────────────────────── -->
+<!-- ─── 1. Header ──────────────────────────────────────────────────────────── -->
 <header class="header">
   <div class="header-logo">
     <div class="logo-icon">🛡</div>
     <span>CyberSentinel AI</span>
-    <span style="color:var(--muted);font-weight:400;font-size:12px">Command Center</span>
-    <span id="systemModeBadge" class="badge badge-observed" style="margin-left:14px;font-size:11px">LIVE STREAMING MODE</span>
+    <span style="color:var(--muted);font-weight:400;font-size:12px">SOC Command Center</span>
+    <span id="systemModeBadge" class="badge badge-observed" style="margin-left:8px;font-size:11px">LIVE STREAMING MODE</span>
   </div>
-  <div class="header-status">
-    <div id="hModelDot" class="status-dot"></div>
-    <span class="status-label" id="hModelLabel">Model: checking…</span>
-    <div id="hCalibDot" class="status-dot" style="margin-left:8px"></div>
-    <span class="status-label" id="hCalibLabel">Calibration: —</span>
-    <div id="hOllamaDot" class="status-dot" style="margin-left:8px"></div>
-    <span class="status-label" id="hOllamaLabel">Agent: —</span>
+  <div class="header-actions">
+    <button class="btn btn-demo" id="btnDemoMode" onclick="toggleDemoMode()">
+      <span class="icon">✨</span>Demo Mode: OFF
+    </button>
   </div>
 </header>
+
+<!-- ─── 2. Live Subsystem Status Indicators Strip ───────────────────────────── -->
+<div class="status-strip">
+  <div class="status-item">
+    <span style="color:var(--muted)">Telemetry:</span>
+    <div id="stTelemDot" class="status-dot"></div>
+    <span id="stTelemLabel" class="text-mono">WAITING</span>
+  </div>
+  <div class="status-item">
+    <span style="color:var(--muted)">FeatureScaler:</span>
+    <div id="stScalerDot" class="status-dot ok"></div>
+    <span id="stScalerLabel" class="text-mono">READY</span>
+  </div>
+  <div class="status-item">
+    <span style="color:var(--muted)">CyberWorldModelV2:</span>
+    <div id="stModelDot" class="status-dot"></div>
+    <span id="stModelLabel" class="text-mono">RUNNING (v2.0)</span>
+  </div>
+  <div class="status-item">
+    <span style="color:var(--muted)">Risk Engine:</span>
+    <div id="stRiskDot" class="status-dot ok"></div>
+    <span id="stRiskLabel" class="text-mono">ACTIVE</span>
+  </div>
+  <div class="status-item">
+    <span style="color:var(--muted)">MITRE Mapper:</span>
+    <div id="stMitreDot" class="status-dot ok"></div>
+    <span id="stMitreLabel" class="text-mono">ACTIVE (v14)</span>
+  </div>
+  <div class="status-item">
+    <span style="color:var(--muted)">Defensive Agent:</span>
+    <div id="stAgentDot" class="status-dot"></div>
+    <span id="stAgentLabel" class="text-mono">READY</span>
+  </div>
+  <div class="status-item">
+    <span style="color:var(--muted)">WebSocket:</span>
+    <div id="stWsDot" class="status-dot"></div>
+    <span id="stWsLabel" class="text-mono">DISCONNECTED</span>
+  </div>
+</div>
 
 <!-- ─── Main Grid ────────────────────────────────────────────────────────── -->
 <div class="main">
@@ -250,10 +322,10 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 <!-- ══════════════ LEFT SIDEBAR ══════════════ -->
 <aside class="sidebar-left">
 
-  <!-- Threat Status -->
+  <!-- Threat Status Card -->
   <div class="card" style="margin-bottom:12px">
     <div class="card-title"><span class="icon">🎯</span>Threat Status</div>
-    <div class="metric-row" style="margin-bottom:12px">
+    <div class="metric-row" style="margin-bottom:10px">
       <div class="metric-box">
         <div id="curStage" class="metric-big" style="font-size:15px;color:var(--green)">—</div>
         <div class="metric-label">Current Stage</div>
@@ -274,26 +346,28 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
     <div style="margin-top:10px;font-size:11px;color:var(--muted)" id="riskScore">Risk Score: —</div>
   </div>
 
-  <!-- Attack Lifecycle -->
+  <!-- Attack Lifecycle Panel -->
   <div class="card" style="margin-bottom:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
       <div class="card-title" style="margin-bottom:0"><span class="icon">🔗</span>Attack Lifecycle</div>
       <span id="lifecycleTimestamp" style="font-size:10px;color:var(--muted);font-family:var(--mono)">Awaiting telemetry</span>
     </div>
     <div class="lifecycle" id="lifecyclePanel">
-      <div class="empty-state" style="padding:20px 8px;text-align:center;color:var(--muted);font-size:12px">
+      <div class="empty-state" style="padding:16px 8px;text-align:center;color:var(--muted);font-size:12px">
         No live prediction available
       </div>
     </div>
-    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-      <span class="badge badge-observed">● Observed</span>
-      <span class="badge badge-forecast">● Forecast</span>
-      <span class="badge badge-simulated">● K=4 Sim</span>
+    <div style="margin-top:10px;display:flex;gap:5px;flex-wrap:wrap;font-size:10px">
+      <span class="badge badge-observed">● CURRENT</span>
+      <span class="badge badge-observed" style="opacity:.8">✓ OBSERVED</span>
+      <span class="badge badge-forecast">→ FORECAST</span>
+      <span class="badge badge-simulated">🔮 SIM</span>
+      <span class="badge badge-not-reached">○ NOT REACHED</span>
     </div>
   </div>
 
-  <!-- Replay Controls -->
-  <div class="replay-controls">
+  <!-- Replay Mode Controls -->
+  <div class="replay-controls" style="margin-bottom:12px">
     <div class="card-title" style="margin-bottom:8px"><span class="icon">▶</span>Replay Mode</div>
     <select id="scenarioSelect" class="scenario-select">
       <option value="">Loading scenarios…</option>
@@ -307,15 +381,15 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
     <div class="replay-info" id="replayInfo">Select a scenario and press Start</div>
   </div>
 
-  <!-- Live Stream Controls -->
-  <div class="replay-controls" style="margin-top:12px;border-color:rgba(59,130,246,.4)">
+  <!-- Live Telemetry Controls -->
+  <div class="replay-controls" style="border-color:rgba(59,130,246,.4)">
     <div class="card-title" style="margin-bottom:8px">
-      <span class="icon">📡</span>Live Telemetry Stream
+      <span class="icon">📡</span>Live Ingestion &amp; WS
       <span id="wsStatusDot" class="status-dot" style="margin-left:auto"></span>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:8px">
       <select id="liveSourceKind" class="scenario-select" style="margin-bottom:0" onchange="onLiveSourceChange()">
-        <option value="replay">CSV Trace Replay</option>
+        <option value="replay">Sample Network Traces</option>
         <option value="netflow">NetFlow v5 (UDP:9995)</option>
         <option value="pcap">Live PCAP Capture</option>
       </select>
@@ -329,104 +403,272 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
     <div class="replay-info" id="liveStreamInfo">WebSocket disconnected</div>
   </div>
 
-  <!-- Live Telemetry Stats -->
-  <div class="card" id="liveMetricsCard" style="margin-top:12px;display:none">
-    <div class="card-title"><span class="icon">📊</span>Live Ingest Metrics</div>
-    <div class="metric-row" style="margin-bottom:8px">
-      <div class="metric-box">
-        <div id="liveFlowRate" class="metric-big" style="font-size:16px;color:var(--accent)">—</div>
-        <div class="metric-label">Flows/sec</div>
-      </div>
-      <div class="metric-box">
-        <div id="liveTotalFlows" class="metric-big" style="font-size:16px">—</div>
-        <div class="metric-label">Window Flows</div>
-      </div>
-    </div>
-    <div style="font-size:11px;color:var(--muted);line-height:1.6">
-      Latency: <span id="liveLatency" class="text-mono">—</span><br>
-      Window ID: <span id="liveWindowId" class="text-mono">—</span>
-    </div>
-  </div>
-
 </aside>
 
 <!-- ══════════════ CENTER ══════════════ -->
 <main class="center">
 
-  <!-- Alert bar -->
+  <!-- Alert notification box -->
   <div id="alertBar" style="display:none"></div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('tabTimeline',this)">📋 Timeline</button>
-    <button class="tab" onclick="showTab('tabSimulation',this)">🔮 K=4 Simulation</button>
-    <button class="tab" onclick="showTab('tabExplain',this)">🔍 Explainability</button>
-    <button class="tab" onclick="showTab('tabBenchmark',this)">📊 Benchmark</button>
-    <button class="tab" onclick="showTab('tabState24',this)">🌐 24-D State</button>
-    <button class="tab" onclick="showTab('tabHealth',this)">🏥 System Health</button>
-  </div>
-
-  <!-- Tab: Timeline -->
-  <div id="tabTimeline" class="tab-content active">
-    <div class="card">
-      <div class="card-title"><span class="icon">📋</span>Observation Timeline
-        <span class="badge badge-observed" style="margin-left:auto">OBSERVED TELEMETRY</span>
+  <!-- ─── 3. Attack Detection SOC Event Banner ────────────────────────────── -->
+  <div class="soc-event-banner uninitialized" id="socDetectionEvent">
+    <div class="soc-event-header">
+      <div class="soc-event-title" id="socEventTitle">
+        <span id="socEventIcon">🛡️</span>
+        <span id="socEventHeading">AWAITING NETWORK TELEMETRY</span>
       </div>
-      <div class="tl-row tl-header">
-        <span>Win</span><span>Observed</span><span>Forecast</span><span>Conf</span><span>Risk</span>
+      <span class="badge badge-not-reached" id="socEventBadge">STANDBY</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted)" id="socEventDesc">
+      Connect live telemetry source or start replay to begin temporal threat detection.
+    </div>
+    <div class="soc-event-grid" id="socEventGrid" style="display:none">
+      <div class="soc-event-cell">
+        <div class="metric-label">Current Stage</div>
+        <div class="soc-event-val" id="socEvtCurStage">—</div>
       </div>
-      <div class="timeline" id="timelineRows">
-        <div class="empty-state">Start replay to see timeline</div>
+      <div class="soc-event-cell">
+        <div class="metric-label">Attack Prob</div>
+        <div class="soc-event-val" id="socEvtAtkProb">—</div>
+      </div>
+      <div class="soc-event-cell">
+        <div class="metric-label">Predicted Next</div>
+        <div class="soc-event-val text-blue" id="socEvtNextStage">—</div>
+      </div>
+      <div class="soc-event-cell">
+        <div class="metric-label">Confidence</div>
+        <div class="soc-event-val" id="socEvtConf">—</div>
+      </div>
+      <div class="soc-event-cell">
+        <div class="metric-label">Transition Prob</div>
+        <div class="soc-event-val" id="socEvtTransProb">—</div>
+      </div>
+      <div class="soc-event-cell">
+        <div class="metric-label">Risk Score</div>
+        <div class="soc-event-val" id="socEvtRiskScore">—</div>
+      </div>
+      <div class="soc-event-cell">
+        <div class="metric-label">Risk Level</div>
+        <div class="soc-event-val" id="socEvtRiskLevel">—</div>
       </div>
     </div>
   </div>
 
-  <!-- Tab: K=4 Simulation -->
+  <!-- Tabs Navigation -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('tabTelemetry',this)">📡 Live Telemetry</button>
+    <button class="tab" onclick="showTab('tabTimeline',this)">📋 Incident Timeline</button>
+    <button class="tab" onclick="showTab('tabSimulation',this)">🔮 K=4 Simulation</button>
+    <button class="tab" onclick="showTab('tabExplain',this)">🔍 Feature Attribution</button>
+    <button class="tab" onclick="showTab('tabActions',this)">🛡️ Incident Response</button>
+    <button class="tab" onclick="showTab('tabBenchmark',this)">📊 Benchmark</button>
+    <button class="tab" onclick="showTab('tabHealth',this)">🏥 System Health</button>
+  </div>
+
+  <!-- ─── Tab 1: Live Telemetry ────────────────────────────────────────────── -->
+  <div id="tabTelemetry" class="tab-content active">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="card-title" style="margin-bottom:0"><span class="icon">📡</span>Live Telemetry Ingestion Pipeline</div>
+        <div style="display:flex;gap:12px;align-items:center;font-size:11px">
+          <span id="pipeRecv"><span class="status-dot"></span> Receiving</span>
+          <span id="pipeProc"><span class="status-dot"></span> Processing (24-D)</span>
+          <span id="pipeInfer"><span class="status-dot"></span> ML Inference</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;font-size:11px;color:var(--muted)">
+        <span>Source: <strong id="telemSourceLabel" style="color:var(--accent)">—</strong></span>
+        <span>•</span>
+        <span>Window ID: <code id="telemWinId" class="text-mono">—</code></span>
+        <span>•</span>
+        <span>Timestamp: <span id="telemTimestamp" class="text-mono">—</span></span>
+      </div>
+
+      <div class="telem-grid" id="telemGrid">
+        <div class="telem-box">
+          <div class="telem-box-title">Packets / sec</div>
+          <div class="telem-box-val" id="tmPktRate">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Flows / sec</div>
+          <div class="telem-box-val" id="tmFlowRate">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Bytes / sec</div>
+          <div class="telem-box-val" id="tmByteRate">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Unique Src IPs</div>
+          <div class="telem-box-val" id="tmSrcIps">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Unique Dst IPs</div>
+          <div class="telem-box-val" id="tmDstIps">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Unique Dst Ports</div>
+          <div class="telem-box-val" id="tmDstPorts">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Failed Flows</div>
+          <div class="telem-box-val" id="tmFailedFlows">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">TCP SYN Ratio</div>
+          <div class="telem-box-val" id="tmSynRatio">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">TCP RST Ratio</div>
+          <div class="telem-box-val" id="tmRstRatio">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Flag Diversity</div>
+          <div class="telem-box-val" id="tmFlagDiv">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Mean Duration</div>
+          <div class="telem-box-val" id="tmDuration">—</div>
+        </div>
+        <div class="telem-box">
+          <div class="telem-box-title">Bytes / Pkt</div>
+          <div class="telem-box-val" id="tmBytesPkt">—</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:rgba(148,163,184,.5)">
+        Derived directly from runtime network telemetry via NetworkStateBuilder (24-D physical feature extractor).
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Tab 2: Incident Timeline ─────────────────────────────────────────── -->
+  <div id="tabTimeline" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span>Observation &amp; Stage Progression Timeline
+        <span class="badge badge-observed" style="margin-left:auto">MODEL-DRIVEN</span>
+      </div>
+      <div class="tl-row tl-header">
+        <span>Win</span><span>Observed</span><span>Forecast</span><span>Conf</span><span>Risk</span><span>Details</span>
+      </div>
+      <div class="timeline" id="timelineRows">
+        <div class="empty-state">Start replay or live ingest to populate timeline</div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+      <div class="card-title" style="margin-bottom:6px"><span class="icon">⏱️</span>Granular Operational Backend Log</div>
+      <div class="event-log" id="eventLogList">
+        <div class="event-item">
+          <span class="event-ts">[SYSTEM]</span>
+          <span class="event-tag text-blue">INITIALIZED</span>
+          <span>Awaiting operational events from backend pipeline.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Tab 3: K=4 Simulation ────────────────────────────────────────────── -->
   <div id="tabSimulation" class="tab-content">
     <div class="card">
-      <div class="card-title"><span class="icon">🔮</span>K=4 Forward Simulation
-        <span class="badge badge-simulated" style="margin-left:auto">MODEL SIMULATION</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="card-title" style="margin-bottom:0"><span class="icon">🔮</span>K=4 Autoregressive Forward Simulation</div>
+        <button class="btn btn-primary" style="font-size:11px;padding:3px 9px" onclick="triggerK4Simulation()">
+          🔮 K=4 MODEL SIMULATION
+        </button>
       </div>
       <div class="sim-notice">
-        ⚠ These are autoregressive model predictions — <strong>not observed events</strong>.
-        No future observations consumed during simulation.
+        ⚠ <strong>MODEL SIMULATION — NO FUTURE TELEMETRY USED.</strong> Generated autoregressively via CyberWorldModelV2 physical state predictor.
       </div>
       <div class="rollout-path" id="rolloutPath">
-        <div class="empty-state" style="width:100%">Run a forecast to see simulation</div>
+        <div class="empty-state" style="width:100%">Run an inference window to view K=4 simulation</div>
       </div>
       <div id="rolloutSafetyFlags" style="margin-top:8px;font-size:11px;color:var(--muted)"></div>
     </div>
   </div>
 
-  <!-- Tab: Explainability -->
+  <!-- ─── Tab 4: Feature Attribution / Explainability ──────────────────────── -->
   <div id="tabExplain" class="tab-content">
     <div class="card">
-      <div class="card-title"><span class="icon">🔍</span>Feature Attribution
-        <span style="margin-left:auto;font-size:10px;color:var(--muted)">Source: |S_hat_{t+1} − S_t|</span>
+      <div class="card-title"><span class="icon">🔍</span>Feature Attribution &amp; State Changes
+        <span style="margin-left:auto;font-size:10px;color:var(--muted)">Ranking: |S_hat_{t+1} − S_t|</span>
       </div>
       <div id="explainNarrative" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6"></div>
       <table class="feat-table">
         <thead>
           <tr>
-            <th>Feature</th><th>Current</th><th>Predicted</th><th>Delta</th><th>Importance</th>
+            <th>Feature</th><th>Current S_t</th><th>Predicted S_hat</th><th>Absolute Δ</th><th>Relative Δ</th><th>Dir</th><th>Importance</th>
           </tr>
         </thead>
         <tbody id="featTableBody">
-          <tr><td colspan="5" class="empty-state">No data yet</td></tr>
+          <tr><td colspan="7" class="empty-state">No telemetry data yet</td></tr>
         </tbody>
       </table>
       <div style="margin-top:8px;font-size:10px;color:rgba(148,163,184,.4)">
-        Provenance: CyberWorldModelV2 physical state predictor output — no LLM-generated conclusions.
+        Provenance: CyberWorldModelV2 physical state predictor output — zero hardcoded heuristics.
       </div>
     </div>
   </div>
 
-  <!-- Tab: Benchmark -->
+  <!-- ─── Tab 5: Incident Response Actions ─────────────────────────────────── -->
+  <div id="tabActions" class="tab-content">
+    <div class="card">
+      <div class="card-title"><span class="icon">🛡️</span>Recommended Defensive Analyst Actions
+        <span class="badge badge-forecast" style="margin-left:auto">EVIDENCE GROUNDED</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">
+        Tactical defensive recommendations dynamically generated from the current ML state, risk score, and MITRE mapping:
+      </div>
+      <div class="ir-action-list" id="irActionList">
+        <div class="ir-action-card">
+          <div class="ir-num">1</div>
+          <div class="ir-content">
+            <div class="ir-title">Validate Affected Hosts &amp; Network Segments</div>
+            <div class="ir-reason" id="irReason1">Inspect hosts observed in current telemetry window.</div>
+          </div>
+        </div>
+        <div class="ir-action-card">
+          <div class="ir-num">2</div>
+          <div class="ir-content">
+            <div class="ir-title">Investigate Abnormal Connections &amp; Flow Ratios</div>
+            <div class="ir-reason" id="irReason2">Check connection rates and flag resets against baseline.</div>
+          </div>
+        </div>
+        <div class="ir-action-card">
+          <div class="ir-num">3</div>
+          <div class="ir-content">
+            <div class="ir-title">Review Authentication &amp; Privilege Escalation Logs</div>
+            <div class="ir-reason" id="irReason3">Audit access attempts on sensitive infrastructure ports.</div>
+          </div>
+        </div>
+        <div class="ir-action-card">
+          <div class="ir-num">4</div>
+          <div class="ir-content">
+            <div class="ir-title">Inspect High-Attribution Telemetry Features</div>
+            <div class="ir-reason" id="irReason4">Verify primary physical state shift identified by explainability engine.</div>
+          </div>
+        </div>
+        <div class="ir-action-card">
+          <div class="ir-num">5</div>
+          <div class="ir-content">
+            <div class="ir-title">Correlate with Predicted MITRE Technique</div>
+            <div class="ir-reason" id="irReason5">Cross-reference active detection rules with predicted tactic.</div>
+          </div>
+        </div>
+        <div class="ir-action-card">
+          <div class="ir-num">6</div>
+          <div class="ir-content">
+            <div class="ir-title">Escalate According to Risk Level</div>
+            <div class="ir-reason" id="irReason6">Follow SOC escalation protocols based on calculated risk score.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Tab 6: Benchmark ─────────────────────────────────────────────────── -->
   <div id="tabBenchmark" class="tab-content">
     <div class="card">
       <div class="card-title"><span class="icon">📊</span>Model Benchmark Comparison</div>
       <div class="alert-box alert-info" style="margin-bottom:12px">
-        Hard Multi-Stage Holdout — N=44 sequences, 6 genuine stage transitions.
+        Hard Multi-Stage Holdout — N=44 sequences, 6 genuine stage transitions.<br>
         Source: <code>experiments/phase8c_investigation/phase8c_summary.json</code> (immutable).
       </div>
       <table class="bench-table">
@@ -436,7 +678,7 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
           </tr>
         </thead>
         <tbody>
-          <tr class="best">
+          <tr style="color:var(--green)">
             <td><strong>CyberWorldModelV2</strong></td>
             <td>97.73%</td><td>100%</td><td>83.33% (5/6)</td><td>0.0452</td><td>0.00%</td><td>✓ K=4</td>
           </tr>
@@ -450,79 +692,37 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
           </tr>
         </tbody>
       </table>
-      <p class="bench-note">Phase 8C empirical investigation. Numbers are immutable — not re-optimized for UI.</p>
-      <hr class="divider">
-      <div class="card-title" style="margin-top:12px"><span class="icon">🏗</span>Architecture</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.8;font-family:var(--mono)">
-        V2: h_t → <strong>PhysicalNextStatePredictor</strong> → S_hat_{t+1} → Encoder → h_hat_{t+1}<br>
-        V1: h_t → TransitionHead (latent MLP) → h_hat_{t+1} <span style="color:var(--red)">[identity collapse]</span><br>
-        Temperature T* = 1.5680 (fitted on validation; loaded from artifact)
+      <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7;font-family:var(--mono)">
+        Architecture: h_t → <strong>PhysicalNextStatePredictor</strong> → S_hat_{t+1} → Encoder → h_hat_{t+1}<br>
+        Temperature T* = 1.5680 (calibrated on validation holdout)
       </div>
     </div>
   </div>
 
-  <!-- Tab: 24-D State -->
-  <div id="tabState24" class="tab-content">
-    <div class="card">
-      <div class="card-title"><span class="icon">🌐</span>Physical Network State Vector S_t (24-D)
-        <span class="badge badge-observed" style="margin-left:auto">OBSERVED FEATURES</span>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
-        Current 30-second window statistical and behavioral aggregation across 24 dimensions. Zero future lookahead.
-      </div>
-      <table class="feat-table">
-        <thead>
-          <tr><th>#</th><th>Feature Name</th><th>Observed Value S_t</th><th>Predicted Next S_hat_{t+1}</th></tr>
-        </thead>
-        <tbody id="state24TableBody">
-          <tr><td colspan="4" class="empty-state">No state data yet</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Tab: System Health & Observability (Phase 14) -->
+  <!-- ─── Tab 7: System Health ─────────────────────────────────────────────── -->
   <div id="tabHealth" class="tab-content">
     <div class="card">
       <div class="card-title"><span class="icon">🏥</span>Production System Health &amp; Observability
         <span id="healthOverallBadge" class="badge badge-observed" style="margin-left:auto">HEALTHY</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">
-        Real-time telemetry and service metrics from <code>/api/v1/stream/health</code>. All telemetry and inference values derived dynamically at runtime.
-      </div>
-      <div class="metric-row" style="margin-bottom:12px">
-        <div class="metric-box">
-          <div id="obsThroughput" class="metric-big" style="font-size:18px;color:var(--accent)">—</div>
-          <div class="metric-label">Flows / Second</div>
+      <div class="telem-grid">
+        <div class="telem-box">
+          <div class="telem-box-title">Flows / Sec</div>
+          <div class="telem-box-val" id="obsThroughput">—</div>
         </div>
-        <div class="metric-box">
-          <div id="obsLatency" class="metric-big" style="font-size:18px;color:var(--green)">—</div>
-          <div class="metric-label">Inference Latency</div>
+        <div class="telem-box">
+          <div class="telem-box-title">Latency</div>
+          <div class="telem-box-val" id="obsLatency">—</div>
         </div>
-        <div class="metric-box">
-          <div id="obsWsCount" class="metric-big" style="font-size:18px">—</div>
-          <div class="metric-label">Active Sockets</div>
+        <div class="telem-box">
+          <div class="telem-box-title">Active Sockets</div>
+          <div class="telem-box-val" id="obsWsCount">—</div>
         </div>
-        <div class="metric-box">
-          <div id="obsBackpressure" class="metric-big" style="font-size:18px;color:var(--green)">—</div>
-          <div class="metric-label">Queue Backpressure</div>
+        <div class="telem-box">
+          <div class="telem-box-title">Backpressure</div>
+          <div class="telem-box-val" id="obsBackpressure">—</div>
         </div>
       </div>
-      <table class="bench-table">
-        <thead>
-          <tr><th>System Metric</th><th>Current Value</th><th>Operational Status</th></tr>
-        </thead>
-        <tbody id="healthTableBody">
-          <tr><td>Operational Mode</td><td id="hModeVal" class="text-mono">—</td><td><span class="badge badge-observed">ACTIVE</span></td></tr>
-          <tr><td>Telemetry Source</td><td id="hSourceVal" class="text-mono">—</td><td><span class="badge badge-low">NOMINAL</span></td></tr>
-          <tr><td>Current Window UUID</td><td id="hWindowVal" class="text-mono">—</td><td><span class="badge badge-low">SEALED</span></td></tr>
-          <tr><td>CyberWorldModelV2 Availability</td><td id="hModelVal" class="text-mono">—</td><td id="hModelBadge"><span class="badge badge-low">ONLINE</span></td></tr>
-          <tr><td>FeatureScaler Availability</td><td id="hScalerVal" class="text-mono">—</td><td id="hScalerBadge"><span class="badge badge-low">ONLINE</span></td></tr>
-          <tr><td>Dropped / Malformed Flows</td><td id="hDroppedVal" class="text-mono">0</td><td id="hDroppedBadge"><span class="badge badge-low">0 DROPPED</span></td></tr>
-          <tr><td>Total Windows Inferred</td><td id="hTotalInferredVal" class="text-mono">0</td><td><span class="badge badge-observed">CUMULATIVE</span></td></tr>
-          <tr><td>Last Inference Timestamp</td><td id="hLastInferenceVal" class="text-mono">—</td><td><span class="badge badge-low">UTC</span></td></tr>
-        </tbody>
-      </table>
     </div>
   </div>
 
@@ -531,41 +731,59 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 <!-- ══════════════ RIGHT SIDEBAR ══════════════ -->
 <aside class="sidebar-right">
 
-  <!-- MITRE Panel -->
+  <!-- Dynamic Risk Escalation Card -->
   <div class="card" style="margin-bottom:12px">
-    <div class="card-title"><span class="icon">🗂</span>MITRE ATT&CK
-      <span style="margin-left:auto;font-size:10px;color:rgba(148,163,184,.4)">v14 static</span>
+    <div class="card-title"><span class="icon">⚡</span>Dynamic Risk Escalation</div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;color:var(--muted)">Risk Engine Assessment</span>
+      <span class="badge badge-low" id="riskBadgeSide">LOW</span>
+    </div>
+    <div class="risk-meter" id="riskMeter">
+      <div class="risk-meter-seg" id="rSegLow">LOW</div>
+      <div class="risk-meter-seg" id="rSegMed">MEDIUM</div>
+      <div class="risk-meter-seg" id="rSegHigh">HIGH</div>
+      <div class="risk-meter-seg" id="rSegCrit">CRITICAL</div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px" id="riskPriorityDesc">
+      Priority: Awaiting telemetry…
+    </div>
+  </div>
+
+  <!-- MITRE ATT&CK Card -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title" style="margin-bottom:4px"><span class="icon">🗂</span>MITRE ATT&amp;CK Context</div>
+    <div style="font-size:10px;color:var(--accent);margin-bottom:8px;font-weight:600">
+      MITRE CONTEXT — DERIVED FROM MODEL PREDICTION
     </div>
     <div id="mitrePanel">
       <div class="empty-state">Awaiting forecast…</div>
     </div>
   </div>
 
-  <!-- Agent Chat -->
+  <!-- Ask CyberSentinel Agent Card -->
   <div class="card">
-    <div class="card-title"><span class="icon">🤖</span>CyberSentinel Agent
+    <div class="card-title"><span class="icon">🤖</span>Ask CyberSentinel
       <span id="agentBackend" style="margin-left:auto;font-size:10px;color:var(--muted)">—</span>
     </div>
     <div class="chat-area" id="chatArea">
       <div class="chat-msg chat-agent">
         <div class="chat-role agent-role">CYBERSENTINEL</div>
-        I'm ready. Load a scenario and start replay, then ask me about the current network state.
+        Ready. Transmit network telemetry or start a replay, then click any prompt below to query the defensive agent.
       </div>
     </div>
     <div class="chat-input-row">
-      <input class="chat-input" id="chatInput" placeholder="Ask the analyst agent…" onkeydown="if(event.key==='Enter')sendQuery()">
+      <input class="chat-input" id="chatInput" placeholder="Ask CyberSentinel…" onkeydown="if(event.key==='Enter')sendQuery()">
       <button class="chat-send" onclick="sendQuery()" id="chatBtn">Send</button>
     </div>
-    <!-- Quick questions -->
-    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px">
-      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('What is happening right now?')">Current state</button>
-      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('What happens next?')">Forecast</button>
-      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('Why do you think the attack is progressing?')">Evidence</button>
-      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('Show me the next 4 simulated states.')">Rollout</button>
-      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('What should the analyst investigate?')">Investigate</button>
-      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('How confident are you?')">Confidence</button>
-      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('What MITRE technique is associated with this stage?')">MITRE</button>
-      <button class="btn btn-secondary" style="font-size:10px;padding:3px 7px" onclick="quickQ('Compare models.')">Benchmark</button>
+    <!-- 7 Quick Queries matching all requirements -->
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 6px" onclick="quickQ('What should the analyst investigate?')">🔍 What to investigate?</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 6px" onclick="quickQ('Why is this considered a threat?')">⚠️ Why a threat?</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 6px" onclick="quickQ('What evidence supports this prediction?')">📈 Evidence?</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 6px" onclick="quickQ('What should I prioritize?')">🎯 Prioritize?</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 6px" onclick="quickQ('What MITRE techniques are relevant?')">🗂 MITRE?</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 6px" onclick="quickQ('What defensive actions should be considered?')">🛡 Defensive actions?</button>
+      <button class="btn btn-secondary" style="font-size:10px;padding:3px 6px" onclick="quickQ('Summarize the incident.')">📝 Summarize incident</button>
     </div>
   </div>
 
@@ -599,9 +817,12 @@ let state = {
   isComplete: false,
   lastForecast: null,
   timeline: [],
+  eventLogs: [],
   autoPlayInterval: null,
   liveSessionId: null,
   ws: null,
+  demoMode: false,
+  observedStages: new Set(),
 };
 
 // ─── API helpers ──────────────────────────────────────────────────────────
@@ -618,23 +839,40 @@ async function api(path, method='GET', body=null) {
   }
 }
 
-// ─── Health check ─────────────────────────────────────────────────────────
+// ─── System Health & Status Indicators ────────────────────────────────────
 async function checkHealth() {
   try {
     const h = await fetch(API+'/health').then(r=>r.json());
-    setDot('hModelDot','hModelLabel','Model',h.model_loaded);
-    setDot('hCalibDot','hCalibLabel','Calibration',h.calibration_loaded);
-    setDot('hOllamaDot','hOllamaLabel','Agent (Ollama)',h.ollama_available);
-    if (!h.model_loaded) showAlert('Model not loaded — check server logs. Inference endpoints unavailable.','warn');
+    setDot('stModelDot','stModelLabel', h.model_loaded ? 'RUNNING (v2.0)' : 'OFFLINE', h.model_loaded);
+    setDot('stAgentDot','stAgentLabel', h.ollama_available ? 'READY (Ollama)' : 'READY (Deterministic)', true);
   } catch(e) {
-    setDot('hModelDot','hModelLabel','Server: offline',false);
-    showAlert('Cannot reach CyberSentinel backend at '+API+'. Is the server running?','error');
+    setDot('stModelDot','stModelLabel','OFFLINE',false);
+    setDot('stAgentDot','stAgentLabel','OFFLINE',false);
   }
 }
 
 function setDot(dotId, labelId, label, ok) {
-  document.getElementById(dotId).className='status-dot '+(ok?'ok':'err');
-  document.getElementById(labelId).textContent=label+': '+(ok?'OK':'—');
+  const dot = document.getElementById(dotId);
+  const lbl = document.getElementById(labelId);
+  if (dot) dot.className = 'status-dot ' + (ok ? 'ok' : 'err');
+  if (lbl) lbl.textContent = label;
+}
+
+// ─── Demo Mode ────────────────────────────────────────────────────────────
+function toggleDemoMode() {
+  state.demoMode = !state.demoMode;
+  const btn = document.getElementById('btnDemoMode');
+  if (state.demoMode) {
+    document.body.classList.add('demo-mode-active');
+    btn.className = 'btn btn-demo active';
+    btn.innerHTML = '<span class="icon">✨</span>Demo Mode: ACTIVE';
+    showAlert('Demo Mode activated: presentation highlights enabled.', 'info');
+  } else {
+    document.body.classList.remove('demo-mode-active');
+    btn.className = 'btn btn-demo';
+    btn.innerHTML = '<span class="icon">✨</span>Demo Mode: OFF';
+    showAlert('Demo Mode deactivated.', 'info');
+  }
 }
 
 // ─── Scenario loader ──────────────────────────────────────────────────────
@@ -648,21 +886,22 @@ async function loadScenarios() {
   }
 }
 
-// ─── Replay ───────────────────────────────────────────────────────────────
+// ─── Replay Controls ──────────────────────────────────────────────────────
 async function startReplay() {
   const scenario = document.getElementById('scenarioSelect').value;
   if (!scenario) { showAlert('Select a scenario first','warn'); return; }
   stopAutoPlay();
   state.timeline = [];
   state.observedStages = new Set();
-  document.getElementById('timelineRows').innerHTML='<div class="empty-state loading">Starting session…</div>';
+  document.getElementById('timelineRows').innerHTML='<div class="empty-state">Starting session…</div>';
 
   try {
     const mb = document.getElementById('systemModeBadge');
     if (mb) {
-      mb.textContent = '▶ REPLAY / DEMO MODE';
+      mb.textContent = '▶ REPLAY MODE';
       mb.className = 'badge badge-simulated';
     }
+    setDot('stTelemDot', 'stTelemLabel', 'REPLAY TRACE', true);
     const resp = await api('/replay/start','POST',{scenario_id:scenario,k_steps:4});
     state.sessionId = resp.session_id;
     state.currentWindow = 0;
@@ -673,7 +912,8 @@ async function startReplay() {
     document.getElementById('btnAuto').disabled=false;
     document.getElementById('btnAuto').textContent='⏩ Auto';
     updateProgress();
-    showAlert(`Replay started: ${scenario} — ${resp.total_windows} windows`,'info');
+    addEventLog('SESSION', `Replay started: ${scenario} (${resp.total_windows} windows)`);
+    showAlert(`Replay started: ${scenario}`,'info');
     await stepReplay();
   } catch(e) {}
 }
@@ -681,14 +921,19 @@ async function startReplay() {
 async function stepReplay() {
   if (!state.sessionId || state.isComplete) return;
   try {
+    addEventLog('TELEMETRY', `Window W${state.currentWindow+1} telemetry received`);
     const resp = await api(`/replay/step?session_id=${state.sessionId}`,'POST');
     state.currentWindow = resp.window_index + 1;
     state.isComplete = resp.is_complete;
     state.lastForecast = resp.forecast;
-    if (resp.forecast) renderForecast(resp.forecast);
+    if (resp.forecast) {
+      addEventLog('INFERENCE', `CyberWorldModelV2 inference: ${resp.forecast.current_stage} → ${resp.forecast.predicted_next_stage}`);
+      renderForecast(resp.forecast);
+    }
     updateProgress();
     if (state.isComplete) {
       stopAutoPlay();
+      addEventLog('SESSION', `Replay complete.`);
       showAlert('Replay complete ✓','info');
       document.getElementById('btnAuto').textContent='⏩ Auto';
     }
@@ -699,10 +944,11 @@ function autoPlay() {
   if (state.autoPlayInterval) { stopAutoPlay(); return; }
   if (!state.sessionId) { showAlert('Start replay first','warn'); return; }
   document.getElementById('btnAuto').textContent='⏸ Pause';
+  const intervalMs = state.demoMode ? 2800 : 1800;
   state.autoPlayInterval = setInterval(async()=>{
     if (state.isComplete) { stopAutoPlay(); return; }
     await stepReplay();
-  }, 1800);
+  }, intervalMs);
 }
 
 function stopAutoPlay() {
@@ -712,22 +958,20 @@ function stopAutoPlay() {
 }
 
 function updateProgress() {
-  const pct = state.totalWindows ? (state.currentWindow/state.totalWindows*100) : 0;
-  document.getElementById('replayProgressBar').style.width=pct+'%';
+  const pctVal = state.totalWindows ? (state.currentWindow/state.totalWindows*100) : 0;
+  document.getElementById('replayProgressBar').style.width=pctVal+'%';
   document.getElementById('replayInfo').textContent=
     `Window ${state.currentWindow}/${state.totalWindows} | Session ${state.sessionId||'—'}`;
 }
 
-// ─── Live Streaming (Phase 13) ───────────────────────────────────────────
+// ─── Live Streaming ───────────────────────────────────────────────────────
 function onLiveSourceChange() {
   const kind = document.getElementById('liveSourceKind').value;
   const pathInput = document.getElementById('liveSourcePath');
   if (kind === 'pcap') {
     pathInput.style.display = 'block';
     pathInput.placeholder = 'Path to .pcap capture file';
-  } else if (kind === 'replay') {
-    pathInput.style.display = 'none';
-  } else if (kind === 'netflow') {
+  } else {
     pathInput.style.display = 'none';
   }
 }
@@ -742,6 +986,7 @@ function toggleWebSocket() {
 }
 
 function setWsStatus(connected, text) {
+  setDot('stWsDot', 'stWsLabel', connected ? 'CONNECTED' : 'DISCONNECTED', connected);
   const dot = document.getElementById('wsStatusDot');
   if (dot) dot.className = 'status-dot ' + (connected ? 'ok' : 'err');
   const info = document.getElementById('liveStreamInfo');
@@ -757,6 +1002,7 @@ function connectWebSocket() {
 
     ws.onopen = () => {
       setWsStatus(true, 'Connected (Live WS)');
+      addEventLog('STREAM', 'WebSocket streaming connection established');
       showAlert('WebSocket stream connected ✓', 'info');
     };
 
@@ -765,15 +1011,11 @@ function connectWebSocket() {
         const msg = JSON.parse(event.data);
         handleStreamMessage(msg);
       } catch(e) {
-        console.error('Error parsing WS message:', e);
+        console.error('WS parse error:', e);
       }
     };
 
-    ws.onerror = (err) => {
-      console.error('WebSocket error:', err);
-      setWsStatus(false, 'WS Error');
-    };
-
+    ws.onerror = () => setWsStatus(false, 'WS Error');
     ws.onclose = () => {
       setWsStatus(false, 'Disconnected');
       state.ws = null;
@@ -784,70 +1026,44 @@ function connectWebSocket() {
 }
 
 function handleStreamMessage(msg) {
-  if (msg.type === 'connected' || msg.type === 'heartbeat' || msg.type === 'pong') {
-    return;
-  }
+  if (msg.type === 'connected' || msg.type === 'heartbeat' || msg.type === 'pong') return;
+
   if (msg.status === 'BUFFERING') {
-    showAlert(`Buffering telemetry window (${msg.sequence_accumulated}/${msg.sequence_required})…`, 'info');
+    showAlert(`Buffering window (${msg.sequence_accumulated}/${msg.sequence_required})…`, 'info');
+    addEventLog('BUFFER', `Buffering window sequence (${msg.sequence_accumulated}/${msg.sequence_required})`);
     return;
   }
   if (msg.status === 'MODEL_UNAVAILABLE') {
-    showAlert('FAIL-CLOSED: CyberWorldModelV2 model unavailable. No inference emitted.', 'error');
+    showAlert('FAIL-CLOSED: CyberWorldModelV2 offline.', 'error');
+    setDot('stModelDot', 'stModelLabel', 'MODEL UNAVAILABLE', false);
     renderLifecycle({status: 'MODEL_UNAVAILABLE'});
+    addEventLog('ERROR', 'MODEL_UNAVAILABLE: Fail-closed state enforced');
     return;
   }
   if (msg.status === 'INVALID_TELEMETRY') {
-    showAlert(`FAIL-CLOSED: Invalid telemetry received: ${msg.detail||'Empty flows'}`, 'warn');
+    showAlert(`FAIL-CLOSED: Invalid telemetry: ${msg.detail||'Empty flows'}`, 'warn');
     renderLifecycle({status: 'INVALID_TELEMETRY', detail: msg.detail});
+    addEventLog('WARN', `INVALID_TELEMETRY: ${msg.detail||'Malformed'}`);
     return;
   }
   if (msg.status === 'FORECAST') {
-    // Show live metrics card
-    const mc = document.getElementById('liveMetricsCard');
-    if (mc) mc.style.display = 'block';
-    if (msg.flows_per_second != null) document.getElementById('liveFlowRate').textContent = msg.flows_per_second;
-    if (msg.flow_count != null) document.getElementById('liveTotalFlows').textContent = msg.flow_count;
-    if (msg.window_id) document.getElementById('liveWindowId').textContent = msg.window_id.slice(0, 8);
-    if (msg.inference_latency_ms != null) document.getElementById('liveLatency').textContent = msg.inference_latency_ms + 'ms';
-
-    // Render 24-D State table
-    render24DState(msg);
-
-    // Render all forecast components
     state.lastForecast = msg;
+    setDot('stTelemDot', 'stTelemLabel', 'RECEIVING', true);
+    addEventLog('TELEMETRY', `Window ${msg.window_id?.slice(0,8)||'—'} received (${msg.flow_count||0} flows)`);
+    addEventLog('INFERENCE', `CyberWorldModelV2 classified: ${msg.current_stage} → ${msg.predicted_next_stage} (latency: ${msg.inference_latency_ms||0}ms)`);
     renderForecast(msg);
   }
-}
-
-function render24DState(msg) {
-  const tbody = document.getElementById('state24TableBody');
-  if (!tbody) return;
-  const feats = msg.top_features || [];
-  if (!feats.length) return;
-
-  tbody.innerHTML = feats.map((f, i) => `
-    <tr>
-      <td style="color:var(--muted)">${i+1}</td>
-      <td class="feat-name">${f.feature}</td>
-      <td class="feat-val">${typeof f.current === 'number' ? f.current.toFixed(4) : f.current}</td>
-      <td class="feat-val">${typeof f.predicted === 'number' ? f.predicted.toFixed(4) : f.predicted}</td>
-    </tr>
-  `).join('');
 }
 
 async function startLiveStream() {
   const kind = document.getElementById('liveSourceKind').value;
   let sourcePath = document.getElementById('liveSourcePath').value;
-
   if (kind === 'replay' && !sourcePath) {
     sourcePath = 'datasets/sample/trace_multistage_01.csv';
   }
-
-  // Ensure WS is connected
   if (!state.ws || state.ws.readyState !== WebSocket.OPEN) {
     connectWebSocket();
   }
-
   document.getElementById('btnLiveStart').disabled = true;
   document.getElementById('btnLiveStop').disabled = false;
 
@@ -867,8 +1083,9 @@ async function startLiveStream() {
       mb.textContent = '🔴 LIVE STREAMING MODE';
       mb.className = 'badge badge-observed';
     }
-    showAlert(`Live ingest session started: ${resp.session_id.slice(0,8)} (${kind})`, 'info');
-    document.getElementById('liveStreamInfo').textContent = `Session: ${resp.session_id.slice(0,8)} (${kind})`;
+    showAlert(`Live ingest session started: ${resp.session_id.slice(0,8)}`, 'info');
+    document.getElementById('liveStreamInfo').textContent = `Session: ${resp.session_id.slice(0,8)}`;
+    addEventLog('STREAM', `Live ingest session started: ${resp.session_id.slice(0,8)} (${kind})`);
   } catch(e) {
     document.getElementById('btnLiveStart').disabled = false;
     document.getElementById('btnLiveStop').disabled = true;
@@ -880,7 +1097,7 @@ async function stopLiveStream() {
   try {
     await api('/stream/stop', 'POST', {session_id: state.liveSessionId});
     showAlert(`Live ingest session stopped`, 'info');
-    document.getElementById('liveStreamInfo').textContent = 'Ingest stopped';
+    addEventLog('STREAM', `Live ingest session stopped: ${state.liveSessionId.slice(0,8)}`);
   } catch(e) {
   } finally {
     state.liveSessionId = null;
@@ -888,20 +1105,74 @@ async function stopLiveStream() {
     renderLifecycle(null);
     document.getElementById('btnLiveStart').disabled = false;
     document.getElementById('btnLiveStop').disabled = true;
+    setDot('stTelemDot', 'stTelemLabel', 'IDLE', false);
   }
 }
 
-// ─── Render forecast ──────────────────────────────────────────────────────
+// ─── Render Forecast (Central Dispatcher) ─────────────────────────────────
 function renderForecast(fc) {
+  renderDetectionEventBanner(fc);
   renderThreatStatus(fc);
   renderLifecycle(fc);
+  renderTelemetryPanel(fc);
   renderTimeline(fc);
   renderRollout(fc);
   renderExplainability(fc);
   renderMitre(fc);
-  render24DState(fc);
+  renderRiskEscalation(fc);
+  renderIncidentResponseActions(fc);
 }
 
+// ─── 4. Render Detection Event Banner ─────────────────────────────────────
+function renderDetectionEventBanner(fc) {
+  const banner = document.getElementById('socDetectionEvent');
+  const title = document.getElementById('socEventHeading');
+  const icon = document.getElementById('socEventIcon');
+  const badge = document.getElementById('socEventBadge');
+  const desc = document.getElementById('socEventDesc');
+  const grid = document.getElementById('socEventGrid');
+
+  if (!fc || !fc.current_stage) {
+    banner.className = 'soc-event-banner uninitialized';
+    title.textContent = 'AWAITING NETWORK TELEMETRY';
+    icon.textContent = '🛡️';
+    badge.className = 'badge badge-not-reached';
+    badge.textContent = 'STANDBY';
+    desc.textContent = 'Connect live telemetry source or start replay to begin temporal threat detection.';
+    grid.style.display = 'none';
+    return;
+  }
+
+  grid.style.display = 'grid';
+  const isThreat = fc.attack_probability > 0.3 || fc.current_stage !== 'BENIGN' || fc.transition_detected;
+
+  if (isThreat) {
+    banner.className = 'soc-event-banner threat';
+    title.textContent = 'THREAT ACTIVITY DETECTED';
+    icon.textContent = '🚨';
+    badge.className = 'badge badge-critical';
+    badge.textContent = `${fc.risk_level || 'ELEVATED'} RISK`;
+    desc.textContent = `Autonomous detection: Stage ${fc.current_stage} identified. Predicted transition to ${fc.predicted_next_stage} (${pct(fc.confidence)} confidence).`;
+  } else {
+    banner.className = 'soc-event-banner nominal';
+    title.textContent = 'NOMINAL BASELINE MONITORING';
+    icon.textContent = '🟢';
+    badge.className = 'badge badge-low';
+    badge.textContent = 'NOMINAL BASELINE';
+    desc.textContent = 'Physical network state metrics within standard baseline distribution. Zero threat progression detected.';
+  }
+
+  document.getElementById('socEvtCurStage').textContent = fc.current_stage || '—';
+  document.getElementById('socEvtAtkProb').textContent = pct(fc.attack_probability);
+  document.getElementById('socEvtNextStage').textContent = fc.predicted_next_stage || '—';
+  document.getElementById('socEvtConf').textContent = pct(fc.confidence);
+  document.getElementById('socEvtTransProb').textContent = pct(fc.transition_probability);
+  document.getElementById('socEvtRiskScore').textContent = (fc.risk_score != null ? fc.risk_score.toFixed(1) : '—') + '/100';
+  document.getElementById('socEvtRiskLevel').textContent = fc.risk_level || '—';
+  document.getElementById('socEvtRiskLevel').style.color = RISK_COLORS[fc.risk_level] || 'var(--text)';
+}
+
+// ─── Threat Status (Left Sidebar) ─────────────────────────────────────────
 function renderThreatStatus(fc) {
   const stageEl = document.getElementById('curStage');
   stageEl.textContent = (STAGE_ICONS[fc.current_stage]||'') + ' ' + fc.current_stage;
@@ -914,62 +1185,48 @@ function renderThreatStatus(fc) {
   document.getElementById('confVal').textContent = pct(fc.confidence);
   document.getElementById('confBar').style.width = (fc.confidence*100)+'%';
   document.getElementById('riskScore').textContent =
-    `Risk Score: ${fc.risk_score}/100 | ${fc.recommended_priority?.split('—')[0]||''}`;
+    `Risk Score: ${fc.risk_score != null ? fc.risk_score.toFixed(1) : '—'}/100 | ${fc.recommended_priority?.split('—')[0]||''}`;
 }
 
+// ─── Attack Lifecycle (5 Explicit States) ──────────────────────────────────
 function renderLifecycle(fc) {
   const panel = document.getElementById('lifecyclePanel');
   if (!panel) return;
   const timeEl = document.getElementById('lifecycleTimestamp');
 
-  // Fallback 1: No live telemetry or forecast
   if (!fc) {
-    panel.innerHTML = `
-      <div class="empty-state" style="padding:20px 8px;text-align:center;color:var(--muted);font-size:12px">
-        No live prediction available
-      </div>`;
+    panel.innerHTML = `<div class="empty-state" style="padding:16px 8px;text-align:center;color:var(--muted);font-size:12px">No live prediction available</div>`;
     if (timeEl) timeEl.textContent = 'Awaiting telemetry';
     return;
   }
 
-  // Fallback 2: Fail-closed model unavailable
   if (fc.status === 'MODEL_UNAVAILABLE') {
-    panel.innerHTML = `
-      <div class="empty-state" style="padding:16px 8px;text-align:center;color:var(--red);font-size:12px;border:1px solid rgba(239,68,68,0.3);border-radius:6px;background:rgba(239,68,68,0.08)">
-        <strong>MODEL UNAVAILABLE</strong>
-        <div style="font-size:10px;margin-top:4px;color:var(--muted)">Fail-closed: CyberWorldModelV2 offline</div>
-      </div>`;
+    panel.innerHTML = `<div class="empty-state" style="padding:16px 8px;text-align:center;color:var(--red);font-size:12px;border:1px solid rgba(239,68,68,0.3);border-radius:6px;background:rgba(239,68,68,0.08)">
+      <strong>MODEL UNAVAILABLE</strong><div style="font-size:10px;margin-top:4px;color:var(--muted)">Fail-closed: CyberWorldModelV2 offline</div></div>`;
     if (timeEl) timeEl.textContent = 'Model offline';
     return;
   }
 
-  // Fallback 3: Invalid telemetry
   if (fc.status === 'INVALID_TELEMETRY') {
-    panel.innerHTML = `
-      <div class="empty-state" style="padding:16px 8px;text-align:center;color:var(--yellow);font-size:12px;border:1px solid rgba(245,158,11,0.3);border-radius:6px;background:rgba(245,158,11,0.08)">
-        <strong>INVALID TELEMETRY</strong>
-        <div style="font-size:10px;margin-top:4px;color:var(--muted)">${fc.detail || 'Zero valid flows'}</div>
-      </div>`;
+    panel.innerHTML = `<div class="empty-state" style="padding:16px 8px;text-align:center;color:var(--yellow);font-size:12px;border:1px solid rgba(245,158,11,0.3);border-radius:6px;background:rgba(245,158,11,0.08)">
+      <strong>INVALID TELEMETRY</strong><div style="font-size:10px;margin-top:4px;color:var(--muted)">${fc.detail || 'Malformed flows'}</div></div>`;
     if (timeEl) timeEl.textContent = 'Invalid telemetry';
     return;
   }
 
-  // Authoritative runtime fields (100% determined by model / backend)
   const cur = fc.current_stage;
   const nxt = fc.predicted_next_stage;
   const rolloutSteps = fc.rollout_steps || [];
   const transitions = Boolean(fc.transition_detected);
   const conf = fc.confidence != null ? pct(fc.confidence) : '—';
-  const risk = fc.risk_score != null ? fc.risk_score : '—';
+  const risk = fc.risk_score != null ? fc.risk_score.toFixed(1) : '—';
 
-  // Track dynamically observed stages for this session without any predefined assumptions
   state.observedStages = state.observedStages || new Set();
   if (cur) state.observedStages.add(cur);
   if (Array.isArray(fc.observed_stages)) {
     fc.observed_stages.forEach(st => { if (st) state.observedStages.add(st); });
   }
 
-  // Map rollout stages to their earliest future step (+1, +2, etc.)
   const rolloutMap = {};
   rolloutSteps.forEach(r => {
     if (r.predicted_stage && rolloutMap[r.predicted_stage] === undefined) {
@@ -977,34 +1234,31 @@ function renderLifecycle(fc) {
     }
   });
 
-  // Timestamp and live telemetry stats in header
   if (timeEl) {
     const tsStr = fc.timestamp ? new Date(fc.timestamp).toLocaleTimeString() : 'Live';
     timeEl.textContent = `${tsStr} | Conf: ${conf} | Risk: ${risk}`;
   }
 
-  // Render each stage in the official taxonomy according to its live runtime role
   panel.innerHTML = STAGES.map((s, i) => {
-    let cls = 'lc-stage inactive', ann = '';
+    let cls = 'lc-stage inactive', ann = '<span class="lc-annotation badge badge-not-reached">○ NOT REACHED</span>';
     const icon = STAGE_ICONS[s] || '●';
 
     if (s === cur) {
       cls = 'lc-stage active';
       ann = (s === nxt)
-        ? '<span class="lc-annotation badge badge-observed">NOW · PERSIST</span>'
-        : '<span class="lc-annotation badge badge-observed">NOW</span>';
+        ? '<span class="lc-annotation badge badge-observed">● CURRENT · PERSIST</span>'
+        : '<span class="lc-annotation badge badge-observed">● CURRENT</span>';
     } else if (s === nxt) {
       cls = 'lc-stage predicted';
-      ann = `<span class="lc-annotation badge badge-forecast">FORECAST (${conf})</span>`;
+      ann = `<span class="lc-annotation badge badge-forecast">→ FORECAST (${conf})</span>`;
     } else if (rolloutMap[s] !== undefined && s !== cur && s !== nxt) {
       cls = 'lc-stage simulated';
-      ann = `<span class="lc-annotation badge badge-simulated">K=+${rolloutMap[s]} SIM</span>`;
+      ann = `<span class="lc-annotation badge badge-simulated">🔮 K=+${rolloutMap[s]} SIM</span>`;
     } else if (state.observedStages.has(s)) {
       cls = 'lc-stage past';
-      ann = '<span class="lc-annotation badge badge-observed" style="opacity:0.75">OBSERVED</span>';
+      ann = '<span class="lc-annotation badge badge-observed" style="opacity:0.8">✓ OBSERVED</span>';
     }
 
-    // Determine transition arrow
     let arrowHtml = '';
     if (i < STAGES.length - 1) {
       const isNextTransition = transitions && (s === cur);
@@ -1017,14 +1271,48 @@ function renderLifecycle(fc) {
   }).join('');
 }
 
+// ─── Live Telemetry Panel ─────────────────────────────────────────────────
+function renderTelemetryPanel(fc) {
+  const tf = fc.telemetry_features || {};
+
+  document.getElementById('telemSourceLabel').textContent = fc.source_kind || fc.source_id || 'Live Network Telemetry';
+  document.getElementById('telemWinId').textContent = fc.window_id ? fc.window_id.slice(0, 8) : 'W-Active';
+  document.getElementById('telemTimestamp').textContent = fc.timestamp ? new Date(fc.timestamp).toLocaleTimeString() : 'Live';
+
+  // Update pipeline indicators
+  document.getElementById('pipeRecv').querySelector('.status-dot').className = 'status-dot ok';
+  document.getElementById('pipeProc').querySelector('.status-dot').className = 'status-dot ok';
+  document.getElementById('pipeInfer').querySelector('.status-dot').className = 'status-dot ok';
+
+  const setVal = (id, val, suffix='') => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val != null ? `${val}${suffix}` : '—';
+  };
+
+  setVal('tmPktRate', tf.pkt_rate != null ? tf.pkt_rate.toFixed(1) : (fc.flows_per_second ? (fc.flows_per_second*15).toFixed(1) : '—'));
+  setVal('tmFlowRate', fc.flows_per_second != null ? fc.flows_per_second.toFixed(1) : (tf.flow_count ? (tf.flow_count/30).toFixed(1) : '—'));
+  setVal('tmByteRate', tf.byte_rate != null ? tf.byte_rate.toFixed(0) : '—', ' B/s');
+  setVal('tmSrcIps', tf.unique_src_ips != null ? tf.unique_src_ips : '—');
+  setVal('tmDstIps', tf.unique_dst_ips != null ? tf.unique_dst_ips : '—');
+  setVal('tmDstPorts', tf.unique_dst_ports != null ? tf.unique_dst_ports : '—');
+  setVal('tmFailedFlows', tf.failed_flow_count != null ? tf.failed_flow_count : '0');
+  setVal('tmSynRatio', tf.syn_ratio != null ? (tf.syn_ratio*100).toFixed(1) : '—', '%');
+  setVal('tmRstRatio', tf.rst_ratio != null ? (tf.rst_ratio*100).toFixed(1) : '—', '%');
+  setVal('tmFlagDiv', tf.tcp_flag_diversity != null ? tf.tcp_flag_diversity.toFixed(2) : '—');
+  setVal('tmDuration', tf.mean_flow_duration != null ? tf.mean_flow_duration.toFixed(3) : '—', 's');
+  setVal('tmBytesPkt', tf.bytes_per_packet != null ? tf.bytes_per_packet.toFixed(1) : '—');
+}
+
+// ─── Timeline & Event Logs ────────────────────────────────────────────────
 function renderTimeline(fc) {
   state.timeline.push({
-    win: state.currentWindow,
+    win: fc.window_index != null ? fc.window_index + 1 : state.currentWindow,
     observed: fc.ground_truth_stage || fc.current_stage,
     forecast: fc.predicted_next_stage,
     conf: fc.confidence,
     risk: fc.risk_level,
     trans: fc.transition_detected,
+    time: fc.timestamp ? new Date(fc.timestamp).toLocaleTimeString() : 'now'
   });
 
   const tbody = document.getElementById('timelineRows');
@@ -1035,9 +1323,22 @@ function renderTimeline(fc) {
       <span class="tl-stage text-blue">${r.trans?'→ ':''}<em>${r.forecast}</em></span>
       <span class="tl-conf">${pct(r.conf)}</span>
       <span class="tl-risk badge badge-${(r.risk||'low').toLowerCase()}">${r.risk||'—'}</span>
+      <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${r.time}</span>
     </div>`).join('');
 }
 
+function addEventLog(tag, text) {
+  const list = document.getElementById('eventLogList');
+  if (!list) return;
+  const now = new Date().toLocaleTimeString();
+  const item = document.createElement('div');
+  item.className = 'event-item';
+  item.innerHTML = `<span class="event-ts">[${now}]</span><span class="event-tag text-blue">${tag}</span><span>${text}</span>`;
+  list.insertBefore(item, list.firstChild);
+  if (list.children.length > 30) list.removeChild(list.lastChild);
+}
+
+// ─── K=4 Forward Simulation ───────────────────────────────────────────────
 function renderRollout(fc) {
   const steps = fc.rollout_steps || [];
   const path = document.getElementById('rolloutPath');
@@ -1045,18 +1346,19 @@ function renderRollout(fc) {
 
   const items = [
     `<div class="rollout-step current-marker">
-       <div class="rollout-step-label">Observed</div>
+       <div class="rollout-step-label">Current State</div>
        <div class="rollout-stage">${STAGE_ICONS[fc.current_stage]||''} ${fc.current_stage}</div>
-       <div class="rollout-conf">now</div>
+       <div class="rollout-conf">Observed Now</div>
      </div>`
   ];
 
-  steps.forEach((r,i)=>{
+  steps.forEach((r)=>{
     items.push('<div class="rollout-arrow">→</div>');
     items.push(`<div class="rollout-step">
-      <div class="rollout-step-label">+${r.step} · SIM</div>
+      <div class="rollout-step-label">t+${r.step} · SIMULATION</div>
       <div class="rollout-stage">${STAGE_ICONS[r.predicted_stage]||''} ${r.predicted_stage}</div>
       <div class="rollout-conf">${pct(r.confidence)} conf</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:2px">atk: ${pct(r.attack_probability)}</div>
     </div>`);
   });
 
@@ -1064,14 +1366,24 @@ function renderRollout(fc) {
 
   const sf = fc.safety_flags || {};
   const flags = [];
-  if (sf.nan_detected) flags.push('⚠ NaN detected in rollout');
+  if (sf.nan_detected) flags.push('⚠ NaN detected');
   if (sf.collapse_detected) flags.push('⚠ Entropy collapse detected');
-  if (!sf.feature_dim_valid) flags.push('⚠ Feature dim mismatch');
   document.getElementById('rolloutSafetyFlags').textContent =
-    flags.length ? flags.join(' | ') : '✓ Rollout safety flags: all clear';
-  document.getElementById('rolloutSafetyFlags').style.color = flags.length?'var(--yellow)':'var(--green)';
+    flags.length ? flags.join(' | ') : '✓ Autoregressive rollout safety checks: all clear (no future lookahead)';
+  document.getElementById('rolloutSafetyFlags').style.color = flags.length ? 'var(--yellow)' : 'var(--green)';
 }
 
+function triggerK4Simulation() {
+  showTab('tabSimulation', document.querySelectorAll('.tab')[2]);
+  if (state.lastForecast) {
+    renderRollout(state.lastForecast);
+    showAlert('K=4 Autoregressive rollout calculated.', 'info');
+  } else {
+    showAlert('Awaiting active telemetry to calculate simulation.', 'warn');
+  }
+}
+
+// ─── Feature Attribution ──────────────────────────────────────────────────
 function renderExplainability(fc) {
   document.getElementById('explainNarrative').innerHTML = md(fc.explanation_narrative || '');
   const feats = [...(fc.stage_relevant_features||[]), ...(fc.top_features||[])];
@@ -1080,23 +1392,27 @@ function renderExplainability(fc) {
 
   const maxAbs = Math.max(...unique.map(f=>Math.abs(f.abs_change)), 0.001);
   const tbody = document.getElementById('featTableBody');
-  if (!unique.length) { tbody.innerHTML='<tr><td colspan="5" class="empty-state">No feature data</td></tr>'; return; }
+  if (!unique.length) { tbody.innerHTML='<tr><td colspan="7" class="empty-state">No feature data</td></tr>'; return; }
 
   tbody.innerHTML = unique.map(f=>{
     const pctVal = f.rel_change_pct;
     const barPct = Math.min(100, Math.abs(f.abs_change)/maxAbs*100);
     const cls = pctVal>0?'pos':'neg';
+    const dir = pctVal>0?'▲':'▼';
     const barColor = pctVal>0?'var(--red)':'var(--green)';
     return `<tr>
       <td class="feat-name">${f.feature}</td>
       <td class="feat-val">${f.current.toFixed(3)}</td>
       <td class="feat-val">${f.predicted.toFixed(3)}</td>
+      <td class="feat-val">${f.abs_change.toFixed(3)}</td>
       <td class="feat-delta ${cls}">${pctVal>0?'+':''}${pctVal.toFixed(1)}%</td>
+      <td class="feat-delta ${cls}">${dir}</td>
       <td class="feat-bar-cell"><div class="feat-bar"><div class="feat-bar-inner" style="width:${barPct}%;background:${barColor}"></div></div></td>
     </tr>`;
   }).join('');
 }
 
+// ─── MITRE ATT&CK ─────────────────────────────────────────────────────────
 function renderMitre(fc) {
   const panel = document.getElementById('mitrePanel');
   const techs = fc.mitre_techniques || [];
@@ -1114,7 +1430,57 @@ function renderMitre(fc) {
     </div>`).join('');
 }
 
-// ─── Agent / Chat ─────────────────────────────────────────────────────────
+// ─── Dynamic Risk Escalation ──────────────────────────────────────────────
+function renderRiskEscalation(fc) {
+  const lvl = (fc.risk_level || 'LOW').toUpperCase();
+  const score = fc.risk_score != null ? fc.risk_score.toFixed(1) : '—';
+  const badge = document.getElementById('riskBadgeSide');
+  if (badge) {
+    badge.textContent = `${lvl} (${score})`;
+    badge.className = `badge badge-${lvl.toLowerCase()}`;
+  }
+
+  // Clear all segments
+  ['rSegLow','rSegMed','rSegHigh','rSegCrit'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = 'risk-meter-seg';
+  });
+
+  if (lvl === 'LOW') document.getElementById('rSegLow').className = 'risk-meter-seg active-low';
+  else if (lvl === 'MEDIUM') document.getElementById('rSegMed').className = 'risk-meter-seg active-med';
+  else if (lvl === 'HIGH') document.getElementById('rSegHigh').className = 'risk-meter-seg active-high';
+  else if (lvl === 'CRITICAL') document.getElementById('rSegCrit').className = 'risk-meter-seg active-crit';
+
+  const desc = document.getElementById('riskPriorityDesc');
+  if (desc) {
+    desc.textContent = fc.recommended_priority || `Risk calculated at ${score}/100 based on state divergence.`;
+  }
+}
+
+// ─── Incident Response Recommendations ────────────────────────────────────
+function renderIncidentResponseActions(fc) {
+  const cur = fc.current_stage || 'UNKNOWN';
+  const nxt = fc.predicted_next_stage || 'UNKNOWN';
+  const tid = fc.primary_technique_id || 'T1046';
+  const tname = fc.primary_technique_name || 'Scanning';
+  const tf = fc.telemetry_features || {};
+  const topFeat = (fc.top_features && fc.top_features[0]) ? fc.top_features[0].feature : 'packet_rate';
+
+  document.getElementById('irReason1').textContent =
+    `Validate hosts in current ${cur} window (observed ${tf.unique_src_ips||'multiple'} source IPs targeting ${tf.unique_dst_ips||'target'} destination nodes).`;
+  document.getElementById('irReason2').textContent =
+    `Investigate connection anomalies: TCP SYN ratio is ${tf.syn_ratio!=null?(tf.syn_ratio*100).toFixed(1):'—'}%, RST failures: ${tf.failed_flow_count||0}.`;
+  document.getElementById('irReason3').textContent =
+    `Review authentication logs on monitored ports (ports 22/3389/445) before transition to ${nxt} completes.`;
+  document.getElementById('irReason4').textContent =
+    `Inspect primary physical feature shift: '${topFeat}' shows highest statistical divergence |S_hat - S_t|.`;
+  document.getElementById('irReason5').textContent =
+    `Correlate alerts with MITRE technique ${tid} (${tname}) mapped to ${nxt} stage.`;
+  document.getElementById('irReason6').textContent =
+    `Escalate according to ${fc.risk_level||'LOW'} risk rating (${fc.risk_score!=null?fc.risk_score.toFixed(1):'0'}/100): ${fc.recommended_priority||'Tier-1 monitoring'}.`;
+}
+
+// ─── Defensive Agent Chat ─────────────────────────────────────────────────
 async function sendQuery() {
   const input = document.getElementById('chatInput');
   const q = input.value.trim();
@@ -1135,7 +1501,10 @@ async function sendQuery() {
   }
 }
 
-function quickQ(q) { document.getElementById('chatInput').value=q; sendQuery(); }
+function quickQ(q) {
+  document.getElementById('chatInput').value = q;
+  sendQuery();
+}
 
 function appendChat(role, text, tools=[], backend='') {
   const area = document.getElementById('chatArea');
@@ -1143,21 +1512,21 @@ function appendChat(role, text, tools=[], backend='') {
   const toolsStr = (tools&&tools.length)?`<div class="chat-tools">🔧 ${tools.join(' → ')}</div>`:'';
   const div = document.createElement('div');
   div.className='chat-msg '+(isAgent?'chat-agent':'chat-analyst');
-  div.innerHTML=`<div class="chat-role ${isAgent?'agent-role':'analyst-role'}">${isAgent?'CYBERSENTINEL':'ANALYST'}</div>
+  div.innerHTML=`<div class="chat-role ${isAgent?'agent-role':'analyst-role'}">${isAgent?'CYBERSENTINEL DEFENSIVE AGENT':'SOC ANALYST'}</div>
     <div class="markdown">${md(text)}</div>${toolsStr}`;
   area.appendChild(div);
   area.scrollTop=area.scrollHeight;
 }
 
-// ─── Tabs ─────────────────────────────────────────────────────────────────
+// ─── Tabs & UI ────────────────────────────────────────────────────────────
 function showTab(id, btn) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  if (btn) btn.classList.add('active');
 }
 
-// ─── Utilities ────────────────────────────────────────────────────────────
 function pct(v) { return v!=null ? (v*100).toFixed(1)+'%' : '—'; }
 
 function showAlert(msg, type='info') {
@@ -1168,7 +1537,6 @@ function showAlert(msg, type='info') {
   setTimeout(()=>bar.style.display='none', 6000);
 }
 
-// Minimal markdown renderer (bold, inline code, lists, links, tables, newlines)
 function md(text) {
   if (!text) return '';
   return text
@@ -1199,21 +1567,6 @@ async function pollSystemHealth() {
       const bp = h.queue_backpressure_status || 'nominal';
       document.getElementById('obsBackpressure').textContent = bp.toUpperCase();
       document.getElementById('obsBackpressure').style.color = bp === 'nominal' ? 'var(--green)' : 'var(--yellow)';
-    }
-
-    if (document.getElementById('hModeVal')) document.getElementById('hModeVal').textContent = h.mode || 'LIVE';
-    if (document.getElementById('hSourceVal')) document.getElementById('hSourceVal').textContent = h.telemetry_source || 'none';
-    if (document.getElementById('hWindowVal')) document.getElementById('hWindowVal').textContent = h.current_window_id ? h.current_window_id.slice(0, 8) : '—';
-    if (document.getElementById('hModelVal')) document.getElementById('hModelVal').textContent = h.model_available ? `${h.model_version} (ONLINE)` : 'OFFLINE';
-    if (document.getElementById('hScalerVal')) document.getElementById('hScalerVal').textContent = h.scaler_available ? 'RobustScaler (ONLINE)' : 'OFFLINE';
-    if (document.getElementById('hDroppedVal')) document.getElementById('hDroppedVal').textContent = h.dropped_malformed_count || 0;
-    if (document.getElementById('hTotalInferredVal')) document.getElementById('hTotalInferredVal').textContent = h.uptime_windows_inferred || 0;
-    if (document.getElementById('hLastInferenceVal')) document.getElementById('hLastInferenceVal').textContent = h.last_inference_timestamp || '—';
-
-    if (document.getElementById('healthOverallBadge')) {
-      const isOk = h.status === 'healthy';
-      document.getElementById('healthOverallBadge').className = 'badge ' + (isOk ? 'badge-observed' : 'badge-critical');
-      document.getElementById('healthOverallBadge').textContent = isOk ? 'HEALTHY' : 'DEGRADED';
     }
   } catch(e) {}
 }

@@ -69,16 +69,21 @@ def _ollama_generate(model: str, prompt: str, system: str) -> str:
 # ---------------------------------------------------------------------------
 
 _ROUTE_PATTERNS = {
-    "current_state":   [r"what.*(happening|going on|current|right now|is it)", r"status"],
-    "forecast":        [r"what.*(happen|next|likely|predict|coming|expect)", r"forecast", r"future"],
-    "transition":      [r"transition", r"stage.*(change|shift)", r"moving to"],
-    "features":        [r"why|reason|evidence|indicator|feature|signal|change|because"],
-    "mitre":           [r"mitre|att.?ck|technique|tactic|T\d{4}"],
-    "confidence":      [r"confident|certain|sure|probability|how (likely|sure|confident)"],
-    "risk":            [r"risk|priority|urgent|severity|dangerous|threat level|how (bad|serious|dangerous)"],
-    "rollout":         [r"k=|rollout|simulate|next (2|3|4|five|four|three)|future (states?|steps?)"],
-    "metrics":         [r"benchmark|metric|accuracy|performance|compare|better|gru|logistic|baseline"],
-    "investigate":     [r"investigate|analyst|look into|check|action|recommend|should (i|we|the)"],
+    "threat_rationale":  [r"why.*(threat|considered|dangerous|harmful|malicious)", r"what makes this (a )?threat"],
+    "defensive_actions": [r"defensive action", r"what (defensive|countermeasures?|mitigation)", r"defensive responses?"],
+    "prioritize":        [r"what should i prioritize", r"what.*prioritize", r"how to prioritize"],
+    "investigate":       [r"investigate|what should the analyst", r"analyst.*investigate", r"action.*analyst"],
+    "evidence":          [r"evidence|what evidence|supports? this prediction|attribution"],
+    "incident_summary":  [r"summarize|summary|executive summary|incident overview|briefing"],
+    "current_state":     [r"what.*(happening|going on|current|right now|is it)", r"status"],
+    "forecast":          [r"what.*(happen|next|likely|predict|coming|expect)", r"forecast", r"future"],
+    "transition":        [r"transition", r"stage.*(change|shift)", r"moving to"],
+    "features":          [r"why|reason|indicator|feature|signal|change|because"],
+    "mitre":             [r"mitre|att.?ck|technique|tactic|T\d{4}"],
+    "confidence":        [r"confident|certain|sure|probability|how (likely|sure|confident)"],
+    "risk":              [r"risk|urgent|severity|dangerous|threat level|how (bad|serious|dangerous)"],
+    "rollout":           [r"k=|rollout|simulate|next (2|3|4|five|four|three)|future (states?|steps?)"],
+    "metrics":           [r"benchmark|metric|accuracy|performance|compare|better|gru|logistic|baseline"],
 }
 
 
@@ -227,6 +232,65 @@ def _template_answer(route: str, fc: Dict[str, Any], query: str) -> str:
             "Source: experiments/phase8c_investigation/phase8c_summary.json (immutable)."
         )
 
+    elif route == "threat_rationale":
+        top_f = f" Key driver: {feats[0]['feature']} ({feats[0]['rel_change_pct']:+.1f}% change)." if feats else ""
+        return (
+            f"This activity is considered a threat based on the following model outputs:\n\n"
+            f"• **Current Observed Stage**: **{cur}** (attack probability: **{atk:.1%}**).\n"
+            f"• **Transition Forecast**: Predicted to transition to **{nxt}** (confidence: {conf:.1%}).\n"
+            f"• **Calculated Risk**: Score **{score:.0f}/100** ({risk} severity level).\n"
+            f"• **MITRE Alignment**: Associated with **{tid or 'N/A'}** ({tname or 'N/A'}).\n"
+            f"• **Physical Telemetry**:{top_f}\n\n"
+            f"_Evaluation performed via CyberWorldModelV2 calibrated inference._"
+        )
+
+    elif route == "defensive_actions":
+        f_name = feats[0]['feature'] if feats else 'traffic rate'
+        return (
+            f"Recommended defensive actions for current **{cur}** state:\n\n"
+            f"1. **Validate affected hosts** — isolate suspicious endpoints and verify host integrity.\n"
+            f"2. **Investigate abnormal connections** — inspect anomalous shifts in `{f_name}`.\n"
+            f"3. **Review authentication failures** — audit access logs and privilege escalation attempts.\n"
+            f"4. **Inspect relevant telemetry** — verify flow durations, TCP reset flags, and packet ratios.\n"
+            f"5. **Correlate with MITRE {tid or 'techniques'}** — deploy detection rules for {tname or 'active threats'}.\n"
+            f"6. **Escalate according to risk ({risk})** — {priority or 'Notify SOC team immediately'}.\n\n"
+            f"_Defensive countermeasures aligned with MITRE ATT&CK Enterprise v14._"
+        )
+
+    elif route == "prioritize":
+        return (
+            f"**Analyst Priority Guidance**:\n\n"
+            f"• **Primary Focus**: **{priority}** (Risk Score: {score:.0f}/100 — **{risk}**).\n"
+            f"• **Immediate Horizon**: Prepare detection rules for **{nxt}** before transition occurs ({hint}).\n"
+            f"• **Top Investigation Vector**: Audit anomalies in `{feats[0]['feature'] if feats else 'network flow rates'}`.\n\n"
+            f"_Derived from real-time RiskEngine calculation._"
+        )
+
+    elif route == "evidence":
+        lines = []
+        if feats:
+            lines = [f"• **{f['feature']}**: {f['current']:.3f} → {f['predicted']:.3f} ({f['rel_change_pct']:+.1f}% shift)"
+                     for f in feats[:4]]
+        feat_txt = "\n".join(lines) if lines else "• Baseline telemetry features within standard variance."
+        return (
+            f"**Runtime Evidence Supporting Prediction** ({cur} → {nxt}):\n\n"
+            f"{feat_txt}\n\n"
+            f"• **Model Confidence**: {conf:.1%} (calibrated with temperature T={cal_temp:.4f})\n"
+            f"• **Predicted Physical Trajectory**: |S_hat_{{t+1}} − S_t| state divergence.\n\n"
+            f"_Evidence originates strictly from CyberWorldModelV2 physical state predictor._"
+        )
+
+    elif route == "incident_summary":
+        return (
+            f"### 🛡️ CyberSentinel Incident Briefing\n\n"
+            f"- **Operational State**: **{cur}** (Attack Probability: **{atk:.1%}**)\n"
+            f"- **Projected Next Stage**: **{nxt}** (Confidence: **{conf:.1%}** | Transition: **{'DETECTED' if trans else 'STABLE'}**)\n"
+            f"- **Threat Severity**: **{risk}** (Risk Score: **{score:.0f}/100**)\n"
+            f"- **MITRE Context**: **{tid or 'None'}** — {tname or 'Unmapped'}\n"
+            f"- **Action Priority**: {priority}\n\n"
+            f"_Summary compiled from live model inference and deterministic defensive tools._"
+        )
+
     elif route == "investigate":
         lines = [
             f"Based on the current model output, the following investigation steps are recommended:",
@@ -367,17 +431,22 @@ class CyberSentinelDefensiveAgent:
 
         # Determine which tools were conceptually called
         route_to_tools = {
-            "current_state":   ["get_current_state"],
-            "forecast":        ["get_attack_forecast"],
-            "transition":      ["get_transition_analysis"],
-            "features":        ["get_feature_importance"],
-            "mitre":           ["get_mitre_mapping"],
-            "confidence":      ["get_attack_forecast"],
-            "risk":            ["get_risk_assessment"],
-            "rollout":         ["get_rollout"],
-            "metrics":         ["get_model_metrics"],
-            "investigate":     ["get_attack_forecast", "get_feature_importance",
-                                "get_mitre_mapping", "get_risk_assessment"],
+            "current_state":    ["get_current_state"],
+            "forecast":         ["get_attack_forecast"],
+            "transition":       ["get_transition_analysis"],
+            "features":         ["get_feature_importance"],
+            "evidence":         ["get_feature_importance", "get_attack_forecast"],
+            "threat_rationale": ["get_current_state", "get_risk_assessment"],
+            "defensive_actions":["get_risk_assessment", "get_mitre_mapping"],
+            "prioritize":       ["get_risk_assessment"],
+            "incident_summary": ["get_current_state", "get_attack_forecast", "get_risk_assessment"],
+            "mitre":            ["get_mitre_mapping"],
+            "confidence":       ["get_attack_forecast"],
+            "risk":             ["get_risk_assessment"],
+            "rollout":          ["get_rollout"],
+            "metrics":          ["get_model_metrics"],
+            "investigate":      ["get_attack_forecast", "get_feature_importance",
+                                 "get_mitre_mapping", "get_risk_assessment"],
         }
         tools_used.extend(route_to_tools.get(route, ["get_current_state"]))
 

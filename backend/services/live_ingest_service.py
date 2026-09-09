@@ -426,6 +426,10 @@ class LiveIngestService:
                                window.window_id)
                 raw_row = np.nan_to_num(raw_row, nan=0.0, posinf=0.0, neginf=0.0)
 
+            raw_telemetry = {
+                feat: round(float(val), 4) for feat, val in zip(FEATURE_NAMES, raw_row)
+            }
+
             if self._scaler is not None:
                 import pandas as pd
                 df_single = pd.DataFrame([raw_row], columns=FEATURE_NAMES)
@@ -519,6 +523,7 @@ class LiveIngestService:
             fc, window, session_id, t_elapsed_ms,
             mode=self._last_health.get("mode", "LIVE"),
             observed_stages=session_observed,
+            raw_telemetry=raw_telemetry,
         )
 
         # ---- 9. Structured observability log --------------------------------
@@ -553,6 +558,7 @@ def _build_live_event(
     latency_ms: float,
     mode: str = "LIVE",
     observed_stages: Optional[List[str]] = None,
+    raw_telemetry: Optional[Dict[str, float]] = None,
 ) -> Dict[str, Any]:
     """
     Merge the ML ForecastEvent with live telemetry metadata.
@@ -563,6 +569,9 @@ def _build_live_event(
     """
     # Strip internal fields (tensors, raw ForecastEvent object)
     clean_fc = {k: v for k, v in fc.items() if not k.startswith("_")}
+
+    is_ext = any(k in str(window.source_id).lower() for k in ("mobile", "simulator", "external", "remote", "pattern"))
+    source_label = "External Telemetry Device" if is_ext else str(window.source_id)
 
     return {
         "status": "FORECAST",
@@ -577,6 +586,7 @@ def _build_live_event(
         "flows_per_second": round(window.flows_per_second, 2),
         "dropped_malformed": window.dropped_malformed,
         "source_id": window.source_id,
+        "source_kind": source_label,
         "inference_latency_ms": round(latency_ms, 2),
         "model_version": _MODEL_VERSION,
         "provenance": clean_fc.get("provenance", "CyberWorldModelV2.forecast()"),
@@ -601,4 +611,5 @@ def _build_live_event(
         "rollout_steps": clean_fc.get("rollout_steps"),
         "safety_flags": clean_fc.get("safety_flags"),
         "observed_stages": observed_stages if observed_stages is not None else clean_fc.get("observed_stages", []),
+        "telemetry_features": raw_telemetry or clean_fc.get("telemetry_features", {}),
     }

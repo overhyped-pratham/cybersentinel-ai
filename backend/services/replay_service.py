@@ -53,6 +53,7 @@ class ReplaySession:
     current_window: int = 0
     is_complete: bool = False
     started_at: float = field(default_factory=time.time)
+    telemetry_rows: Optional[List[Dict[str, float]]] = None
 
 
 # ---------------------------------------------------------------------------
@@ -140,6 +141,14 @@ class ReplayService:
         true_stages = [_stage_name(int(y)) for y in sequences.y_current_stage]
         true_next = [_stage_name(int(y)) for y in sequences.y_next_stage]
 
+        from ml.state.state_builder import FEATURE_NAMES
+        telemetry_rows = []
+        for _, row in scenario_df.iterrows():
+            telemetry_rows.append({
+                feat: round(float(row[feat]), 4) if feat in row else 0.0
+                for feat in FEATURE_NAMES
+            })
+
         session = ReplaySession(
             session_id=session_id,
             scenario_id=scenario_id,
@@ -148,6 +157,7 @@ class ReplayService:
             true_stages=true_stages,
             true_next_stages=true_next,
             k_steps=k_steps,
+            telemetry_rows=telemetry_rows,
         )
         self._sessions[session_id] = session
         logger.info("Replay session %s started: scenario=%s, windows=%d",
@@ -200,6 +210,15 @@ class ReplayService:
         fc["ground_truth_next_stage"] = session.true_next_stages[idx]
         fc["window_index"] = idx
         fc["observed_stages"] = list(dict.fromkeys(session.true_stages[:idx+1]))
+
+        # Attach real telemetry metrics from the scenario dataframe
+        if session.telemetry_rows and idx < len(session.telemetry_rows):
+            t_row = session.telemetry_rows[idx]
+            fc["telemetry_features"] = t_row
+            fc["flow_count"] = int(t_row.get("flow_count", 0))
+            fc["flows_per_second"] = round(float(fc["flow_count"]) / 30.0, 2)
+            fc["source_id"] = f"Replay:{session.scenario_id}"
+            fc["source_kind"] = "Local Trace Replay"
 
         session.current_window += 1
         if session.current_window >= len(session.true_stages):
