@@ -67,20 +67,27 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 .prob-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px}
 
 /* ─── Attack Lifecycle ───────────────────────────────────────────────────── */
-.lifecycle{display:flex;flex-direction:column;gap:4px}
+.lifecycle{display:flex;flex-direction:column;gap:4px;min-height:180px;position:relative}
 .lc-stage{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;
-  border:1px solid transparent;transition:all .3s ease;position:relative}
-.lc-stage.active{background:rgba(59,130,246,.12);border-color:var(--accent);color:var(--accent)}
-.lc-stage.predicted{background:rgba(139,92,246,.1);border-color:var(--purple);color:var(--purple)}
-.lc-stage.simulated{background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.3);color:var(--simulated)}
-.lc-stage.past{opacity:.4}
-.lc-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0}
-.lc-stage.active .lc-dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
-.lc-stage.predicted .lc-dot{background:var(--purple)}
-.lc-stage.simulated .lc-dot{background:var(--simulated);opacity:.7}
-.lc-arrow{font-size:10px;color:var(--muted);margin-left:20px}
+  border:1px solid transparent;transition:all .35s cubic-bezier(0.4, 0, 0.2, 1);position:relative}
+.lc-stage.active{background:rgba(16,185,129,.14);border-color:var(--green);color:var(--text);box-shadow:0 0 10px rgba(16,185,129,.2)}
+.lc-stage.predicted{background:rgba(59,130,246,.14);border-color:var(--accent);color:var(--accent);box-shadow:0 0 10px rgba(59,130,246,.2)}
+.lc-stage.simulated{background:rgba(139,92,246,.12);border-color:var(--purple);color:var(--purple);box-shadow:0 0 8px rgba(139,92,246,.15)}
+.lc-stage.past{background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.25);color:var(--muted)}
+.lc-stage.inactive{opacity:.35;color:var(--muted);border-color:transparent}
+.lc-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:all .3s ease}
+.lc-stage.active .lc-dot{background:var(--green);box-shadow:0 0 8px var(--green);animation:lc-pulse 2s infinite}
+.lc-stage.predicted .lc-dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.lc-stage.simulated .lc-dot{background:var(--purple);box-shadow:0 0 6px var(--purple)}
+.lc-stage.past .lc-dot{background:var(--green);opacity:.6}
+.lc-stage.inactive .lc-dot{background:var(--border);opacity:.5}
+@keyframes lc-pulse{0%,100%{transform:scale(1);box-shadow:0 0 6px var(--green)}50%{transform:scale(1.3);box-shadow:0 0 12px var(--green)}}
+.lc-arrow{font-size:10px;color:var(--muted);margin-left:20px;transition:all .3s ease;line-height:1}
+.lc-arrow.active-transition{color:var(--accent);font-weight:700;animation:pulse-arrow 1.5s infinite}
+@keyframes pulse-arrow{0%,100%{opacity:.6}50%{opacity:1;transform:translateY(1px)}}
 .lc-label{font-size:12px;font-weight:500}
-.lc-annotation{margin-left:auto;font-size:10px;opacity:.8}
+.lc-annotation{margin-left:auto;font-size:10px;font-weight:600}
+
 
 /* ─── Timeline ───────────────────────────────────────────────────────────── */
 .timeline{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto}
@@ -269,9 +276,14 @@ scrollbar-width:thin;scrollbar-color:var(--border) transparent;
 
   <!-- Attack Lifecycle -->
   <div class="card" style="margin-bottom:12px">
-    <div class="card-title"><span class="icon">🔗</span>Attack Lifecycle</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="card-title" style="margin-bottom:0"><span class="icon">🔗</span>Attack Lifecycle</div>
+      <span id="lifecycleTimestamp" style="font-size:10px;color:var(--muted);font-family:var(--mono)">Awaiting telemetry</span>
+    </div>
     <div class="lifecycle" id="lifecyclePanel">
-      <!-- populated by JS -->
+      <div class="empty-state" style="padding:20px 8px;text-align:center;color:var(--muted);font-size:12px">
+        No live prediction available
+      </div>
     </div>
     <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
       <span class="badge badge-observed">● Observed</span>
@@ -642,6 +654,7 @@ async function startReplay() {
   if (!scenario) { showAlert('Select a scenario first','warn'); return; }
   stopAutoPlay();
   state.timeline = [];
+  state.observedStages = new Set();
   document.getElementById('timelineRows').innerHTML='<div class="empty-state loading">Starting session…</div>';
 
   try {
@@ -780,10 +793,12 @@ function handleStreamMessage(msg) {
   }
   if (msg.status === 'MODEL_UNAVAILABLE') {
     showAlert('FAIL-CLOSED: CyberWorldModelV2 model unavailable. No inference emitted.', 'error');
+    renderLifecycle({status: 'MODEL_UNAVAILABLE'});
     return;
   }
   if (msg.status === 'INVALID_TELEMETRY') {
     showAlert(`FAIL-CLOSED: Invalid telemetry received: ${msg.detail||'Empty flows'}`, 'warn');
+    renderLifecycle({status: 'INVALID_TELEMETRY', detail: msg.detail});
     return;
   }
   if (msg.status === 'FORECAST') {
@@ -845,6 +860,8 @@ async function startLiveStream() {
     };
     const resp = await api('/stream/start', 'POST', payload);
     state.liveSessionId = resp.session_id;
+    state.observedStages = new Set();
+    state.timeline = [];
     const mb = document.getElementById('systemModeBadge');
     if (mb) {
       mb.textContent = '🔴 LIVE STREAMING MODE';
@@ -867,6 +884,8 @@ async function stopLiveStream() {
   } catch(e) {
   } finally {
     state.liveSessionId = null;
+    state.observedStages = new Set();
+    renderLifecycle(null);
     document.getElementById('btnLiveStart').disabled = false;
     document.getElementById('btnLiveStop').disabled = true;
   }
@@ -900,21 +919,101 @@ function renderThreatStatus(fc) {
 
 function renderLifecycle(fc) {
   const panel = document.getElementById('lifecyclePanel');
+  if (!panel) return;
+  const timeEl = document.getElementById('lifecycleTimestamp');
+
+  // Fallback 1: No live telemetry or forecast
+  if (!fc) {
+    panel.innerHTML = `
+      <div class="empty-state" style="padding:20px 8px;text-align:center;color:var(--muted);font-size:12px">
+        No live prediction available
+      </div>`;
+    if (timeEl) timeEl.textContent = 'Awaiting telemetry';
+    return;
+  }
+
+  // Fallback 2: Fail-closed model unavailable
+  if (fc.status === 'MODEL_UNAVAILABLE') {
+    panel.innerHTML = `
+      <div class="empty-state" style="padding:16px 8px;text-align:center;color:var(--red);font-size:12px;border:1px solid rgba(239,68,68,0.3);border-radius:6px;background:rgba(239,68,68,0.08)">
+        <strong>MODEL UNAVAILABLE</strong>
+        <div style="font-size:10px;margin-top:4px;color:var(--muted)">Fail-closed: CyberWorldModelV2 offline</div>
+      </div>`;
+    if (timeEl) timeEl.textContent = 'Model offline';
+    return;
+  }
+
+  // Fallback 3: Invalid telemetry
+  if (fc.status === 'INVALID_TELEMETRY') {
+    panel.innerHTML = `
+      <div class="empty-state" style="padding:16px 8px;text-align:center;color:var(--yellow);font-size:12px;border:1px solid rgba(245,158,11,0.3);border-radius:6px;background:rgba(245,158,11,0.08)">
+        <strong>INVALID TELEMETRY</strong>
+        <div style="font-size:10px;margin-top:4px;color:var(--muted)">${fc.detail || 'Zero valid flows'}</div>
+      </div>`;
+    if (timeEl) timeEl.textContent = 'Invalid telemetry';
+    return;
+  }
+
+  // Authoritative runtime fields (100% determined by model / backend)
   const cur = fc.current_stage;
   const nxt = fc.predicted_next_stage;
-  const rolloutStages = (fc.rollout_steps||[]).map(r=>r.predicted_stage);
-  const transitions = fc.transition_detected;
+  const rolloutSteps = fc.rollout_steps || [];
+  const transitions = Boolean(fc.transition_detected);
+  const conf = fc.confidence != null ? pct(fc.confidence) : '—';
+  const risk = fc.risk_score != null ? fc.risk_score : '—';
 
-  panel.innerHTML = STAGES.map((s,i)=>{
-    let cls='lc-stage', ann='', label=s;
-    if (s===cur) { cls+=' active'; ann='<span class="lc-annotation badge badge-observed">NOW</span>'; }
-    else if (s===nxt && transitions) { cls+=' predicted'; ann='<span class="lc-annotation badge badge-forecast">FORECAST</span>'; }
-    else if (rolloutStages.slice(1).includes(s) && s!==cur && s!==nxt) {
-      cls+=' simulated'; ann='<span class="lc-annotation badge badge-simulated">SIM</span>';
-    } else if (STAGES.indexOf(s) < STAGES.indexOf(cur)) { cls+=' past'; }
-    const icon = STAGE_ICONS[s]||'●';
-    return `<div class="${cls}"><div class="lc-dot"></div><div class="lc-label">${icon} ${label}</div>${ann}</div>
-            ${i<STAGES.length-1?'<div class="lc-arrow">↓</div>':''}`;
+  // Track dynamically observed stages for this session without any predefined assumptions
+  state.observedStages = state.observedStages || new Set();
+  if (cur) state.observedStages.add(cur);
+  if (Array.isArray(fc.observed_stages)) {
+    fc.observed_stages.forEach(st => { if (st) state.observedStages.add(st); });
+  }
+
+  // Map rollout stages to their earliest future step (+1, +2, etc.)
+  const rolloutMap = {};
+  rolloutSteps.forEach(r => {
+    if (r.predicted_stage && rolloutMap[r.predicted_stage] === undefined) {
+      rolloutMap[r.predicted_stage] = r.step;
+    }
+  });
+
+  // Timestamp and live telemetry stats in header
+  if (timeEl) {
+    const tsStr = fc.timestamp ? new Date(fc.timestamp).toLocaleTimeString() : 'Live';
+    timeEl.textContent = `${tsStr} | Conf: ${conf} | Risk: ${risk}`;
+  }
+
+  // Render each stage in the official taxonomy according to its live runtime role
+  panel.innerHTML = STAGES.map((s, i) => {
+    let cls = 'lc-stage inactive', ann = '';
+    const icon = STAGE_ICONS[s] || '●';
+
+    if (s === cur) {
+      cls = 'lc-stage active';
+      ann = (s === nxt)
+        ? '<span class="lc-annotation badge badge-observed">NOW · PERSIST</span>'
+        : '<span class="lc-annotation badge badge-observed">NOW</span>';
+    } else if (s === nxt) {
+      cls = 'lc-stage predicted';
+      ann = `<span class="lc-annotation badge badge-forecast">FORECAST (${conf})</span>`;
+    } else if (rolloutMap[s] !== undefined && s !== cur && s !== nxt) {
+      cls = 'lc-stage simulated';
+      ann = `<span class="lc-annotation badge badge-simulated">K=+${rolloutMap[s]} SIM</span>`;
+    } else if (state.observedStages.has(s)) {
+      cls = 'lc-stage past';
+      ann = '<span class="lc-annotation badge badge-observed" style="opacity:0.75">OBSERVED</span>';
+    }
+
+    // Determine transition arrow
+    let arrowHtml = '';
+    if (i < STAGES.length - 1) {
+      const isNextTransition = transitions && (s === cur);
+      const arrowCls = isNextTransition ? 'lc-arrow active-transition' : 'lc-arrow';
+      const arrowText = isNextTransition ? `↓ TRANSITION FORECAST → ${nxt} (${conf})` : '↓';
+      arrowHtml = `<div class="${arrowCls}">${arrowText}</div>`;
+    }
+
+    return `<div class="${cls}"><div class="lc-dot"></div><div class="lc-label">${icon} ${s}</div>${ann}</div>${arrowHtml}`;
   }).join('');
 }
 
@@ -1121,6 +1220,7 @@ async function pollSystemHealth() {
 
 // ─── Init ─────────────────────────────────────────────────────────────────
 (async()=>{
+  renderLifecycle(null);
   await checkHealth();
   await loadScenarios();
   await pollSystemHealth();

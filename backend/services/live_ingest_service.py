@@ -67,6 +67,7 @@ class LiveIngestService:
         self._closed = False
         # Sliding sequence buffer per session: session_id → deque of 24-D np arrays
         self._seq_buffers: Dict[str, Deque[np.ndarray]] = {}
+        self._observed_stages: Dict[str, Set[str]] = {}
         self._event_log: Deque[Dict[str, Any]] = deque(maxlen=1000)  # bounded history
         self._stats = {
             "sessions_started": 0,
@@ -228,6 +229,7 @@ class LiveIngestService:
             except asyncio.CancelledError:
                 pass
         self._seq_buffers.pop(session_id, None)
+        self._observed_stages.pop(session_id, None)
         logger.info("[LiveIngest] Session %s stopped", session_id)
 
     async def stop_all(self) -> None:
@@ -506,8 +508,18 @@ class LiveIngestService:
             "backpressure_status": "warning" if self._stats["broadcast_errors"] > 0 else "nominal",
         })
 
+        # Track observed stages across session
+        cur_st = fc.get("current_stage")
+        if cur_st:
+            self._observed_stages.setdefault(session_id, set()).add(cur_st)
+        session_observed = sorted(list(self._observed_stages.get(session_id, set())))
+
         # ---- 8. Compose telemetry-enriched event ---------------------------
-        event = _build_live_event(fc, window, session_id, t_elapsed_ms, mode=self._last_health.get("mode", "LIVE"))
+        event = _build_live_event(
+            fc, window, session_id, t_elapsed_ms,
+            mode=self._last_health.get("mode", "LIVE"),
+            observed_stages=session_observed,
+        )
 
         # ---- 9. Structured observability log --------------------------------
         logger.info(
@@ -540,6 +552,7 @@ def _build_live_event(
     session_id: str,
     latency_ms: float,
     mode: str = "LIVE",
+    observed_stages: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     """
     Merge the ML ForecastEvent with live telemetry metadata.
@@ -587,4 +600,5 @@ def _build_live_event(
         "primary_technique_name": clean_fc.get("primary_technique_name"),
         "rollout_steps": clean_fc.get("rollout_steps"),
         "safety_flags": clean_fc.get("safety_flags"),
+        "observed_stages": observed_stages if observed_stages is not None else clean_fc.get("observed_stages", []),
     }

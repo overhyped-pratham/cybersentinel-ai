@@ -343,6 +343,7 @@ class ModelService:
                 "recommended_priority": risk.recommended_priority,
                 "time_to_transition_hint": risk.time_to_transition_hint,
                 "safety_flags": rollout.safety_flags,
+                "observed_stages": [cur_stage],
                 "provenance": {
                     "prediction": "CyberWorldModelV2",
                     "explanation": "physical_state_delta",

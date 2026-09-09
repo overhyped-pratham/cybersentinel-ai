@@ -61,6 +61,7 @@ class StreamEvent(BaseModel):
     primary_technique_name: Optional[str] = None
     rollout_steps: Optional[List[Dict[str, Any]]] = None
     safety_flags: Optional[List[str]] = None
+    observed_stages: Optional[List[str]] = None
 
 
 class TelemetryFlowInput(BaseModel):

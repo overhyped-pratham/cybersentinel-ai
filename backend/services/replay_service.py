@@ -199,6 +199,7 @@ class ReplayService:
         fc["ground_truth_stage"] = session.true_stages[idx]
         fc["ground_truth_next_stage"] = session.true_next_stages[idx]
         fc["window_index"] = idx
+        fc["observed_stages"] = list(dict.fromkeys(session.true_stages[:idx+1]))
 
         session.current_window += 1
         if session.current_window >= len(session.true_stages):
