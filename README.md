@@ -108,11 +108,23 @@ python scripts/multi_host_traffic_generator.py \
 ```
 Available patterns: `normal_background`, `connection_burst`, `repeated_attempts`, `port_diversity`, `large_data_transfer`.
 
+### Two-Machine Live Demonstration (Phase 16)
+Execute the continuous 3-phase lifecycle demonstration (Baseline $\to$ High-Activity $\to$ Recovery) over live UDP NetFlow:
+```powershell
+# From Laptop 2 or demonstration runner:
+python scripts/run_phase16_twomachine_demo.py \
+    --target-host 192.168.1.100 --target-port 9995 \
+    --pattern large_data_transfer \
+    --windows-per-phase 6 --window-seconds 10.0 \
+    --report docs/phase16_twomachine_demo_report.md
+```
+See [`docs/phase16_operator_runbook.md`](docs/phase16_operator_runbook.md) for full physical deployment instructions.
+
 ---
 
 ## 6. Verification & Benchmarking
 
-Run the complete 229-test automated suite:
+Run the complete 235-test automated suite:
 ```powershell
 pytest tests/ -v
 ```
