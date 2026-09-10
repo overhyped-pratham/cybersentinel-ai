@@ -1777,12 +1777,18 @@ spline-viewer {
 <div id="viewCommandCenter">
   <!-- Left Navigation Sidebar -->
   <aside class="soc-sidebar">
-    <div class="sidebar-brand">
+    <div class="sidebar-brand" onclick="returnToLanding()" style="cursor:pointer" title="Click to return to 3D Globe Landing Page">
       <div class="landing-logo-icon" style="width:32px;height:32px;font-size:15px">🛡️</div>
       <div>
         <div class="lbl" style="font-weight:900;font-size:13px;letter-spacing:0.04em">CYBERSENTINEL</div>
         <div class="lbl" style="font-size:9px;color:var(--accent);letter-spacing:0.06em">PROACTIVE SOC AI</div>
       </div>
+    </div>
+    <div style="padding:0 12px 10px">
+      <button class="btn btn-secondary" onclick="returnToLanding()" style="width:100%;font-size:11px;padding:6px 10px;display:flex;align-items:center;justify-content:center;gap:6px;border-color:rgba(0,240,255,0.3);color:var(--accent)">
+        <span>🌐 3D Globe Landing</span>
+        <span style="font-size:12px">↖</span>
+      </button>
     </div>
 
     <!-- Hygiene anchor for test suites -->
@@ -1866,6 +1872,9 @@ spline-viewer {
     <!-- Top Sticky Header -->
     <header class="soc-header">
       <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn btn-secondary" onclick="returnToLanding()" style="font-size:11px;padding:4px 10px;display:flex;align-items:center;gap:6px;border-color:rgba(0,240,255,0.3);color:var(--accent)" title="Return to 3D Globe Landing Page">
+          <span>🌐 3D Globe</span>
+        </button>
         <span class="badge badge-observed" id="socModeBadge">
           <span class="status-dot ok pulse"></span>
           <span id="socModeText">LIVE AUTONOMOUS MONITORING</span>
@@ -2609,6 +2618,15 @@ let state = {
 };
 
 // ─── VIEW TRANSITION CONTROLS ──────────────────────────────────────────
+
+window.addEventListener('message', (e) => {
+  if (e.data === 'enterCommandCenter' || (e.data && e.data.action === 'enterCommandCenter')) {
+    enterCommandCenter(e.data.target || null);
+  } else if (e.data === 'returnToLanding') {
+    returnToLanding();
+  }
+});
+
 function enterCommandCenter(targetSectionId = null) {
   state.activeView = 'command';
   document.getElementById('viewLanding').style.display = 'none';
@@ -2628,6 +2646,11 @@ function returnToLanding() {
   state.activeView = 'landing';
   document.getElementById('viewCommandCenter').className = '';
   document.getElementById('viewLanding').style.display = 'flex';
+  if (window.history && window.history.replaceState) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('view');
+    window.history.replaceState({}, '', url.pathname + (url.search || ''));
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -3871,6 +3894,13 @@ function updateGlobeHUD(fc) {
 
 // ─── INITIALIZATION ON PAGE LOAD ───────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+  // Check if deep linked directly into command center via URL or hash
+  const urlParams = new URLSearchParams(window.location.search);
+  const hash = window.location.hash;
+  if (urlParams.get('view') === 'command' || hash.includes('command') || hash.includes('sec')) {
+    enterCommandCenter(hash ? hash.replace('#', '') : null);
+  }
+
   // Initialize 3D Globe
   initThreeGlobe();
 
