@@ -15,37 +15,33 @@ interface SplineSceneBasicProps {
 export function SplineSceneBasic({
   title = "CYBERSENTINEL AI",
   subtitle = "AI-POWERED NETWORK ATTACK FORECASTING",
-  tagline = "Predict the attack before it happens.",
+  tagline = "Don't wait for the attack.",
   description = "CyberSentinel transforms network telemetry into behavioral intelligence, forecasts the next attack stage, explains the prediction, assesses risk, and assists SOC analysts with evidence-backed response recommendations.",
   onEnterSOC,
 }: SplineSceneBasicProps = {}) {
   return (
-    <Card className="w-full min-h-[520px] bg-black/[0.96] relative overflow-hidden border border-slate-800 shadow-2xl">
-      <Spotlight
-        className="-top-40 left-0 md:left-60 md:-top-20"
-        fill="white"
-      />
-      
-      <div className="flex h-full flex-col md:flex-row">
+    <Card className="w-full min-h-[520px] bg-white border border-neutral-900 shadow-xl rounded-3xl relative overflow-hidden">
+      <div className="flex h-full flex-col md:flex-row items-center">
         {/* Left content */}
-        <div className="flex-1 p-8 md:p-12 relative z-10 flex flex-col justify-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-semibold tracking-wider uppercase w-max mb-4">
-            <span>★ SMART INDIA HACKATHON 2026 ★</span>
+        <div className="flex-1 p-8 md:p-12 relative z-10 flex flex-col justify-center text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-neutral-900/30 text-[11px] font-mono tracking-widest uppercase w-max mb-4 bg-neutral-50 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-[#C82B14] animate-ping" />
+            <span className="text-neutral-800 font-bold">SMART INDIA HACKATHON 2026</span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 via-neutral-100 to-neutral-400">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black tracking-tight text-neutral-900 leading-tight">
             {title}
           </h1>
 
-          <div className="text-sm md:text-base font-bold text-cyan-400 font-mono tracking-wider mt-2">
+          <div className="text-xs sm:text-sm font-mono font-bold text-[#C82B14] tracking-widest uppercase mt-3">
             {subtitle}
           </div>
 
-          <div className="text-xl md:text-2xl font-bold italic text-white border-l-4 border-cyan-400 pl-3 py-0.5 mt-3 shadow-sm">
+          <div className="text-xl md:text-2xl font-serif italic text-neutral-900 border-l-4 border-[#C82B14] pl-3 py-0.5 mt-3">
             "{tagline}"
           </div>
 
-          <p className="mt-4 text-neutral-300 text-sm md:text-base leading-relaxed max-w-lg">
+          <p className="mt-4 text-neutral-600 text-sm md:text-base leading-relaxed max-w-lg">
             {description}
           </p>
 
@@ -53,7 +49,7 @@ export function SplineSceneBasic({
             <div className="mt-6 flex items-center gap-3">
               <button
                 onClick={onEnterSOC}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-black font-extrabold text-xs tracking-wider shadow-lg shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+                className="px-6 py-3 rounded-full bg-[#C82B14] hover:bg-[#A9220E] text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
               >
                 <span>ENTER COMMAND CENTER</span>
                 <span>→</span>
@@ -62,8 +58,8 @@ export function SplineSceneBasic({
           )}
         </div>
 
-        {/* Right content */}
-        <div className="flex-1 relative min-h-[350px]">
+        {/* Right content — Interactive 3D Cyborg */}
+        <div className="flex-1 relative min-h-[380px] w-full h-[400px] md:h-[520px]">
           <SplineScene 
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
             className="w-full h-full"

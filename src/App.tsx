@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { SplineSceneBasic } from '@/components/ui/demo'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { SplineScene } from '@/components/ui/splite'
 import {
   Shield,
   Activity,
   Cpu,
   Network,
   ArrowRight,
+  ArrowDown,
   Radio,
   Layers,
   Zap,
@@ -17,27 +17,47 @@ import {
   Crosshair,
   Lock,
   Flame,
-  Binary
+  Binary,
+  CheckCircle2,
+  Terminal,
+  ExternalLink,
+  ChevronRight
 } from 'lucide-react'
 
-// 11-step pipeline of CyberSentinel AI
+// 11-step pipeline of CyberSentinel AI with SlowBros editorial attributes
 const PIPELINE_STEPS = [
   {
     step: '01',
     name: 'Live Network Telemetry',
-    subtitle: 'PCAP & NetFlow Ingest',
+    subtitle: 'PCAP & NetFlow Line-Rate Ingest',
     description: 'Captures live packet buffers, NetFlow v9/IPFIX records, and raw socket streams at line rate with zero-copy ring buffers.',
-    tag: 'Raw Data',
-    color: 'border-cyan-500/40 text-cyan-400 bg-cyan-950/20',
+    tag: 'Ingest',
+    specs: [
+      'Line-rate packet capture with zero-copy ring buffers',
+      'NetFlow v9, IPFIX, and raw socket stream ingestion'
+    ],
+    diagram: {
+      type: 'stream',
+      title: 'INGEST BUFFER FLOW',
+      nodes: ['PACKET RING', 'PARSE', 'SOCKET STREAM']
+    },
     icon: Network,
   },
   {
     step: '02',
     name: 'LiveIngestService',
-    subtitle: 'Temporal Buffering',
-    description: 'Aggregates packet streams into windowed statistical flows, tracking rate bursts, duration, and protocol distributions.',
+    subtitle: 'Temporal Window Aggregation',
+    description: 'Aggregates packet streams into windowed statistical flows, tracking rate bursts, byte distributions, and protocol dispersion.',
     tag: 'Buffer',
-    color: 'border-blue-500/40 text-blue-400 bg-blue-950/20',
+    specs: [
+      'Sliding temporal windows with dynamic overlap',
+      'Tracks packet rates, burst ratios, and protocol mix'
+    ],
+    diagram: {
+      type: 'window',
+      title: 'TEMPORAL AGGREGATION WINDOW',
+      nodes: ['WINDOW T-1', 'BURST METRIC', 'WINDOW T0']
+    },
     icon: Activity,
   },
   {
@@ -46,7 +66,15 @@ const PIPELINE_STEPS = [
     subtitle: 'RobustScaler Normalization',
     description: 'Projects flows into 24-dimensional feature representations normalized against empirical medians and interquartile ranges.',
     tag: 'Features',
-    color: 'border-indigo-500/40 text-indigo-400 bg-indigo-950/20',
+    specs: [
+      '24 continuous flow & header behavioral features',
+      'Outlier-resistant IQR normalization via RobustScaler'
+    ],
+    diagram: {
+      type: 'vector',
+      title: '24-DIMENSIONAL FEATURE TENSOR',
+      bars: [85, 42, 95, 60, 30, 78, 92, 50]
+    },
     icon: Sliders,
   },
   {
@@ -55,7 +83,15 @@ const PIPELINE_STEPS = [
     subtitle: 'Neural Transition Matrix',
     description: 'Autoregressive recurrent GRU architecture with learned transition matrices modeling temporal adversarial state evolution.',
     tag: 'Deep Model',
-    color: 'border-purple-500/40 text-purple-400 bg-purple-950/20',
+    specs: [
+      'Gated Recurrent Unit (GRU) temporal memory',
+      'Learned transition priors between attack phases'
+    ],
+    diagram: {
+      type: 'gru',
+      title: 'RECURRENT GRU TRANSITION LOOP',
+      nodes: ['h(t-1)', 'GRU CELL', 'h(t)']
+    },
     icon: Cpu,
   },
   {
@@ -64,7 +100,15 @@ const PIPELINE_STEPS = [
     subtitle: 'Optimal Scaling T*=1.568',
     description: 'Post-processing calibration via Nelder-Mead optimization minimizes expected calibration error and achieves Brier score 0.0452.',
     tag: 'Calibration',
-    color: 'border-fuchsia-500/40 text-fuchsia-400 bg-fuchsia-950/20',
+    specs: [
+      'T* = 1.568 Nelder-Mead calibrated temperature',
+      'Brier score: 0.0452 | ECE: < 2.1%'
+    ],
+    diagram: {
+      type: 'calibration',
+      title: 'PROBABILITY RELIABILITY CURVE',
+      stat: 'T* = 1.568 • BRIER 0.0452'
+    },
     icon: Zap,
   },
   {
@@ -73,7 +117,15 @@ const PIPELINE_STEPS = [
     subtitle: 'Softmax Stage Likelihood',
     description: 'Generates well-calibrated posterior probability distribution across all 10 unified MITRE attack lifecycle stages.',
     tag: 'Probability',
-    color: 'border-pink-500/40 text-pink-400 bg-pink-950/20',
+    specs: [
+      '10-class mutually exclusive posterior probabilities',
+      'Zero hardcoded probabilities — 100% neural inference'
+    ],
+    diagram: {
+      type: 'softmax',
+      title: 'POSTERIOR STAGE PROBABILITY',
+      bars: [12, 8, 4, 76, 18, 5]
+    },
     icon: Binary,
   },
   {
@@ -82,7 +134,15 @@ const PIPELINE_STEPS = [
     subtitle: '|ΔS| Feature Attribution',
     description: 'Identifies active attack transitions in real time with 83.33% empirical accuracy via feature-space perturbation gradients.',
     tag: 'Attribution',
-    color: 'border-amber-500/40 text-amber-400 bg-amber-950/20',
+    specs: [
+      '83.33% empirical transition detection accuracy',
+      'Gradient-based feature attribution highlights root causes'
+    ],
+    diagram: {
+      type: 'delta',
+      title: 'PERTURBATION GRADIENT |ΔS|',
+      stat: 'ACCURACY: 83.33%'
+    },
     icon: Flame,
   },
   {
@@ -91,7 +151,15 @@ const PIPELINE_STEPS = [
     subtitle: 'Autoregressive Rollout (K=1..4)',
     description: 'Projects adversarial progression up to 4 temporal horizons into the future before the adversary reaches crown-jewel assets.',
     tag: 'Rollout',
-    color: 'border-orange-500/40 text-orange-400 bg-orange-950/20',
+    specs: [
+      'Autoregressive latent state rollouts for K=1, 2, 3, 4',
+      'Anticipates lateral movement and exfiltration early'
+    ],
+    diagram: {
+      type: 'rollout',
+      title: 'MULTI-STEP AUTOREGRESSIVE HORIZON',
+      nodes: ['K=1', 'K=2', 'K=3', 'K=4']
+    },
     icon: RotateCcw,
   },
   {
@@ -100,7 +168,15 @@ const PIPELINE_STEPS = [
     subtitle: 'Runtime NOW vs SIM States',
     description: 'Resolves observed history, active real-time attack stage (NOW), and simulated forward stages (SIM) with zero hardcoded logic.',
     tag: 'Lifecycle',
-    color: 'border-emerald-500/40 text-emerald-400 bg-emerald-950/20',
+    specs: [
+      'Live temporal alignment: OBSERVED → NOW → FORECAST',
+      'Seamless sync with WebSocket telemetry feed'
+    ],
+    diagram: {
+      type: 'lifecycle',
+      title: 'TEMPORAL STATE COMPARATOR',
+      nodes: ['HISTORY', 'NOW', 'SIM+1']
+    },
     icon: Crosshair,
   },
   {
@@ -109,7 +185,15 @@ const PIPELINE_STEPS = [
     subtitle: 'Enterprise Matrix v14',
     description: 'Grounds predicted adversary behavior to MITRE Enterprise tactics, techniques, procedures, and empirical sub-technique IDs.',
     tag: 'MITRE',
-    color: 'border-teal-500/40 text-teal-400 bg-teal-950/20',
+    specs: [
+      'Enterprise Matrix v14 tactic & technique mapping',
+      'Sub-technique IDs grounded in live network evidence'
+    ],
+    diagram: {
+      type: 'mitre',
+      title: 'GROUNDED ATT&CK TECHNIQUES',
+      nodes: ['T1078', 'T1059', 'T1046']
+    },
     icon: Shield,
   },
   {
@@ -118,7 +202,15 @@ const PIPELINE_STEPS = [
     subtitle: 'RiskEngine & Playbooks',
     description: 'Calculates composite risk score and synthesizes deterministic, evidence-backed mitigation steps for rapid SOC response.',
     tag: 'Triage',
-    color: 'border-green-500/40 text-green-400 bg-green-950/20',
+    specs: [
+      'Dynamic risk score calculation (0–100 scale)',
+      'Automated defense recommendations & containment rules'
+    ],
+    diagram: {
+      type: 'defense',
+      title: 'DETERMINISTIC PLAYBOOK',
+      stat: 'ISOLATE HOST • REVOKE TOKENS'
+    },
     icon: Lock,
   },
 ]
@@ -158,7 +250,7 @@ export default function App() {
     
     setTimeout(() => {
       window.location.href = targetUrl
-    }, 150)
+    }, 120)
   }
 
   const handleViewArchitecture = () => {
@@ -166,253 +258,465 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#03060d] text-slate-100 flex flex-col relative selection:bg-cyan-500 selection:text-black font-sans">
-      {/* ─── HUD TOP NAVIGATION BAR ────────────────────────────────────── */}
-      <nav className="h-16 border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl px-4 sm:px-8 flex items-center justify-between sticky top-0 z-50">
-        {/* Brand & Identity */}
-        <div
-          className="flex items-center gap-3 cursor-pointer select-none"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          title="CyberSentinel AI"
-        >
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <Shield className="w-5 h-5 text-black" />
-          </div>
-          <div>
-            <div className="font-black text-sm tracking-wider bg-gradient-to-r from-white via-slate-200 to-cyan-400 bg-clip-text text-transparent">
-              CYBERSENTINEL AI
+    <div className="min-h-screen bg-[#F9F6F0] text-[#111111] flex flex-col relative selection:bg-[#C82B14] selection:text-white font-sans antialiased">
+      
+      {/* ─── SLOWBROS FLOATING PILL NAVIGATION ────────────────────────── */}
+      <header className="sticky top-4 z-50 w-full px-4 sm:px-6 flex justify-center">
+        <nav className="w-full max-w-6xl bg-white/95 backdrop-blur-md border border-neutral-900/10 shadow-lg shadow-black/[0.04] rounded-full px-5 py-3 flex items-center justify-between transition-all">
+          {/* Brand Logo & Name */}
+          <div
+            className="flex items-center gap-3 cursor-pointer select-none"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <div className="w-8 h-8 rounded-full bg-[#C82B14] flex items-center justify-center shadow-sm">
+              <Shield className="w-4 h-4 text-white" />
             </div>
-            <div className="text-[9.5px] text-slate-400 font-mono tracking-widest uppercase">
-              SIH 2026 AI-SOC PLATFORM
+            <div className="flex items-center gap-1.5">
+              <span className="font-serif font-black text-base sm:text-lg tracking-tight text-neutral-900">
+                CyberSentinel
+              </span>
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#C82B14]/10 text-[#C82B14] uppercase tracking-wider">
+                AI
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* 5 Required HUD Indicators */}
-        <div className="hidden xl:flex items-center gap-5 text-xs font-mono">
-          {/* Indicator 1: LIVE NETWORK */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-sm shadow-cyan-400"></span>
-            <span className="text-slate-400">LIVE NETWORK:</span>
-            <span className="text-cyan-300 font-bold">10 Gbps INGEST</span>
-          </div>
-
-          {/* Indicator 2: GLOBAL TELEMETRY */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800">
-            <Radio className="w-3.5 h-3.5 text-blue-400" />
-            <span className="text-slate-400">GLOBAL TELEMETRY:</span>
-            <span className="text-blue-300 font-bold">8 NODES ACTIVE</span>
-          </div>
-
-          {/* Indicator 3: THREAT INTELLIGENCE */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800">
-            <Activity className="w-3.5 h-3.5 text-purple-400" />
-            <span className="text-slate-400">THREAT INTELLIGENCE:</span>
-            <span className="text-purple-300 font-bold">ATT&CK v14</span>
-          </div>
-
-          {/* Indicator 4: MODEL STATUS */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800">
-            <Cpu className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-slate-400">MODEL STATUS:</span>
-            <span className="text-emerald-300 font-bold">
-              {backendStatus.modelLoaded ? 'CYBERWORLDMODEL V2' : 'INITIALIZING'}
+          {/* Navigation Links (Desktop) */}
+          <div className="hidden lg:flex items-center gap-7 text-xs font-mono tracking-wider text-neutral-600 font-medium">
+            <a href="#architecture" className="hover:text-[#C82B14] transition-colors uppercase">
+              Architecture
+            </a>
+            <a href="#pipeline" className="hover:text-[#C82B14] transition-colors uppercase">
+              11-Step Pipeline
+            </a>
+            <a href="#metrics" className="hover:text-[#C82B14] transition-colors uppercase">
+              Metrics
+            </a>
+            <span className="flex items-center gap-1.5 text-neutral-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-neutral-600 font-mono text-[11px]">
+                {backendStatus.modelLoaded ? 'CYBERWORLDMODEL V2' : 'CONNECTING'}
+              </span>
             </span>
           </div>
 
-          {/* Indicator 5: SYSTEM ONLINE */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-900/80 border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500 animate-ping"></span>
-            <span className="text-slate-400">SYSTEM ONLINE:</span>
-            <span className="text-emerald-400 font-bold">NOMINAL</span>
-          </div>
-        </div>
-
-        {/* Action Button */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleEnterCommandCenter}
-            disabled={isRedirecting}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-black font-extrabold text-xs tracking-wider shadow-lg shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50"
-          >
-            <span>{isRedirecting ? 'LAUNCHING SOC...' : 'ENTER COMMAND CENTER'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </nav>
-
-      {/* ─── LANDING PAGE CENTERPIECE: SplineSceneBasic ───────────────── */}
-      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex flex-col gap-8">
-        {/* Render the Exact SplineSceneBasic Component as Landing Page Centerpiece */}
-        <div className="w-full">
-          <SplineSceneBasic onEnterSOC={handleEnterCommandCenter} />
-        </div>
-
-        {/* Call to Action Banner & Stats beneath the 3D Scene */}
-        <div className="p-6 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-          <div className="flex flex-col gap-1 text-left">
-            <div className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider">
-              Smart India Hackathon 2026 • Defensive AI
-            </div>
-            <div className="text-lg font-bold text-white">
-              Ready to experience live autonomous network forecasting?
-            </div>
-            <div className="text-xs text-slate-400">
-              CyberWorldModelV2 projects multi-step attacker trajectories before compromise occurs.
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
+          {/* Red Pill Action Button */}
+          <div className="flex items-center gap-3">
             <button
               onClick={handleEnterCommandCenter}
               disabled={isRedirecting}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-black font-extrabold text-sm tracking-wider shadow-lg shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50"
+              className="bg-[#C82B14] hover:bg-[#A9220E] text-white font-bold text-xs sm:text-xs uppercase tracking-wider rounded-full px-5 py-2.5 shadow-sm transition-all transform hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50"
             >
-              <span>{isRedirecting ? 'ENTERING SOC...' : 'ENTER COMMAND CENTER'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={handleViewArchitecture}
-              className="px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white font-bold text-sm tracking-wider transition-all"
-            >
-              VIEW ARCHITECTURE
+              <span>{isRedirecting ? 'LAUNCHING...' : 'ENTER COMMAND CENTER'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
-        </div>
+        </nav>
+      </header>
 
-        {/* Technical Pillar Metrics */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono">
-          <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
-            <div className="text-2xl font-black text-cyan-400">24-D</div>
-            <div className="text-[11px] text-slate-400 uppercase tracking-wider">Temporal State</div>
-          </div>
-          <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
-            <div className="text-2xl font-black text-emerald-400">{backendStatus.top1Acc}</div>
-            <div className="text-[11px] text-slate-400 uppercase tracking-wider">Top-1 Accuracy</div>
-          </div>
-          <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
-            <div className="text-2xl font-black text-purple-400">K=4</div>
-            <div className="text-[11px] text-slate-400 uppercase tracking-wider">Self-Rollout</div>
-          </div>
-          <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
-            <div className="text-2xl font-black text-blue-400">0.0452</div>
-            <div className="text-[11px] text-slate-400 uppercase tracking-wider">Brier Score</div>
-          </div>
+      {/* ─── SLOWBROS MARQUEE / TICKER RIBBON ─────────────────────────── */}
+      <div className="w-full border-y border-neutral-900/10 bg-white/70 backdrop-blur-sm py-2 px-4 mt-6 overflow-hidden select-none">
+        <div className="max-w-7xl mx-auto flex items-center justify-center flex-wrap gap-x-5 gap-y-1 text-[11px] font-mono tracking-widest text-neutral-700">
+          <span className="flex items-center gap-2">
+            <span className="text-[#C82B14]">◆</span>
+            <span>AUTOREGRESSIVE ATTACK FORECASTING</span>
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-[#C82B14]">◆</span>
+            <span>24-D TEMPORAL STATE</span>
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-[#C82B14]">◆</span>
+            <span>CYBERWORLDMODEL V2</span>
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-[#C82B14]">◆</span>
+            <span>MITRE ATT&CK v14</span>
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-[#C82B14]">◆</span>
+            <span>REAL-TIME SOC INTEL</span>
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="text-[#C82B14]">◆</span>
+            <span>83.3% TRANSITION ACCURACY</span>
+          </span>
+          <span className="hidden md:flex items-center gap-2">
+            <span className="text-[#C82B14]">◆</span>
+            <span>BRIER SCORE 0.0452</span>
+          </span>
         </div>
-      </section>
+      </div>
 
-      {/* ─── ARCHITECTURE SECTION: HOW CYBERSENTINEL THINKS ───────────── */}
-      <section id="architecture" className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-800/80 relative">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-semibold tracking-wider uppercase mb-4 shadow-sm">
-            <Layers className="w-3.5 h-3.5" />
-            <span>HOW CYBERSENTINEL THINKS</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white mb-4">
-            11-Step Neural Attack Forecasting Pipeline
-          </h2>
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            Zero hardcoded intelligence. Every prediction is derived dynamically from high-throughput network telemetry, normalized into temporal state tensors, forecast multi-step through <strong className="text-slate-200">CyberWorldModelV2</strong>, and grounded to MITRE ATT&CK Enterprise v14 tactics.
-          </p>
-        </div>
+      {/* ─── SLOWBROS SPLIT HERO SECTION WITH INTERACTIVE CYBORG ──────── */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8 pb-12 lg:pt-12 lg:pb-16 flex flex-col">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
+          
+          {/* LEFT COLUMN: SlowBros Editorial Headlines & CTAs (7 cols) */}
+          <div className="lg:col-span-7 flex flex-col justify-center text-left z-10">
+            {/* Technical Sub-label / Tag */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-neutral-900/30 text-[11px] font-mono tracking-widest uppercase mb-6 bg-white/80 w-max shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[#C82B14] animate-ping" />
+              <span className="text-neutral-800 font-bold">AI-POWERED NETWORK DEFENSE</span>
+              <span className="text-neutral-400">•</span>
+              <span className="text-neutral-600">SMART INDIA HACKATHON 2026</span>
+            </div>
 
-        {/* Animated Data Pulse Indicator Ribbon */}
-        <div className="relative mb-12 py-3 px-6 rounded-2xl bg-slate-900/60 border border-cyan-500/30 overflow-hidden flex items-center justify-between">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent animate-pulse"></div>
-          <div className="relative flex items-center gap-3 font-mono text-xs text-cyan-300">
-            <Zap className="w-4 h-4 text-cyan-400 animate-bounce" />
-            <span>ANIMATED DATA PULSE: FLOWING TELEMETRY → RECURRENT WORLD MODEL → EXPLAINABLE ACTIONS</span>
-          </div>
-          <div className="relative hidden md:flex items-center gap-4 text-xs font-mono text-slate-400">
-            <span>LATENCY: &lt;12ms</span>
-            <span>•</span>
-            <span>ACCURACY: 97.7%</span>
-            <span>•</span>
-            <span>GROUNDING: 100% EVIDENCE-BACKED</span>
-          </div>
-        </div>
+            {/* Giant High-Contrast Editorial Serif Headline */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.1rem] font-serif font-black tracking-tight text-neutral-900 leading-[1.04]">
+              DON'T WAIT FOR THE <br />
+              <span className="text-[#C82B14] italic relative inline-block">
+                ATTACK.
+                {/* Hand-drawn style red underline SVG */}
+                <svg
+                  className="absolute -bottom-2 sm:-bottom-3 left-0 w-full h-3 sm:h-4 text-[#C82B14]"
+                  viewBox="0 0 200 12"
+                  fill="none"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M2 9C50 3 150 2 198 8"
+                    stroke="currentColor"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+            </h1>
 
-        {/* 11-Step Pipeline Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 relative">
-          {PIPELINE_STEPS.map((item, idx) => {
-            const Icon = item.icon
-            const isSelected = selectedStep === idx
-            return (
-              <Card
-                key={item.step}
-                onClick={() => setSelectedStep(idx)}
-                className={`cursor-pointer transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden ${
-                  isSelected
-                    ? 'border-cyan-400 bg-slate-900/90 shadow-xl shadow-cyan-500/15'
-                    : 'border-slate-800/80 bg-slate-950/70 hover:border-slate-700'
-                }`}
+            {/* Sub-heading */}
+            <div className="text-xs sm:text-sm font-mono font-bold tracking-widest text-[#C82B14] uppercase mt-6 sm:mt-8 flex items-center gap-2">
+              <span>AI-POWERED NETWORK ATTACK FORECASTING</span>
+              <span className="hidden sm:inline-block w-8 h-[1px] bg-[#C82B14]/40"></span>
+            </div>
+
+            {/* Narrative Paragraph */}
+            <p className="mt-4 text-neutral-700 text-sm sm:text-base lg:text-lg leading-relaxed max-w-xl font-normal">
+              CyberSentinel AI learns evolving network traffic, forecasts future attack states, explains its prediction, maps the threat to MITRE ATT&CK, and assists the SOC analyst with evidence-based defensive decisions.
+            </p>
+
+            {/* Pill Tags Row (SlowBros style from reference screenshots) */}
+            <div className="mt-6 flex flex-wrap gap-2 text-[11px] font-mono text-neutral-700">
+              <span className="px-3 py-1 rounded-full border border-neutral-900/30 bg-white/70">
+                ○ 24-D TEMPORAL TENSORS
+              </span>
+              <span className="px-3 py-1 rounded-full border border-neutral-900/30 bg-white/70">
+                ○ AUTOREGRESSIVE K=4
+              </span>
+              <span className="px-3 py-1 rounded-full border border-neutral-900/30 bg-white/70">
+                ○ ZERO HARDCODED LOGIC
+              </span>
+              <span className="px-3 py-1 rounded-full border border-neutral-900/30 bg-white/70">
+                ○ MITRE v14 GROUNDED
+              </span>
+            </div>
+
+            {/* Editorial CTAs */}
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <button
+                onClick={handleEnterCommandCenter}
+                disabled={isRedirecting}
+                className="bg-[#C82B14] hover:bg-[#A9220E] text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-full px-7 py-4 shadow-md transition-all transform hover:-translate-y-0.5 flex items-center gap-3 disabled:opacity-50"
               >
-                {/* Step Number Top Banner */}
-                <div className="p-4 pb-2 flex items-center justify-between border-b border-slate-800/40">
-                  <span className="font-mono text-xs font-black text-cyan-400 tracking-wider">
-                    STEP {item.step}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase ${item.color}`}>
-                    {item.tag}
-                  </span>
-                </div>
+                <span>{isRedirecting ? 'ENTERING SOC...' : 'ENTER COMMAND CENTER'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
 
-                <CardHeader className="pt-3 pb-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon className="w-4 h-4 text-cyan-400" />
-                    <CardTitle className="text-base text-slate-100 font-bold">{item.name}</CardTitle>
-                  </div>
-                  <CardDescription className="text-xs text-slate-400 font-mono">
-                    {item.subtitle}
-                  </CardDescription>
-                </CardHeader>
+              <button
+                onClick={handleViewArchitecture}
+                className="bg-transparent border border-neutral-900 hover:bg-neutral-900/5 text-neutral-900 font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-full px-6 py-4 transition-all flex items-center gap-2"
+              >
+                <span>VIEW ARCHITECTURE</span>
+                <ArrowDown className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
 
-                <CardContent className="pt-0 pb-4 text-xs text-slate-400 leading-relaxed">
-                  {item.description}
-                </CardContent>
+          {/* RIGHT COLUMN: Interactive 3D Cyborg with SlowBros Technical Annotations (5 cols) */}
+          <div className="lg:col-span-5 relative w-full h-[460px] sm:h-[540px] lg:h-[620px] flex items-center justify-center">
+            
+            {/* The 3D Cyborg Component — 100% Preserved Interactive Model */}
+            <div className="w-full h-full relative z-0">
+              <SplineScene 
+                scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                className="w-full h-full"
+              />
+            </div>
 
-                {/* Step bottom progress indicator */}
-                <div className="h-1 w-full bg-slate-800 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500"
-                    style={{ width: `${((idx + 1) / PIPELINE_STEPS.length) * 100}%` }}
-                  ></div>
-                </div>
-              </Card>
-            )
-          })}
+            {/* Floating Editorial Technical Annotations (Thin crisp borders, cream badges) */}
+            {/* Annotation 1: Top-Left */}
+            <div className="absolute top-2 left-2 z-10 bg-white/90 backdrop-blur-md border border-neutral-900/80 rounded-xl px-3 py-2 text-[10px] font-mono shadow-md hidden sm:block max-w-[180px]">
+              <div className="text-neutral-500 font-bold uppercase text-[9px] flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>LIVE TELEMETRY</span>
+              </div>
+              <div className="text-neutral-900 font-bold mt-0.5">
+                CONNECTED • LINE RATE
+              </div>
+            </div>
+
+            {/* Annotation 2: Top-Right */}
+            <div className="absolute top-2 right-2 z-10 bg-white/90 backdrop-blur-md border border-neutral-900/80 rounded-xl px-3 py-2 text-[10px] font-mono shadow-md hidden sm:block max-w-[180px] text-right">
+              <div className="text-neutral-500 font-bold uppercase text-[9px]">
+                MODEL ARCHITECTURE
+              </div>
+              <div className="text-[#C82B14] font-bold mt-0.5">
+                CYBERWORLDMODEL V2
+              </div>
+            </div>
+
+            {/* Annotation 3: Bottom-Left */}
+            <div className="absolute bottom-4 left-2 z-10 bg-white/90 backdrop-blur-md border border-neutral-900/80 rounded-xl px-3 py-2 text-[10px] font-mono shadow-md hidden sm:block max-w-[180px]">
+              <div className="text-neutral-500 font-bold uppercase text-[9px]">
+                FORECAST HORIZON
+              </div>
+              <div className="text-neutral-900 font-bold mt-0.5">
+                ROLLOUT K=1..4 STEPS
+              </div>
+            </div>
+
+            {/* Annotation 4: Bottom-Right */}
+            <div className="absolute bottom-4 right-2 z-10 bg-white/90 backdrop-blur-md border border-neutral-900/80 rounded-xl px-3 py-2 text-[10px] font-mono shadow-md hidden sm:block max-w-[190px] text-right">
+              <div className="text-neutral-500 font-bold uppercase text-[9px]">
+                THREAT GROUNDING
+              </div>
+              <div className="text-neutral-900 font-bold mt-0.5">
+                MITRE ATT&CK ENTERPRISE
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Bottom Call-To-Action to Command Center */}
-        <div className="mt-16 text-center flex flex-col items-center gap-4">
-          <button
-            onClick={handleEnterCommandCenter}
-            disabled={isRedirecting}
-            className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-black font-black text-sm tracking-wider shadow-2xl shadow-cyan-500/40 transition-all transform hover:-translate-y-1 inline-flex items-center gap-3 disabled:opacity-50"
-          >
-            <span>{isRedirecting ? 'LAUNCHING FULL SOC COMMAND CENTER...' : 'LAUNCH FULL SOC COMMAND CENTER'}</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
-          <div className="text-xs font-mono text-slate-400">
-            Direct live stream • Zero simulated fallbacks • Real CyberWorldModelV2 inference
+        {/* ─── SLOWBROS SCOREBOARD METRICS BAR ────────────────────────── */}
+        <div id="metrics" className="mt-12 pt-8 border-t border-neutral-900/10 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 font-mono">
+          <div className="bg-white border border-neutral-900 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+            <div className="text-xs text-neutral-500 font-bold uppercase tracking-wider">Temporal State</div>
+            <div className="text-3xl sm:text-4xl font-serif font-black text-neutral-900 mt-1">24-D</div>
+            <div className="text-[11px] text-neutral-600 mt-2 font-sans leading-tight">
+              Continuous flow & header vectors normalized via RobustScaler
+            </div>
+          </div>
+
+          <div className="bg-white border border-neutral-900 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+            <div className="text-xs text-neutral-500 font-bold uppercase tracking-wider">Stage Accuracy</div>
+            <div className="text-3xl sm:text-4xl font-serif font-black text-[#C82B14] mt-1">{backendStatus.top1Acc}</div>
+            <div className="text-[11px] text-neutral-600 mt-2 font-sans leading-tight">
+              Top-1 empirical attack stage classification rate
+            </div>
+          </div>
+
+          <div className="bg-white border border-neutral-900 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+            <div className="text-xs text-neutral-500 font-bold uppercase tracking-wider">Forecast Horizon</div>
+            <div className="text-3xl sm:text-4xl font-serif font-black text-neutral-900 mt-1">K=4</div>
+            <div className="text-[11px] text-neutral-600 mt-2 font-sans leading-tight">
+              Autoregressive forward projection steps into future
+            </div>
+          </div>
+
+          <div className="bg-white border border-neutral-900 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+            <div className="text-xs text-neutral-500 font-bold uppercase tracking-wider">Calibration Score</div>
+            <div className="text-3xl sm:text-4xl font-serif font-black text-neutral-900 mt-1">0.0452</div>
+            <div className="text-[11px] text-neutral-600 mt-2 font-sans leading-tight">
+              Optimal temperature scaling Brier score (T*=1.568)
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── FOOTER ────────────────────────────────────────────────────── */}
-      <footer className="py-6 border-t border-slate-900 bg-slate-950/80 px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 font-mono gap-4">
-        <div>
-          CYBERSENTINEL AI • SMART INDIA HACKATHON 2026
+      {/* ─── SLOWBROS ARCHITECTURE & 11-STEP PIPELINE SECTION ─────────── */}
+      <section id="architecture" className="w-full bg-[#FAF8F5] border-t border-neutral-900/10 py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Editorial Section Header */}
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-neutral-900/20 bg-white text-[11px] font-mono font-bold tracking-widest text-neutral-800 uppercase mb-4 shadow-sm">
+              <Layers className="w-3.5 h-3.5 text-[#C82B14]" />
+              <span>HOW CYBERSENTINEL THINKS</span>
+            </div>
+            
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-black tracking-tight text-neutral-900 leading-tight">
+              11-Step Neural Attack <br />
+              <span className="text-[#C82B14] italic">Forecasting Pipeline</span>
+            </h2>
+
+            <p className="mt-5 text-neutral-600 text-sm sm:text-base leading-relaxed">
+              Zero hardcoded intelligence. Every prediction is derived dynamically from high-throughput network telemetry, normalized into temporal state tensors, forecast multi-step through <strong className="text-neutral-900 font-bold">CyberWorldModelV2</strong>, and grounded to MITRE ATT&CK Enterprise v14 tactics.
+            </p>
+          </div>
+
+          {/* 11-Step Pipeline Grid (SlowBros Cards: Crisp 1px border, 01/11 tag, red wireframe icon) */}
+          <div id="pipeline" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {PIPELINE_STEPS.map((item, idx) => {
+              const Icon = item.icon
+              const isSelected = selectedStep === idx
+
+              return (
+                <div
+                  key={item.step}
+                  onClick={() => setSelectedStep(idx)}
+                  className={`cursor-pointer transition-all duration-300 rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden bg-white border ${
+                    isSelected
+                      ? 'border-neutral-900 shadow-xl ring-2 ring-neutral-900/10 transform -translate-y-1'
+                      : 'border-neutral-900/70 hover:border-neutral-900 hover:shadow-lg'
+                  }`}
+                >
+                  {/* Card Top Row: Red Wireframe Icon & Monospace Step Number (from SlowBros screenshot 1) */}
+                  <div>
+                    <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
+                      <div className="w-10 h-10 rounded-xl bg-neutral-50 border border-neutral-200 flex items-center justify-center text-[#C82B14]">
+                        <Icon className="w-5 h-5 stroke-[1.75]" />
+                      </div>
+                      <span className="font-mono text-xs font-bold text-neutral-500 tracking-wider">
+                        {item.step} / 11
+                      </span>
+                    </div>
+
+                    {/* Step Title & Subtitle */}
+                    <div className="mt-5">
+                      <h3 className="font-serif font-black text-xl text-neutral-900 tracking-tight">
+                        {item.name}
+                      </h3>
+                      <div className="font-mono text-xs text-[#C82B14] font-bold mt-1 tracking-wider uppercase">
+                        {item.subtitle}
+                      </div>
+                    </div>
+
+                    {/* Narrative Description */}
+                    <p className="mt-3 text-neutral-600 text-xs sm:text-sm leading-relaxed">
+                      {item.description}
+                    </p>
+
+                    {/* Practice Offerings / Technical Specs (SlowBros screenshot 2) */}
+                    <div className="mt-5 pt-4 border-t border-neutral-100">
+                      <div className="text-[10px] font-mono font-bold tracking-wider text-neutral-400 uppercase mb-2">
+                        TECHNICAL SPECIFICATIONS:
+                      </div>
+                      <div className="space-y-1.5">
+                        {item.specs.map((spec, sIdx) => (
+                          <div key={sIdx} className="flex items-start gap-2 text-xs text-neutral-700">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#C82B14] mt-1.5 shrink-0" />
+                            <span>{spec}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Inner Diagram / Visual Box (SlowBros screenshot 1 inner block) */}
+                  <div className="mt-6 pt-4 border-t border-neutral-100">
+                    <div className="rounded-xl bg-[#111318] text-neutral-200 p-3.5 font-mono text-[11px] flex flex-col gap-2 shadow-inner">
+                      <div className="flex items-center justify-between text-[9px] text-neutral-400 border-b border-neutral-800 pb-1.5">
+                        <span className="font-bold text-[#C82B14] uppercase">{item.diagram.title}</span>
+                        <span>LIVE INFERENCE</span>
+                      </div>
+
+                      {item.diagram.nodes && (
+                        <div className="flex items-center justify-between gap-1 text-[10px] text-neutral-300 py-1">
+                          {item.diagram.nodes.map((n, nIdx) => (
+                            <React.Fragment key={nIdx}>
+                              <span className="px-2 py-0.5 rounded bg-neutral-800 border border-neutral-700">
+                                {n}
+                              </span>
+                              {nIdx < item.diagram.nodes.length - 1 && (
+                                <span className="text-[#C82B14]">→</span>
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      )}
+
+                      {item.diagram.bars && (
+                        <div className="flex items-end gap-1.5 h-7 pt-1">
+                          {item.diagram.bars.map((b, bIdx) => (
+                            <div
+                              key={bIdx}
+                              className="flex-1 bg-gradient-to-t from-[#C82B14] to-amber-400 rounded-t-sm"
+                              style={{ height: `${b}%` }}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {item.diagram.stat && (
+                        <div className="text-[10px] text-neutral-300 py-0.5">
+                          <span className="text-emerald-400 font-bold">● </span>
+                          <span>{item.diagram.stat}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between text-xs font-mono font-bold text-neutral-900 group">
+                      <span className="text-neutral-500 uppercase tracking-wider text-[11px]">
+                        Pipeline Stage
+                      </span>
+                      <span className="text-[#C82B14] flex items-center gap-1">
+                        <span>INSPECT</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Bottom Launch Banner */}
+          <div className="mt-16 rounded-3xl bg-neutral-900 text-white p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
+            <div className="flex flex-col gap-2 text-left z-10">
+              <div className="text-xs font-mono font-bold text-[#C82B14] uppercase tracking-wider">
+                Smart India Hackathon 2026 • Live SOC Intelligence
+              </div>
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-black">
+                Ready to witness autonomous attack forecasting?
+              </h3>
+              <p className="text-neutral-400 text-xs sm:text-sm max-w-xl">
+                Experience the live SOC Command Center. Stream telemetry, inspect 24-D temporal tensors, view MITRE ATT&CK grounding, and execute proactive defensive containment.
+              </p>
+            </div>
+
+            <div className="shrink-0 z-10">
+              <button
+                onClick={handleEnterCommandCenter}
+                disabled={isRedirecting}
+                className="bg-[#C82B14] hover:bg-[#E03018] text-white font-bold text-sm uppercase tracking-wider rounded-full px-8 py-4 shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-3 disabled:opacity-50"
+              >
+                <span>{isRedirecting ? 'LAUNCHING COMMAND CENTER...' : 'LAUNCH COMMAND CENTER'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
         </div>
-        <div className="flex items-center gap-6">
-          <span>CyberWorldModelV2</span>
-          <span>•</span>
-          <span>MITRE ATT&CK v14</span>
-          <span>•</span>
-          <span>RobustScaler (24-D)</span>
+      </section>
+
+      {/* ─── SLOWBROS EDITORIAL FOOTER ─────────────────────────────────── */}
+      <footer className="w-full bg-[#111111] text-neutral-400 py-10 px-6 sm:px-8 font-mono text-xs border-t border-neutral-800">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 rounded-full bg-[#C82B14] flex items-center justify-center">
+              <Shield className="w-3.5 h-3.5 text-white" />
+            </div>
+            <div className="font-serif font-black text-neutral-200 text-sm">
+              CYBERSENTINEL AI
+            </div>
+            <span className="text-neutral-600">|</span>
+            <div className="text-[11px] text-neutral-400">
+              SMART INDIA HACKATHON 2026
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-5 text-neutral-400 text-[11px]">
+            <span>CyberWorldModelV2</span>
+            <span>•</span>
+            <span>MITRE ATT&CK v14</span>
+            <span>•</span>
+            <span>RobustScaler (24-D)</span>
+            <span>•</span>
+            <span>Optimal Scaling T*=1.568</span>
+          </div>
         </div>
       </footer>
+
     </div>
   )
 }
