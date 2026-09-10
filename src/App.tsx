@@ -1,21 +1,16 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { SplineScene } from '@/components/ui/splite'
-import { Spotlight } from '@/components/ui/spotlight'
+import { SplineSceneBasic } from '@/components/ui/demo'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import {
   Shield,
   Activity,
   Cpu,
-  Database,
   Network,
   ArrowRight,
   Radio,
   Layers,
-  CheckCircle,
-  ExternalLink,
-  ChevronRight,
   Zap,
   RotateCcw,
   Sliders,
@@ -25,7 +20,7 @@ import {
   Binary
 } from 'lucide-react'
 
-// The 11-step pipeline of CyberSentinel AI
+// 11-step pipeline of CyberSentinel AI
 const PIPELINE_STEPS = [
   {
     step: '01',
@@ -140,7 +135,6 @@ export default function App() {
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   useEffect(() => {
-    // Check backend health
     fetch('http://localhost:8000/api/v1/health')
       .then(res => res.json())
       .then(data => {
@@ -153,19 +147,15 @@ export default function App() {
           }))
         }
       })
-      .catch(() => {
-        // Fallback for offline demonstration
-      })
+      .catch(() => {})
   }, [])
 
   const handleEnterCommandCenter = () => {
     setIsRedirecting(true)
-    // Smoothly transition into the live SOC Command Center
     const targetUrl = window.location.port === '8000'
       ? '/ui/index.html?view=command'
       : 'http://localhost:8000/ui/index.html?view=command'
     
-    // Give user visual feedback before navigating
     setTimeout(() => {
       window.location.href = targetUrl
     }, 150)
@@ -251,109 +241,69 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative">
-        <Spotlight className="opacity-90" size={500} />
+      {/* ─── LANDING PAGE CENTERPIECE: SplineSceneBasic ───────────────── */}
+      <section className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex flex-col gap-8">
+        {/* Render the Exact SplineSceneBasic Component as Landing Page Centerpiece */}
+        <div className="w-full">
+          <SplineSceneBasic />
+        </div>
 
-        {/* Left Column: Required Hero Narrative */}
-        <div className="lg:col-span-6 flex flex-col gap-6 z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono font-semibold tracking-wider uppercase w-max shadow-sm">
-            <span>★ SMART INDIA HACKATHON 2026 ★</span>
-            <span className="text-cyan-400">•</span>
-            <span>DEFENSIVE AI</span>
+        {/* Call to Action Banner & Stats beneath the 3D Scene */}
+        <div className="p-6 rounded-2xl bg-slate-950/80 border border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+          <div className="flex flex-col gap-1 text-left">
+            <div className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider">
+              Smart India Hackathon 2026 • Defensive AI
+            </div>
+            <div className="text-lg font-bold text-white">
+              Ready to experience live autonomous network forecasting?
+            </div>
+            <div className="text-xs text-slate-400">
+              CyberWorldModelV2 projects multi-step attacker trajectories before compromise occurs.
+            </div>
           </div>
 
-          {/* Exact Title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight bg-gradient-to-b from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-            CYBERSENTINEL AI
-          </h1>
-
-          {/* Exact Subtitle */}
-          <div className="text-lg sm:text-xl font-extrabold text-cyan-400 tracking-wide font-mono">
-            AI-POWERED NETWORK ATTACK FORECASTING
-          </div>
-
-          {/* Exact Tagline */}
-          <div className="text-2xl sm:text-3xl font-black italic text-white border-l-4 border-cyan-400 pl-4 py-1 shadow-sm drop-shadow-[0_0_15px_rgba(0,240,255,0.3)]">
-            "Predict the attack before it happens."
-          </div>
-
-          {/* Exact Description */}
-          <p className="text-slate-300 text-base leading-relaxed max-w-xl font-normal">
-            CyberSentinel transforms network telemetry into behavioral intelligence, forecasts the next attack stage, explains the prediction, assesses risk, and assists SOC analysts with evidence-backed response recommendations.
-          </p>
-
-          {/* Two Required Buttons */}
-          <div className="flex flex-wrap gap-4 pt-2">
+          <div className="flex items-center gap-4">
             <button
               onClick={handleEnterCommandCenter}
               disabled={isRedirecting}
-              className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-black font-black text-sm tracking-wider shadow-xl shadow-cyan-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-3 disabled:opacity-50"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-black font-extrabold text-sm tracking-wider shadow-lg shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50"
             >
-              <span>{isRedirecting ? 'ENTERING COMMAND CENTER...' : 'ENTER COMMAND CENTER'}</span>
+              <span>{isRedirecting ? 'ENTERING SOC...' : 'ENTER COMMAND CENTER'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
             <button
               onClick={handleViewArchitecture}
-              className="px-7 py-3.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/50 text-slate-200 hover:text-white font-bold text-sm tracking-wider transition-all shadow-md"
+              className="px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white font-bold text-sm tracking-wider transition-all"
             >
               VIEW ARCHITECTURE
             </button>
           </div>
-
-          {/* Live Technical Pillar Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 font-mono">
-            <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
-              <div className="text-lg font-black text-cyan-400">24-D</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">State Vector</div>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
-              <div className="text-lg font-black text-emerald-400">{backendStatus.top1Acc}</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Top-1 Accuracy</div>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
-              <div className="text-lg font-black text-purple-400">K=4</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Self-Rollout</div>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
-              <div className="text-lg font-black text-blue-400">0.0452</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Brier Score</div>
-            </div>
-          </div>
         </div>
 
-        {/* Right Column: Visual Centerpiece — Spline 3D Globe */}
-        <div className="lg:col-span-6 h-[480px] sm:h-[540px] lg:h-[620px] w-full relative rounded-3xl overflow-hidden border border-slate-800/90 bg-slate-950/60 shadow-2xl backdrop-blur-md">
-          {/* Floating Centerpiece HUD Badges */}
-          <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/85 border border-cyan-500/30 backdrop-blur-md text-[11px] text-cyan-300 font-mono shadow-lg">
-            <Radio className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-            <span>GLOBAL TELEMETRY SENSOR GRID</span>
+        {/* Technical Pillar Metrics */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono">
+          <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
+            <div className="text-2xl font-black text-cyan-400">24-D</div>
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider">Temporal State</div>
           </div>
-
-          <div className="absolute top-4 right-4 z-20 flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 backdrop-blur-md text-[10px] text-emerald-300 font-mono shadow-lg">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>SYSTEM ONLINE</span>
+          <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
+            <div className="text-2xl font-black text-emerald-400">{backendStatus.top1Acc}</div>
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider">Top-1 Accuracy</div>
           </div>
-
-          <div className="absolute bottom-4 left-4 z-20 flex flex-col gap-1 px-4 py-2.5 rounded-xl bg-slate-950/85 border border-slate-800 backdrop-blur-md text-[11px] font-mono shadow-xl">
-            <span className="text-slate-400 text-[10px]">THREAT INTELLIGENCE</span>
-            <span className="text-cyan-400 font-bold flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
-              CYBERWORLDMODEL V2 ACTIVE (T*=1.568)
-            </span>
+          <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
+            <div className="text-2xl font-black text-purple-400">K=4</div>
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider">Self-Rollout</div>
           </div>
-
-          {/* The Provided Spline 3D Scene Component */}
-          <SplineScene
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-            className="w-full h-full"
-          />
+          <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800/90 flex flex-col gap-1 shadow-inner">
+            <div className="text-2xl font-black text-blue-400">0.0452</div>
+            <div className="text-[11px] text-slate-400 uppercase tracking-wider">Brier Score</div>
+          </div>
         </div>
       </section>
 
       {/* ─── ARCHITECTURE SECTION: HOW CYBERSENTINEL THINKS ───────────── */}
-      <section id="architecture" className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 border-t border-slate-800/80 relative">
+      <section id="architecture" className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-800/80 relative">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono font-semibold tracking-wider uppercase mb-4 shadow-sm">
             <Layers className="w-3.5 h-3.5" />

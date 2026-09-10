@@ -1476,125 +1476,71 @@ spline-viewer {
   </nav>
 
   <!-- Hero Section -->
-  <main class="landing-hero">
-    <!-- Left: Narrative Hero -->
-    <div class="hero-content">
-      <div class="hackathon-pill">
-        <span>★ SMART INDIA HACKATHON 2026 ★</span>
-        <span style="color:var(--accent)">•</span>
-        <span>DEFENSIVE AI</span>
-      </div>
+  <main style="max-width:1400px;margin:30px auto 50px;padding:0 24px;width:100%">
+    <!-- Interactive 3D Card (Matching demo.tsx) -->
+    <div style="width:100%;min-height:500px;background:rgba(0,0,0,0.96);border:1px solid rgba(255,255,255,0.1);border-radius:16px;position:relative;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.7)">
+      <!-- Spotlight Ambient Glow -->
+      <div style="position:absolute;top:-100px;left:25%;width:450px;height:450px;background:radial-gradient(circle,rgba(255,255,255,0.12) 0%,transparent 70%);filter:blur(60px);pointer-events:none;z-index:1"></div>
 
-      <h1 class="hero-title">
-        CYBERSENTINEL AI
-      </h1>
+      <div style="display:flex;flex-direction:row;flex-wrap:wrap;min-height:500px;height:100%;align-items:stretch">
+        <!-- Left content -->
+        <div style="flex:1;min-width:320px;padding:48px;position:relative;z-index:10;display:flex;flex-direction:column;justify-content:center">
+          <div style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:var(--mono);color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">
+            <span>★ SMART INDIA HACKATHON 2026 ★</span>
+          </div>
 
-      <div class="hero-subtitle">
-        AI-POWERED NETWORK ATTACK FORECASTING
-      </div>
+          <h1 style="font-size:48px;font-weight:900;line-height:1.1;letter-spacing:-0.02em;background:linear-gradient(180deg,#fafafa 0%,#a3a3a3 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px">
+            Interactive 3D
+          </h1>
 
-      <div class="hero-quote">
-        "Predict the attack before it happens."
-      </div>
+          <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:12px">
+            CYBERSENTINEL AI • PROACTIVE SOC
+          </div>
 
-      <p class="hero-desc">
-        CyberSentinel transforms network telemetry into behavioral intelligence, forecasts the next attack stage, explains the prediction, assesses risk, and assists SOC analysts with evidence-backed response recommendations.
-      </p>
+          <p style="color:#d4d4d8;font-size:15px;line-height:1.6;max-width:520px;margin-bottom:24px">
+            Bring your UI to life with beautiful 3D scenes. Create immersive experiences 
+            that capture attention and enhance your design.
+          </p>
 
-      <div class="hero-actions">
-        <button class="btn btn-cta" onclick="enterCommandCenter()">
-          <span>⚡ ENTER COMMAND CENTER</span>
-          <span style="font-size:16px">→</span>
-        </button>
-        <button class="btn btn-secondary" onclick="scrollToArchitecture(event)">
-          <span>🏛️ VIEW ARCHITECTURE</span>
-        </button>
-        <button class="btn btn-secondary" onclick="enterCommandCenter('secDemo'); triggerDemoPhase(1);">
-          <span>🎬 Judge Demo Mode</span>
-        </button>
-      </div>
-
-      <!-- Live Pillars Stats -->
-      <div class="hero-stats-row" id="features">
-        <div class="hero-stat-card">
-          <div class="hero-stat-val text-accent">24-D</div>
-          <div class="hero-stat-lbl">Temporal State</div>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+            <button class="btn btn-cta" onclick="enterCommandCenter()" style="padding:14px 28px;font-size:13px">
+              <span>⚡ ENTER COMMAND CENTER</span>
+              <span style="font-size:16px">→</span>
+            </button>
+            <button class="btn btn-secondary" onclick="scrollToArchitecture(event)" style="padding:14px 24px;font-size:13px">
+              <span>🏛️ VIEW ARCHITECTURE</span>
+            </button>
+          </div>
         </div>
-        <div class="hero-stat-card">
-          <div class="hero-stat-val text-green">97.7%</div>
-          <div class="hero-stat-lbl">Next-Stage Top-1</div>
-        </div>
-        <div class="hero-stat-card">
-          <div class="hero-stat-val text-purple">K=4</div>
-          <div class="hero-stat-lbl">Self-Rollout</div>
-        </div>
-        <div class="hero-stat-card">
-          <div class="hero-stat-val text-blue">0.045</div>
-          <div class="hero-stat-lbl">Calibrated Brier</div>
+
+        <!-- Right content: Spline 3D Scene -->
+        <div style="flex:1;min-width:320px;min-height:460px;position:relative">
+          <spline-viewer
+            url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            style="width:100%;height:100%;display:block"
+            loading-anim-type="spinner-small-dark"
+          ></spline-viewer>
         </div>
       </div>
     </div>
 
-    <!-- Right: Visual Centerpiece — Spline 3D Globe + Three.js Sensor Grid -->
-    <div class="globe-viewport-container">
-      <div id="globeCanvasContainer" style="position:relative">
-        <!-- Floating Spotlight Ambient Glow -->
-        <div class="spline-spotlight"></div>
-
-        <!-- Floating HUD elements -->
-        <div class="globe-hud-top-left">
-          <span>🌐</span>
-          <span id="globeModeLabel">GLOBAL TELEMETRY SENSOR GRID • SPLINE 3D</span>
-        </div>
-
-        <div class="globe-hud-top-right">
-          <div class="badge badge-observed" id="globeThreatBadge">
-            <span class="status-dot ok"></span>
-            <span>SYSTEM STATE: NOMINAL</span>
-          </div>
-          <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px" id="globeActiveSensor">
-            Tracking 8 International SOC Nodes
-          </div>
-        </div>
-
-        <div class="globe-telemetry-pill">
-          <div style="font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px">
-            <span class="status-dot ok pulse"></span>
-            <span>THREAT INTELLIGENCE</span>
-          </div>
-          <div style="color:var(--muted);font-size:10px">
-            Pkts: <span id="globePktRate" style="color:#fff;font-weight:700">—</span> | 
-            Flows: <span id="globeFlowRate" style="color:#fff;font-weight:700">—</span>
-          </div>
-        </div>
-
-        <!-- Primary Centerpiece: Spline 3D Scene -->
-        <div id="splineGlobeContainer" class="spline-globe-wrapper">
-          <spline-viewer
-            id="splineViewerEl"
-            url="scene.splinecode"
-            loading-anim-type="spinner-small-dark"
-          ></spline-viewer>
-        </div>
-
-        <!-- Secondary Fallback / Mode: Three.js Earth Canvas (hidden by default) -->
-        <div id="threeGlobeContainer" style="display:none;width:100%;height:100%;position:absolute;top:0;left:0"></div>
-
-        <!-- Controls ribbon -->
-        <div class="globe-hud-controls">
-          <button class="globe-hud-btn active" id="btnToggle3DMode" onclick="toggle3DGlobeMode()" title="Switch between Spline 3D and Three.js Grid">
-            🌐 <span>Spline 3D</span>
-          </button>
-          <button class="globe-hud-btn" id="btnGlobeSpeed" onclick="cycleGlobeSpeed()" title="Toggle Rotation Cadence">
-            ⏱️ <span id="lblGlobeSpeed">1.0x</span>
-          </button>
-          <button class="globe-hud-btn" id="btnGlobePlay" onclick="toggleGlobePlay()" title="Play / Pause Rotation">
-            ⏸️
-          </button>
-          <button class="globe-hud-btn" onclick="resetGlobeAlignment()" title="Reset Alignment">
-            🔄 Reset
-          </button>
-        </div>
+    <!-- Quick 4 Stats Grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:24px" id="features">
+      <div class="hero-stat-card">
+        <div class="hero-stat-val text-accent">24-D</div>
+        <div class="hero-stat-lbl">Temporal State</div>
+      </div>
+      <div class="hero-stat-card">
+        <div class="hero-stat-val text-green">97.7%</div>
+        <div class="hero-stat-lbl">Next-Stage Top-1</div>
+      </div>
+      <div class="hero-stat-card">
+        <div class="hero-stat-val text-purple">K=4</div>
+        <div class="hero-stat-lbl">Self-Rollout</div>
+      </div>
+      <div class="hero-stat-card">
+        <div class="hero-stat-val text-blue">0.045</div>
+        <div class="hero-stat-lbl">Calibrated Brier</div>
       </div>
     </div>
   </main>
@@ -3902,7 +3848,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Initialize 3D Globe
-  initThreeGlobe();
+  // Globe removed as requested
 
   // Set default stage display
   renderLifecycle(null);
