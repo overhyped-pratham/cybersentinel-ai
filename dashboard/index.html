@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CyberSentinel AI — Proactive Attack Forecasting & SOC Command Center</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+<!-- SlowBros Editorial Fonts: Playfair Display, Instrument Serif, JetBrains Mono, Plus Jakarta Sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,700;1,900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- Spline 3D Runtime loader with offline + CDN fallback -->
 <script type="module" src="spline-viewer.js" onerror="this.onerror=null;this.src='https://unpkg.com/@splinetool/viewer@1.9.72/build/spline-viewer.js';"></script>
 <!-- Offline-first Three.js loader with CDN fallback -->
@@ -14,6 +18,33 @@
 /* ─── RESET & CYBERSECURITY DESIGN SYSTEM ────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
+  --bg: #F9F6F0;
+  --surface: #FFFFFF;
+  --surface2: #FAF8F5;
+  --surface3: #F1ECE1;
+  --border: rgba(17, 17, 17, 0.12);
+  --border-bright: rgba(200, 43, 20, 0.45);
+  --text: #111111;
+  --text-dim: #374151;
+  --muted: #6B7280;
+  --accent: #C82B14;
+  --accent-blue: #1D4ED8;
+  --accent-indigo: #4F46E5;
+  --purple: #7C3AED;
+  --green: #059669;
+  --yellow: #D97706;
+  --orange: #EA580C;
+  --red: #C82B14;
+  --observed: #059669;
+  --forecast: #C82B14;
+  --simulated: #7C3AED;
+  --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --serif: 'Playfair Display', 'Instrument Serif', Georgia, serif;
+  --mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+  --sidebar-w: 260px;
+}
+
+body.theme-dark {
   --bg: #060810;
   --surface: #0b1120;
   --surface2: #10192e;
@@ -34,9 +65,6 @@
   --observed: #10b981;
   --forecast: #00f0ff;
   --simulated: #a855f7;
-  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --mono: 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
-  --sidebar-w: 260px;
 }
 body {
   background: var(--bg);
@@ -47,6 +75,11 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background-image: 
+    radial-gradient(circle at 50% 0%, rgba(200, 43, 20, 0.03) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.02) 0%, transparent 50%);
+}
+body.theme-dark {
+  background-image: 
     radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
     radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
 }
@@ -55,8 +88,8 @@ button { cursor: pointer; font-family: var(--font); border: none; outline: none;
 input, select, textarea { font-family: var(--font); outline: none; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.4); }
+::-webkit-scrollbar-thumb { background: rgba(200, 43, 20, 0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(200, 43, 20, 0.5); }
 
 /* ─── TYPOGRAPHY & UTILITIES ─────────────────────────────────────────── */
 .font-mono { font-family: var(--mono); }
@@ -71,12 +104,12 @@ input, select, textarea { font-family: var(--font); outline: none; }
 
 /* ─── GLASSMORPHIC CARDS ─────────────────────────────────────────────── */
 .glass-panel {
-  background: rgba(11, 17, 32, 0.85);
+  background: var(--surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   position: relative;
   overflow: hidden;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
@@ -86,18 +119,19 @@ input, select, textarea { font-family: var(--font); outline: none; }
 }
 .card-header {
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 .card-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--serif);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--text);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -138,50 +172,52 @@ input, select, textarea { font-family: var(--font); outline: none; }
   font-size: 12px;
   font-weight: 600;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #fff;
+  color: var(--text);
   background: var(--surface3);
   border: 1px solid var(--border);
 }
 .btn:hover {
   background: var(--surface2);
   border-color: var(--accent);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 15px rgba(200, 43, 20, 0.15);
   transform: translateY(-1px);
 }
 .btn-primary {
-  background: linear-gradient(135deg, #0ea5e9, #3b82f6);
-  border: 1px solid rgba(56, 189, 248, 0.5);
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.25);
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  box-shadow: 0 4px 16px rgba(200, 43, 20, 0.25);
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #0284c7, #2563eb);
-  box-shadow: 0 4px 20px rgba(14, 165, 233, 0.45);
+  background: #A9220E;
+  box-shadow: 0 4px 20px rgba(200, 43, 20, 0.35);
+  color: #fff;
 }
 .btn-cta {
-  background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 50%, #8b5cf6 100%);
-  color: #060810;
+  background: var(--accent);
+  color: #fff;
   font-weight: 800;
   font-size: 14px;
   padding: 12px 28px;
   border-radius: 12px;
   border: none;
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(200, 43, 20, 0.35);
   letter-spacing: 0.04em;
 }
 .btn-cta:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 0 35px rgba(0, 240, 255, 0.6);
-  color: #000;
+  box-shadow: 0 4px 25px rgba(200, 43, 20, 0.45);
+  color: #fff;
 }
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface2);
   color: var(--text-dim);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
 }
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--surface3);
+  color: var(--text);
+  border-color: var(--accent);
 }
 .btn-danger {
   background: rgba(239, 68, 68, 0.15);
@@ -346,7 +382,7 @@ spline-viewer {
   align-items: center;
   justify-content: space-between;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border);
 }
 .pipe-step-num {
   font-family: var(--mono);
@@ -665,7 +701,7 @@ spline-viewer {
 }
 .sidebar-brand {
   padding: 18px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -699,12 +735,12 @@ spline-viewer {
   border-left: 3px solid transparent;
 }
 .sidebar-nav-item:hover {
-  background: rgba(56, 189, 248, 0.08);
-  color: #fff;
+  background: rgba(200, 43, 20, 0.06);
+  color: var(--text);
   border-left-color: var(--accent);
 }
 .sidebar-nav-item.active {
-  background: rgba(56, 189, 248, 0.14);
+  background: rgba(200, 43, 20, 0.09);
   color: var(--accent);
   border-left-color: var(--accent);
   font-weight: 700;
@@ -720,7 +756,7 @@ spline-viewer {
 
 /* Top Sticky Header */
 .soc-header {
-  background: rgba(11, 17, 32, 0.95);
+  background: var(--surface);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   height: 60px;
@@ -779,12 +815,12 @@ spline-viewer {
   border: 1px solid var(--border);
 }
 .soc-threat-banner.threat {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18) 0%, rgba(17, 24, 39, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(200, 43, 20, 0.06) 0%, var(--surface) 100%);
   border-color: rgba(239, 68, 68, 0.45);
   box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
 }
 .soc-threat-banner.nominal {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(17, 24, 39, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.06) 0%, var(--surface) 100%);
   border-color: rgba(16, 185, 129, 0.35);
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.12);
 }
@@ -812,8 +848,8 @@ spline-viewer {
   gap: 10px;
 }
 .threat-metric-cell {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 12px;
   display: flex;
@@ -831,6 +867,7 @@ spline-viewer {
   font-size: 14px;
   font-weight: 800;
   font-family: var(--mono);
+  color: var(--text);
 }
 
 /* ─── SECTION 2: 2-COLUMN GRIDS ──────────────────────────────────────── */
@@ -920,9 +957,9 @@ spline-viewer {
   justify-content: space-between;
   gap: 8px;
   padding: 14px 16px;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--surface2);
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
   margin-bottom: 16px;
   position: relative;
   overflow: hidden;
@@ -975,8 +1012,8 @@ spline-viewer {
   gap: 10px;
 }
 .telem-box {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px 12px;
   display: flex;
@@ -987,7 +1024,7 @@ spline-viewer {
   font-size: 16px;
   font-weight: 800;
   font-family: var(--mono);
-  color: #fff;
+  color: var(--text);
 }
 .telem-box-lbl {
   font-size: 9.5px;
@@ -1011,12 +1048,13 @@ spline-viewer {
   text-transform: uppercase;
   font-size: 9.5px;
   letter-spacing: 0.06em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 .explain-table td {
   padding: 7px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
   font-family: var(--mono);
+  color: var(--text);
 }
 .explain-table tr:hover td {
   background: rgba(56, 189, 248, 0.04);
@@ -1036,8 +1074,8 @@ spline-viewer {
 
 /* ─── MITRE CARDS ────────────────────────────────────────────────────── */
 .mitre-card-item {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 14px;
   display: flex;
@@ -1051,7 +1089,7 @@ spline-viewer {
   font-family: var(--mono);
   color: var(--accent);
 }
-.mitre-tech-name { font-size: 13px; font-weight: 700; color: #fff; }
+.mitre-tech-name { font-size: 13px; font-weight: 700; color: var(--text); }
 .mitre-tech-tactic {
   font-size: 10.5px;
   font-weight: 700;
@@ -1108,8 +1146,8 @@ spline-viewer {
 .rollout-card {
   flex: 1;
   min-width: 130px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px;
   display: flex;
@@ -1135,7 +1173,7 @@ spline-viewer {
 .rollout-stage-title {
   font-size: 12.5px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text);
 }
 
 /* ─── DEFENSIVE AGENT CHAT ───────────────────────────────────────────── */
@@ -1144,8 +1182,8 @@ spline-viewer {
   flex-direction: column;
   height: 380px;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   overflow: hidden;
 }
 .agent-chat-messages {
@@ -1168,15 +1206,15 @@ spline-viewer {
 }
 .chat-bubble.agent {
   align-self: flex-start;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: var(--surface);
+  border: 1px solid var(--border);
   color: var(--text);
 }
 .chat-bubble.analyst {
   align-self: flex-end;
-  background: rgba(168, 85, 247, 0.15);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  color: #fff;
+  background: rgba(200, 43, 20, 0.08);
+  border: 1px solid rgba(200, 43, 20, 0.25);
+  color: var(--text);
 }
 .chat-bubble-author {
   font-size: 9.5px;
@@ -1212,16 +1250,16 @@ spline-viewer {
   display: flex;
   gap: 8px;
   padding: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
 }
 .agent-input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 12px;
-  color: #fff;
+  color: var(--text);
   font-size: 12px;
 }
 .agent-input:focus {
@@ -1235,8 +1273,8 @@ spline-viewer {
   gap: 12px;
 }
 .action-card {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 14px;
   display: flex;
@@ -1253,7 +1291,7 @@ spline-viewer {
   align-items: center;
   justify-content: space-between;
 }
-.action-title { font-size: 12.5px; font-weight: 700; color: #fff; }
+.action-title { font-size: 12.5px; font-weight: 700; color: var(--text); }
 .action-rationale { font-size: 11px; color: var(--muted); line-height: 1.4; }
 
 /* ─── JUDGE PRESENTATION DEMO CONTROLLER ─────────────────────────────── */
@@ -1263,9 +1301,9 @@ spline-viewer {
   gap: 6px;
   overflow-x: auto;
   padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--surface2);
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
   margin-bottom: 12px;
 }
 .demo-step-pill {
@@ -1275,8 +1313,8 @@ spline-viewer {
   font-weight: 700;
   text-transform: uppercase;
   color: var(--muted);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid transparent;
+  background: var(--surface);
+  border: 1px solid var(--border);
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s;
@@ -1299,9 +1337,9 @@ spline-viewer {
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--surface2);
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
   margin-bottom: 14px;
 }
 .replay-progress-track {
@@ -1333,9 +1371,10 @@ spline-viewer {
   gap: 8px;
   padding: 6px 10px;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   font-size: 11px;
+  color: var(--text);
 }
 .timeline-entry.threat-trans {
   border-color: rgba(239, 68, 68, 0.3);
@@ -1349,8 +1388,8 @@ spline-viewer {
   gap: 12px;
 }
 .health-card {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px;
   display: flex;
@@ -1363,7 +1402,7 @@ spline-viewer {
   justify-content: space-between;
 }
 .health-card-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
-.health-card-stat { font-size: 14px; font-weight: 800; font-family: var(--mono); color: #fff; }
+.health-card-stat { font-size: 14px; font-weight: 800; font-family: var(--mono); color: var(--text); }
 
 /* ─── FLOATING TOAST NOTIFICATIONS ───────────────────────────────────── */
 #toastBox {
@@ -1378,13 +1417,13 @@ spline-viewer {
 }
 .toast {
   pointer-events: auto;
-  background: rgba(11, 17, 32, 0.95);
+  background: var(--surface);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   padding: 10px 16px;
   border-radius: 8px;
   font-size: 12px;
-  color: #fff;
+  color: var(--text);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1734,8 +1773,8 @@ spline-viewer {
       </div>
     </div>
     <div style="padding:0 12px 10px">
-      <button class="btn btn-secondary" onclick="returnToLanding()" style="width:100%;font-size:11px;padding:6px 10px;display:flex;align-items:center;justify-content:center;gap:6px;border-color:rgba(0,240,255,0.3);color:var(--accent)">
-        <span>🌐 3D Globe Landing</span>
+      <button class="btn btn-secondary" onclick="returnToLanding()" style="width:100%;font-size:11px;padding:7px 10px;display:flex;align-items:center;justify-content:center;gap:6px;border-color:rgba(200,43,20,0.3);color:var(--accent);border-radius:20px;font-weight:700">
+        <span>⚡ CyberSentinel Landing</span>
         <span style="font-size:12px">↖</span>
       </button>
     </div>
@@ -1821,8 +1860,11 @@ spline-viewer {
     <!-- Top Sticky Header -->
     <header class="soc-header">
       <div style="display:flex;align-items:center;gap:12px">
-        <button class="btn btn-secondary" onclick="returnToLanding()" style="font-size:11px;padding:4px 10px;display:flex;align-items:center;gap:6px;border-color:rgba(0,240,255,0.3);color:var(--accent)" title="Return to 3D Globe Landing Page">
-          <span>🌐 3D Globe</span>
+        <button class="btn btn-secondary" onclick="returnToLanding()" style="font-size:11px;padding:5px 12px;display:flex;align-items:center;gap:6px;border-color:rgba(200,43,20,0.3);color:var(--accent);border-radius:20px;font-weight:700" title="Return to CyberSentinel Landing Page">
+          <span>⚡ Landing</span>
+        </button>
+        <button id="themeToggleBtn" onclick="toggleThemeMode()" class="btn btn-secondary" style="font-size:11px;padding:4px 10px;border-radius:20px" title="Toggle Editorial Cream / Cyber Dark Theme">
+          <span>☀️ SlowBros Cream</span>
         </button>
         <span class="badge badge-observed" id="socModeBadge">
           <span class="status-dot ok pulse"></span>
@@ -2871,6 +2913,26 @@ function updateReplayProgress() {
 }
 
 // ─── DEMO MODE TOGGLE ──────────────────────────────────────────────────
+
+// ─── THEME TOGGLE (SlowBros Editorial Cream vs Cyber Dark) ─────────────
+function toggleThemeMode() {
+  const isDark = document.body.classList.toggle('theme-dark');
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) {
+    btn.innerHTML = isDark ? '<span>🌙 Cyber Dark</span>' : '<span>☀️ SlowBros Cream</span>';
+  }
+  localStorage.setItem('cybersentinel_theme', isDark ? 'dark' : 'cream');
+}
+
+(function initThemeMode() {
+  const saved = localStorage.getItem('cybersentinel_theme');
+  if (saved === 'dark') {
+    document.body.classList.add('theme-dark');
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) btn.innerHTML = '<span>🌙 Cyber Dark</span>';
+  }
+})();
+
 function toggleDemoMode() {
   state.demoMode = !state.demoMode;
   const btn = document.getElementById('btnSidebarDemo');
