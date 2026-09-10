@@ -924,12 +924,75 @@ spline-viewer {
   border: 1px solid transparent;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  overflow: hidden;
+}
+.lifecycle-item > * {
+  position: relative;
+  z-index: 2;
 }
 .lifecycle-item.current {
   background: rgba(16, 185, 129, 0.16);
   border-color: var(--green);
   color: #fff;
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+.lifecycle-item.current::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -120px;
+  width: 90px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.6), rgba(16, 185, 129, 0.7), transparent);
+  animation: movePulse 2.4s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 1;
+}
+.lifecycle-item.current.threat {
+  background: rgba(200, 43, 20, 0.18);
+  border-color: var(--accent);
+  box-shadow: 0 0 18px rgba(200, 43, 20, 0.45);
+}
+.lifecycle-item.current.threat::before {
+  background: linear-gradient(90deg, transparent, rgba(200, 43, 20, 0.65), rgba(255, 71, 46, 0.85), transparent);
+}
+.scan-radar-dot {
+  display: inline-block;
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 5px;
+  vertical-align: middle;
+  animation: radarPulse 1.4s infinite ease-in-out;
+}
+@keyframes radarPulse {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+  50% { transform: scale(1.35); opacity: 0.6; box-shadow: 0 0 8px 3px currentColor; }
+}
+
+.stage-scan-pod {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+.stage-scan-pod.threat {
+  background: rgba(200, 43, 20, 0.08);
+  border-color: rgba(200, 43, 20, 0.35);
+  box-shadow: 0 0 14px rgba(200, 43, 20, 0.2);
+}
+.stage-scan-cell {
+  position: relative;
+  overflow: hidden;
 }
 .lifecycle-item.predicted {
   background: rgba(0, 240, 255, 0.14);
@@ -1978,9 +2041,13 @@ spline-viewer {
           </div>
 
           <div class="threat-banner-metrics-grid" id="bannerMetricsGrid">
-            <div class="threat-metric-cell">
-              <div class="threat-cell-label">Current Stage</div>
-              <div class="threat-cell-val" id="bmCurStage" style="color:var(--green)">BENIGN</div>
+            <div class="threat-metric-cell stage-scan-cell" id="bmCurStageCell">
+              <div class="pipeline-pulse-beam" style="animation-duration: 2.8s"></div>
+              <div class="threat-cell-label" style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2">
+                <span>Current Stage</span>
+                <span class="scan-radar-dot" style="margin:0"></span>
+              </div>
+              <div class="threat-cell-val" id="bmCurStage" style="color:var(--green);position:relative;z-index:2">BENIGN</div>
             </div>
             <div class="threat-metric-cell">
               <div class="threat-cell-label">Attack Probability</div>
@@ -2000,11 +2067,11 @@ spline-viewer {
             </div>
             <div class="threat-metric-cell">
               <div class="threat-cell-label">Risk Score</div>
-              <div class="threat-cell-val" id="bmRiskScore">10.0 / 100</div>
+              <div class="threat-cell-val" id="bmRiskScore">0.0</div>
             </div>
             <div class="threat-metric-cell">
-              <div class="threat-cell-label">Operational Priority</div>
-              <div class="threat-cell-val text-green" id="bmPriority">P4 — Nominal</div>
+              <div class="threat-cell-label">Priority Action</div>
+              <div class="threat-cell-val" id="bmPriority" style="font-size:12px;color:var(--green)">MONITOR</div>
             </div>
           </div>
         </div>
@@ -2022,12 +2089,16 @@ spline-viewer {
             <span class="badge badge-forecast">v2.0 • T*=1.5680</span>
           </div>
           <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
-            <!-- Stage Transition Hero -->
+            <!-- Stage Transition Hero with Live Scanning Beam -->
             <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;background:rgba(0,0,0,0.3);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)">
-              <div style="display:flex;flex-direction:column;gap:4px">
-                <div style="font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:700">Observed State (S_t)</div>
-                <div style="font-size:18px;font-weight:900;color:#fff" id="wmHeroCurStage">🟢 BENIGN</div>
-                <div style="font-size:10.5px;color:var(--muted)">Current classified stage</div>
+              <div class="stage-scan-pod" id="wmCurStagePod">
+                <div class="pipeline-pulse-beam" style="animation-duration: 2.6s"></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2">
+                  <span style="font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:700">Observed State (S_t)</span>
+                  <span class="badge badge-observed" id="wmHeroScanBadge" style="font-size:8.5px;padding:1px 5px"><span class="scan-radar-dot"></span>LIVE SCAN</span>
+                </div>
+                <div style="font-size:18px;font-weight:900;color:#fff;position:relative;z-index:2" id="wmHeroCurStage">🟢 BENIGN</div>
+                <div style="font-size:10.5px;color:var(--muted);position:relative;z-index:2">Current classified stage</div>
               </div>
               <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
                 <div style="font-size:22px;color:var(--accent);font-weight:900">➔</div>
@@ -3076,6 +3147,18 @@ function renderModelIntelligence(fc) {
   if (pBar && fc.confidence != null) {
     pBar.style.width = (fc.confidence * 100) + '%';
   }
+
+  const curPod = document.getElementById('wmCurStagePod');
+  if (curPod) {
+    const isThreat = (cur !== 'BENIGN') || ((fc.attack_probability || 0) > 0.3);
+    if (isThreat) curPod.classList.add('threat');
+    else curPod.classList.remove('threat');
+    const badge = document.getElementById('wmHeroScanBadge');
+    if (badge) {
+      badge.className = isThreat ? 'badge badge-forecast' : 'badge badge-observed';
+      badge.innerHTML = `<span class="scan-radar-dot"></span>${isThreat ? 'THREAT SCAN' : 'LIVE SCAN'}`;
+    }
+  }
 }
 
 // ─── 3. RENDER 5-STATE ATTACK LIFECYCLE ────────────────────────────────
@@ -3118,9 +3201,12 @@ function renderLifecycle(fc) {
 
     if (s === cur) {
       stateCls = 'current';
+      const isThreat = (s !== 'BENIGN') || ((fc.attack_probability || 0) > 0.3);
+      if (isThreat) stateCls += ' threat';
+      const scanRadar = '<span class="scan-radar-dot"></span>';
       badgeHtml = (s === nxt) 
-        ? '<span class="badge badge-observed">● CURRENT · PERSIST</span>'
-        : '<span class="badge badge-observed">● CURRENT</span>';
+        ? `<span class="badge ${isThreat ? 'badge-forecast' : 'badge-observed'}">${scanRadar}● CURRENT · PERSIST</span>`
+        : `<span class="badge ${isThreat ? 'badge-forecast' : 'badge-observed'}">${scanRadar}● CURRENT (LIVE SCAN)</span>`;
     } else if (s === nxt) {
       stateCls = 'predicted';
       badgeHtml = `<span class="badge badge-forecast">→ FORECAST (${confStr})</span>`;
@@ -3140,8 +3226,10 @@ function renderLifecycle(fc) {
       </div>`;
     }
 
+    const beamHtml = (s === cur) ? '<div class="pipeline-pulse-beam" style="animation-duration: 2.4s"></div>' : '';
     return `
       <div class="lifecycle-item ${stateCls}">
+        ${beamHtml}
         <div class="lifecycle-stage-name">
           <span>${icon}</span>
           <span>${s}</span>
