@@ -26,9 +26,12 @@ if str(_ROOT) not in sys.path:
 
 from backend.api.endpoints import router
 from backend.api.stream_endpoints import stream_router
+from backend.api.agent_endpoints import agent_router
 from backend.services.model_service import ModelService
 from backend.services.replay_service import ReplayService
 from backend.services.live_ingest_service import LiveIngestService
+from backend.services.evidence_service import EvidenceService
+from backend.services.gemini_service import GeminiService
 from backend.agents.defensive_agent import CyberSentinelDefensiveAgent
 from backend.middleware.security import SecurityMiddleware
 
@@ -53,6 +56,11 @@ async def lifespan(app: FastAPI):
     app.state.model_service = ModelService.get_instance()
     app.state.replay_service = ReplayService()
     app.state.live_ingest_service = LiveIngestService()
+    app.state.evidence_service = EvidenceService(
+        live_ingest_service=app.state.live_ingest_service,
+        replay_service=app.state.replay_service,
+    )
+    app.state.gemini_service = GeminiService()
     app.state.agent = CyberSentinelDefensiveAgent()
     app.state.agent._ensure_ollama_checked()
 
@@ -63,6 +71,8 @@ async def lifespan(app: FastAPI):
 
     logger.info("✓ ReplayService ready")
     logger.info("✓ LiveIngestService ready")
+    logger.info("✓ EvidenceService ready")
+    logger.info("✓ GeminiService ready (status=%s)", app.state.gemini_service.get_status()["status"])
     logger.info("✓ DefensiveAgent ready")
     logger.info("API docs available at: http://localhost:8000/docs")
     logger.info("Dashboard available at: http://localhost:8000/ui/index.html")
@@ -95,6 +105,11 @@ app = FastAPI(
 app.state.model_service = ModelService.get_instance()
 app.state.replay_service = ReplayService()
 app.state.live_ingest_service = LiveIngestService()
+app.state.evidence_service = EvidenceService(
+    live_ingest_service=app.state.live_ingest_service,
+    replay_service=app.state.replay_service,
+)
+app.state.gemini_service = GeminiService()
 app.state.agent = CyberSentinelDefensiveAgent()
 
 # CORS — allow dashboard (same host or file://) to call the API
@@ -115,6 +130,7 @@ if _DASHBOARD.exists():
 # Include API routes
 app.include_router(router, prefix="/api/v1")
 app.include_router(stream_router, prefix="/api/v1")
+app.include_router(agent_router, prefix="/api/v1")
 
 
 # ---------------------------------------------------------------------------

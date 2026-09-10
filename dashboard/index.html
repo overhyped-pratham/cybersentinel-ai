@@ -1355,6 +1355,139 @@ spline-viewer {
   border-color: var(--accent);
 }
 
+/* ─── AI SECURITY ANALYST ENHANCEMENTS ─────────────────────────────────── */
+.analyst-engine-pill {
+  font-size: 9.5px;
+  font-family: var(--mono);
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(200, 43, 20, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(200, 43, 20, 0.3);
+  letter-spacing: 0.04em;
+}
+.analyst-context-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.acs-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.acs-lbl {
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.acs-val {
+  font-size: 11.5px;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--text);
+}
+.acs-grounding-tag {
+  font-size: 9.5px;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(16, 185, 129, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  letter-spacing: 0.04em;
+}
+.floating-analyst-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  border-radius: 30px;
+  cursor: pointer;
+  padding: 10px 18px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+}
+.floating-analyst-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 35px rgba(200, 43, 20, 0.25);
+  border-color: var(--accent);
+}
+.floating-analyst-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text);
+}
+.floating-model-tag {
+  font-size: 9.5px;
+  background: rgba(200, 43, 20, 0.12);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(200, 43, 20, 0.25);
+  font-weight: 700;
+}
+.evidence-accordion {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface2);
+  padding: 6px 10px;
+  font-size: 11px;
+}
+.evidence-accordion summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  outline: none;
+  user-select: none;
+}
+.evidence-accordion summary:hover {
+  color: var(--accent);
+}
+.evidence-content {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 6px;
+  background: var(--surface3);
+  padding: 8px;
+  border-radius: 4px;
+}
+.highlight-pulse {
+  animation: analystHighlight 1.5s ease-in-out;
+}
+@keyframes analystHighlight {
+  0% { box-shadow: 0 0 0 0 rgba(200, 43, 20, 0.7); }
+  50% { box-shadow: 0 0 25px 4px rgba(200, 43, 20, 0.45); }
+  100% { box-shadow: none; }
+}
+
 /* ─── RECOMMENDED ACTIONS CARDS ──────────────────────────────────────── */
 .actions-grid {
   display: grid;
@@ -2416,47 +2549,90 @@ spline-viewer {
 
       <!-- ─── 6. DEFENSIVE AI ANALYST & RECOMMENDED ACTIONS ─────────────── -->
       <section class="grid-2col">
-        <!-- Card A: CyberSentinel Defensive Agent -->
+        <!-- Card A: CyberSentinel AI Security Analyst (Gemini Powered & Grounded) -->
         <div class="glass-panel" id="secAgent">
           <div class="card-header">
             <div class="card-title">
-              <span class="icon">🤖</span>
-              <span>CYBERSENTINEL DEFENSIVE AGENT</span>
+              <span class="icon">🛡️</span>
+              <span>AI SECURITY ANALYST</span>
+              <span class="analyst-engine-pill" id="agentModelBadge">GEMINI 2.5 FLASH</span>
             </div>
-            <span class="badge badge-observed">EVIDENCE-BACKED AI ANALYST</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="badge badge-observed" id="agentStatusBadge">
+                <span class="status-dot ok pulse"></span>
+                <span id="agentStatusText">ONLINE · GROUNDED</span>
+              </span>
+              <button class="btn btn-secondary" onclick="syncAnalystEvidence()" title="Re-sync model telemetry context" style="padding:4px 8px;font-size:10.5px">
+                🔄 Sync Evidence
+              </button>
+            </div>
           </div>
           <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
-            <div style="font-size:11px;color:var(--muted)">
-              Ask questions grounded strictly in runtime model forecasts, feature deltas, and verified evidence.
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <div style="font-size:11px;color:var(--muted)">
+                Interactive SOC co-pilot grounded strictly in CyberSentinel world-model telemetry and stage forecasts.
+              </div>
+              <div style="font-size:10px;font-family:var(--mono);color:var(--muted)" id="analystLastSync">
+                Evidence: Live Sync
+              </div>
+            </div>
+
+            <!-- Real-time Grounded Evidence Context Strip -->
+            <div class="analyst-context-strip" id="analystContextStrip">
+              <div class="acs-col">
+                <span class="acs-lbl">ACTIVE STAGE</span>
+                <span class="acs-val" id="acsStage" style="color:var(--accent)">Awaiting Telemetry</span>
+              </div>
+              <div class="acs-col">
+                <span class="acs-lbl">PREDICTED NEXT</span>
+                <span class="acs-val" id="acsNext">—</span>
+              </div>
+              <div class="acs-col">
+                <span class="acs-lbl">ATTACK PROB</span>
+                <span class="acs-val" id="acsProb">—</span>
+              </div>
+              <div class="acs-col">
+                <span class="acs-lbl">RISK SCORE</span>
+                <span class="acs-val" id="acsRisk">—</span>
+              </div>
+              <div class="acs-col">
+                <span class="acs-lbl">PRIMARY MITRE</span>
+                <span class="acs-val" id="acsMitre">—</span>
+              </div>
+              <div class="acs-col" style="flex:1.2;text-align:right">
+                <span class="acs-lbl">GROUNDING PROTOCOL</span>
+                <span class="acs-grounding-tag">STRICT ZERO FABRICATION</span>
+              </div>
             </div>
 
             <div class="agent-chat-container">
               <div class="agent-chat-messages" id="agentChatMessages">
                 <div class="chat-bubble agent">
-                  <div class="chat-bubble-author">CYBERSENTINEL DEFENSIVE AGENT</div>
-                  <div>
-                    SOC Analyst Assistant ready. I analyze live telemetry, explain neural predictions, and recommend defensive actions grounded in runtime telemetry. Click any quick query below or type a custom question.
+                  <div class="chat-bubble-author" id="initialAgentAuthor">CYBERSENTINEL AI SECURITY ANALYST · GEMINI 2.5 FLASH</div>
+                  <div id="initialAgentWelcome">
+                    SOC Copilot initialized and grounded in <strong>CyberWorldModelV2</strong> empirical intelligence.
+                    Ask any question regarding current threat telemetry, projected attack vectors, or MITRE containment playbooks.
                   </div>
                 </div>
               </div>
 
               <div class="agent-input-row">
-                <input type="text" class="agent-input" id="agentChatInput" placeholder="Ask CyberSentinel defensive analyst…" onkeydown="if(event.key==='Enter')sendAgentQuery()">
+                <input type="text" class="agent-input" id="agentChatInput" placeholder="Ask AI Analyst about active threat, MITRE tactics, or defense..." onkeydown="if(event.key==='Enter')sendAgentQuery()">
                 <button class="btn btn-primary" onclick="sendAgentQuery()" id="btnSendAgent">
-                  <span>Send</span>
+                  <span id="btnSendAgentText">Send</span>
                 </button>
               </div>
             </div>
 
-            <!-- 7 Quick Queries matching all requirements -->
+            <!-- Quick Action Prompts matching all requirements -->
             <div class="agent-quick-prompts">
-              <button class="btn-prompt" onclick="quickAgentPrompt('What should the analyst investigate?')">🔍 What should the analyst investigate?</button>
-              <button class="btn-prompt" onclick="quickAgentPrompt('Why is this considered a threat?')">⚠️ Why is this considered a threat?</button>
-              <button class="btn-prompt" onclick="quickAgentPrompt('What evidence supports this prediction?')">📈 What evidence supports this prediction?</button>
-              <button class="btn-prompt" onclick="quickAgentPrompt('What should I prioritize?')">🎯 What should I prioritize?</button>
-              <button class="btn-prompt" onclick="quickAgentPrompt('What MITRE techniques are relevant?')">🗂 What MITRE techniques are relevant?</button>
-              <button class="btn-prompt" onclick="quickAgentPrompt('What defensive actions should be considered?')">🛡 What defensive actions should be considered?</button>
-              <button class="btn-prompt" onclick="quickAgentPrompt('Summarize the incident.')">📝 Summarize the incident.</button>
+              <button class="btn-prompt" onclick="quickAgentPrompt('Explain the current attack pattern and model indicators.')">🔍 Explain Attack Pattern</button>
+              <button class="btn-prompt" onclick="quickAgentPrompt('Recommend containment and defensive playbooks.')">🛡️ Recommend Containment Playbook</button>
+              <button class="btn-prompt" onclick="quickAgentPrompt('Assess stage transition likelihood and next moves.')">⚠️ Assess Transition Likelihood</button>
+              <button class="btn-prompt" onclick="quickAgentPrompt('Explain the top physical telemetry shifts driving this risk.')">📊 Explain Telemetry Shifts</button>
+              <button class="btn-prompt" onclick="quickAgentPrompt('What MITRE techniques are currently active and mapped?')">🗂️ MITRE ATT&CK Context</button>
+              <button class="btn-prompt" onclick="quickAgentPrompt('What should the analyst prioritize right now?')">🎯 Prioritization Advice</button>
+              <button class="btn-prompt" onclick="quickAgentPrompt('Summarize overall incident status for the SOC lead.')">📝 Incident Summary</button>
             </div>
           </div>
         </div>
@@ -3058,6 +3234,9 @@ function applyForecast(fc, isReplay = false, sourceKind = 'Local Trace Replay') 
 
   // Sync to globe HUD
   updateGlobeHUD(fc);
+
+  // Sync to AI Security Analyst
+  updateAnalystEvidence(fc);
 }
 
 // ─── 1. RENDER SOC THREAT BANNER ───────────────────────────────────────
@@ -3554,7 +3733,86 @@ function renderTimelineEntry(fc) {
   `).join('');
 }
 
-// ─── DEFENSIVE AGENT CHAT ──────────────────────────────────────────────
+// ─── AI SECURITY ANALYST (GEMINI POWERED & GROUNDED) ───────────────────
+let analystStatus = { status: 'offline', model: 'gemini-2.5-flash', available: false };
+
+async function checkAgentStatus() {
+  try {
+    const res = await api('/agent/status');
+    analystStatus = res;
+    const mb = document.getElementById('agentModelBadge');
+    const sb = document.getElementById('agentStatusBadge');
+    const st = document.getElementById('agentStatusText');
+    const ft = document.getElementById('floatingModelTag');
+
+    if (mb) mb.textContent = (res.model || 'gemini-2.5-flash').toUpperCase();
+    if (ft) ft.textContent = (res.model ? res.model.replace('gemini-', '').toUpperCase() : 'GEMINI');
+
+    if (res.status === 'online') {
+      if (sb) {
+        sb.className = 'badge badge-observed';
+        sb.innerHTML = '<span class="status-dot ok pulse"></span><span>ONLINE · GROUNDED</span>';
+      }
+    } else if (res.status === 'fallback') {
+      if (sb) {
+        sb.className = 'badge badge-medium';
+        sb.innerHTML = '<span class="status-dot" style="background:var(--yellow)"></span><span>FALLBACK · OPERATIONAL</span>';
+      }
+    } else {
+      if (sb) {
+        sb.className = 'badge badge-not-reached';
+        sb.innerHTML = '<span class="status-dot err"></span><span>OFFLINE</span>';
+      }
+    }
+  } catch (e) {
+    console.warn('[AI Analyst] Status check warning:', e);
+  }
+}
+
+function updateAnalystEvidence(fc) {
+  if (!fc) return;
+  const stageEl = document.getElementById('acsStage');
+  const nextEl = document.getElementById('acsNext');
+  const probEl = document.getElementById('acsProb');
+  const riskEl = document.getElementById('acsRisk');
+  const mitreEl = document.getElementById('acsMitre');
+  const syncEl = document.getElementById('analystLastSync');
+
+  if (stageEl) {
+    stageEl.textContent = (fc.current_stage || 'BENIGN').toUpperCase();
+    stageEl.style.color = (fc.current_stage && fc.current_stage !== 'BENIGN') ? 'var(--accent)' : 'var(--green)';
+  }
+  if (nextEl) nextEl.textContent = fc.predicted_next_stage || '—';
+  if (probEl) probEl.textContent = fc.attack_probability != null ? (fc.attack_probability * 100).toFixed(1) + '%' : '—';
+  if (riskEl) riskEl.textContent = fc.risk_score != null ? `${fc.risk_score.toFixed(1)}/100 (${fc.risk_level || 'LOW'})` : '—';
+  if (mitreEl) mitreEl.textContent = fc.primary_technique_id ? `${fc.primary_technique_id}` : (fc.mitre_techniques && fc.mitre_techniques[0] ? fc.mitre_techniques[0].technique_id : '—');
+  if (syncEl) {
+    const d = new Date();
+    syncEl.textContent = `Evidence: W-${(fc.window_id || '').slice(0, 6)} (${d.toLocaleTimeString()})`;
+  }
+}
+
+function syncAnalystEvidence() {
+  if (state.lastForecast) {
+    updateAnalystEvidence(state.lastForecast);
+    showToast('AI Analyst grounded in latest telemetry window ✓', 'info');
+  } else {
+    showToast('No active telemetry stream available yet.', 'warn');
+  }
+}
+
+function scrollToAnalyst() {
+  enterCommandCenter('secAgent');
+  const el = document.getElementById('secAgent');
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('highlight-pulse');
+    setTimeout(() => el.classList.remove('highlight-pulse'), 1800);
+    const inp = document.getElementById('agentChatInput');
+    if (inp) inp.focus();
+  }
+}
+
 async function sendAgentQuery() {
   const input = document.getElementById('agentChatInput');
   const q = input.value.trim();
@@ -3564,21 +3822,31 @@ async function sendAgentQuery() {
   appendChatMessage('analyst', q);
 
   const btn = document.getElementById('btnSendAgent');
+  const btnText = document.getElementById('btnSendAgentText');
   if (btn) btn.disabled = true;
+  if (btnText) btnText.textContent = 'Thinking...';
 
   try {
     const payload = {
-      query: q,
+      message: q,
       current_forecast: state.lastForecast || undefined,
-      session_id: state.sessionId || undefined
+      session_id: state.sessionId || undefined,
     };
 
-    const res = await api('/agent/query', 'POST', payload);
-    appendChatMessage('agent', res.answer || 'Query processed.', res.tools_invoked || []);
+    const res = await api('/agent/chat', 'POST', payload);
+    const isGemini = res.llm_backend === 'gemini';
+    const authorTag = isGemini
+      ? `CYBERSENTINEL AI SECURITY ANALYST · ${(res.model || 'GEMINI 2.5 FLASH').toUpperCase()} (GROUNDED)`
+      : `CYBERSENTINEL AI SECURITY ANALYST · RULE ENGINE (DETERMINISTIC FALLBACK)`;
+
+    appendChatMessage('agent', res.answer || 'Analysis complete.', [], res.evidence, authorTag);
   } catch (e) {
-    appendChatMessage('agent', 'I encountered an issue querying verified telemetry evidence. Please verify system health.');
+    console.error('Chat error:', e);
+    // Graceful client fallback
+    appendChatMessage('agent', 'Gemini analyst unavailable. CyberSentinel deterministic intelligence remains operational.\n\n*Unable to query backend analyst service. Please ensure the CyberSentinel FastAPI server is running on port 8000.*', [], null, 'CYBERSENTINEL AI SECURITY ANALYST · SYSTEM NOTICE');
   } finally {
     if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = 'Send';
   }
 }
 
@@ -3590,20 +3858,41 @@ function quickAgentPrompt(promptText) {
   }
 }
 
-function appendChatMessage(role, text, tools = []) {
+function appendChatMessage(role, text, tools = [], evidence = null, customAuthor = null) {
   const box = document.getElementById('agentChatMessages');
   if (!box) return;
 
   const bubble = document.createElement('div');
   bubble.className = `chat-bubble ${role}`;
 
-  const author = role === 'agent' ? 'CYBERSENTINEL DEFENSIVE AGENT' : 'SOC ANALYST';
-  const toolsStr = tools.length ? `<div style="font-size:10px;color:var(--accent);font-family:var(--mono);margin-top:4px">🔧 Verified Tools: ${tools.join(' ➔ ')}</div>` : '';
+  const defaultAuthor = role === 'agent' ? 'CYBERSENTINEL AI SECURITY ANALYST' : 'SOC ANALYST';
+  const author = customAuthor || defaultAuthor;
+
+  let evidenceHtml = '';
+  if (evidence && evidence.has_sufficient_evidence) {
+    const feats = (evidence.features || []).map(f => `<div>• <strong>${f.feature}</strong>: ${f.current} ➔ ${f.predicted} (${f.rel_change_pct > 0 ? '+' : ''}${f.rel_change_pct}%)</div>`).join('');
+    evidenceHtml = `
+      <details class="evidence-accordion">
+        <summary>📊 Verified Model Evidence & Grounding Details</summary>
+        <div class="evidence-content">
+          <div class="evidence-grid">
+            <div><strong>Active Stage:</strong> ${evidence.current_stage || 'N/A'}</div>
+            <div><strong>Predicted Next:</strong> ${evidence.predicted_next_stage || 'N/A'}</div>
+            <div><strong>Attack Prob:</strong> ${evidence.attack_probability != null ? (evidence.attack_probability * 100).toFixed(1) + '%' : 'N/A'}</div>
+            <div><strong>Risk Score:</strong> ${evidence.risk_score != null ? evidence.risk_score + '/100 (' + (evidence.risk_level || 'LOW') + ')' : 'N/A'}</div>
+            <div><strong>Primary MITRE:</strong> ${evidence.primary_technique_id || 'N/A'} — ${evidence.primary_technique_name || ''}</div>
+            <div><strong>Timestamp:</strong> ${evidence.timestamp || 'Live'}</div>
+          </div>
+          ${feats ? `<div style="margin-top:6px;font-size:10px;color:var(--text)"><strong>Feature Shifts (|ΔS|):</strong>${feats}</div>` : ''}
+        </div>
+      </details>
+    `;
+  }
 
   bubble.innerHTML = `
     <div class="chat-bubble-author">${author}</div>
     <div>${formatMarkdown(text)}</div>
-    ${toolsStr}
+    ${evidenceHtml}
   `;
 
   box.appendChild(bubble);
@@ -4044,10 +4333,24 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Connect live WebSocket stream
   connectWebSocket();
 
+  // Initialize AI Security Analyst status
+  await checkAgentStatus();
+
   // Periodic health checks
   setInterval(checkHealth, 30000);
   setInterval(pollSystemHealth, 5000);
+  setInterval(checkAgentStatus, 30000);
 });
 </script>
+
+<!-- Floating AI Security Analyst Launcher Button -->
+<div id="floatingAnalystBtn" onclick="scrollToAnalyst()" class="floating-analyst-btn" title="Open AI Security Analyst (Gemini)">
+  <div class="floating-analyst-badge">
+    <span class="status-dot ok pulse"></span>
+    <span style="font-size:15px">🛡️</span>
+    <span style="font-weight:800;letter-spacing:0.04em">AI ANALYST</span>
+    <span class="floating-model-tag" id="floatingModelTag">GEMINI 2.5</span>
+  </div>
+</div>
 </body>
 </html>
