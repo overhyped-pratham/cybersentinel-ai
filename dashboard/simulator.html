@@ -2,547 +2,1327 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#111827">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>CyberSentinel — Mobile Traffic Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#F9F6F0">
+<title>CyberSentinel Traffic Simulator — Botnet Attack Simulator & Threat Emulation Swarm</title>
 <link rel="manifest" href="/ui/manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
-/* ─── Variables & Reset ─────────────────────────────────────────────────── */
+/* ─── RESET & SLOWBROS EDITORIAL DESIGN SYSTEM ─────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#0a0d14;--surface:#111827;--surface2:#1a2035;--surface3:#222e45;
-  --border:#2a3550;--text:#e2e8f0;--muted:#94a3b8;--accent:#3b82f6;
-  --cyan:#06b6d4;--green:#10b981;--yellow:#f59e0b;--orange:#f97316;
-  --red:#ef4444;--purple:#8b5cf6;
-  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  --mono:'Cascadia Code','SFMono-Regular',Consolas,'Courier New',monospace;
-}
-body{
-  background:var(--bg);color:var(--text);font-family:var(--font);
-  font-size:14px;line-height:1.4;min-height:100vh;padding-bottom:30px;
-}
-input,select,button{font-family:inherit;font-size:inherit}
-
-/* ─── Container ─────────────────────────────────────────────────────────── */
-.container{
-  max-width:520px;margin:0 auto;padding:12px;
-  display:flex;flex-direction:column;gap:12px;
-}
-
-/* ─── Safety Banner ─────────────────────────────────────────────────────── */
-.safety-banner{
-  background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(239,68,68,.12));
-  border:1px solid rgba(245,158,11,.4);border-radius:10px;padding:10px 14px;
-  display:flex;flex-direction:column;gap:3px;text-align:center;
-}
-.safety-title{
-  color:var(--yellow);font-weight:700;font-size:12px;letter-spacing:.06em;
-  display:flex;align-items:center;justify-content:center;gap:6px;text-transform:uppercase;
-}
-.safety-sub{font-size:11px;color:var(--muted);letter-spacing:.02em}
-
-/* ─── Header ────────────────────────────────────────────────────────────── */
-.app-header{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
-}
-.logo-wrap{display:flex;align-items:center;gap:10px}
-.logo-badge{
-  width:32px;height:32px;border-radius:8px;
-  background:linear-gradient(135deg,var(--accent),var(--purple));
-  display:flex;align-items:center;justify-content:center;font-size:16px;
-}
-.logo-text{font-weight:700;font-size:15px;color:var(--text)}
-.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.05em}
-
-/* ─── Cards ─────────────────────────────────────────────────────────────── */
-.card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;
-}
-.card-header{
-  display:flex;align-items:center;justify-content:space-between;
-}
-.card-title{
-  font-size:11px;font-weight:700;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px;
+:root {
+  --bg: #F9F6F0;
+  --surface: #FFFFFF;
+  --surface2: #FAF8F5;
+  --surface3: #F1ECE1;
+  --border: rgba(17, 17, 17, 0.12);
+  --border-bright: rgba(200, 43, 20, 0.4);
+  --text: #111111;
+  --text-dim: #374151;
+  --muted: #6B7280;
+  --accent: #C82B14;
+  --accent-hover: #A5200D;
+  --accent-blue: #1D4ED8;
+  --purple: #7C3AED;
+  --green: #059669;
+  --yellow: #D97706;
+  --orange: #EA580C;
+  --red: #C82B14;
+  --cyan: #0891B2;
+  --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --serif: 'Playfair Display', 'Instrument Serif', Georgia, serif;
+  --mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+  --radius: 12px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.04);
 }
 
-/* ─── Connection Section ────────────────────────────────────────────────── */
-.conn-row{display:flex;gap:8px;align-items:center}
-.input-field{
-  flex:1;background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;color:var(--text);padding:8px 12px;font-size:13px;
-  font-family:var(--mono);outline:none;
-}
-.input-field:focus{border-color:var(--accent)}
-.btn-secondary{
-  background:var(--surface2);color:var(--text);border:1px solid var(--border);
-  border-radius:8px;padding:8px 12px;font-weight:600;font-size:12px;cursor:pointer;
-  display:flex;align-items:center;gap:4px;white-space:nowrap;
-}
-.btn-secondary:active{background:var(--surface3)}
-.status-pill{
-  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;
-  border-radius:20px;font-size:11px;font-weight:600;
-}
-.status-pill.online{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
-.status-pill.offline{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
-.status-pill.checking{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
-.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
-.dot.pulse{box-shadow:0 0 8px currentColor;animation:pulse 1.8s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* ─── Profile Grid ──────────────────────────────────────────────────────── */
-.profile-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-}
-.profile-btn{
-  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
-  padding:10px;text-align:left;cursor:pointer;display:flex;flex-direction:column;
-  gap:4px;transition:all .15s ease;
-}
-.profile-btn:active{transform:scale(0.98)}
-.profile-btn.active{
-  border-color:var(--accent);background:rgba(59,130,246,.12);
-  box-shadow:0 0 10px rgba(59,130,246,.2);
-}
-.profile-btn-header{display:flex;align-items:center;justify-content:space-between}
-.profile-icon{font-size:16px}
-.profile-tag{
-  font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;
-  text-transform:uppercase;letter-spacing:.04em;
-}
-.tag-normal{background:rgba(16,185,129,.2);color:var(--green)}
-.tag-burst{background:rgba(6,182,212,.2);color:var(--cyan)}
-.tag-recon{background:rgba(59,130,246,.2);color:var(--accent)}
-.tag-cred{background:rgba(245,158,11,.2);color:var(--yellow)}
-.tag-exfil{background:rgba(239,68,68,.2);color:var(--red)}
-.tag-beacon{background:rgba(139,92,246,.2);color:var(--purple)}
-.profile-name{font-weight:700;font-size:12px;color:var(--text)}
-.profile-desc{font-size:10px;color:var(--muted);line-height:1.3}
-
-/* ─── Parameter Controls ─────────────────────────────────────────────────── */
-.ctrl-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:6px 0;border-bottom:1px solid rgba(42,53,80,.4);
-}
-.ctrl-row:last-child{border-bottom:none}
-.ctrl-label{font-size:12px;color:var(--muted);font-weight:500}
-.ctrl-val{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700}
-.range-slider{
-  width:140px;accent-color:var(--accent);
-}
-.select-input{
-  background:var(--surface2);border:1px solid var(--border);border-radius:6px;
-  color:var(--text);padding:4px 8px;font-size:12px;outline:none;
+body.theme-dark {
+  --bg: #060810;
+  --surface: #0b1120;
+  --surface2: #10192e;
+  --surface3: #16223e;
+  --border: rgba(56, 189, 248, 0.16);
+  --border-bright: rgba(200, 43, 20, 0.6);
+  --text: #f1f5f9;
+  --text-dim: #cbd5e1;
+  --muted: #94a3b8;
+  --accent: #ff472e;
+  --accent-hover: #ff6650;
+  --accent-blue: #38bdf8;
+  --purple: #a855f7;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --orange: #f97316;
+  --red: #ef4444;
+  --cyan: #06b6d4;
+  --shadow: 0 8px 30px rgba(0,0,0,0.4);
 }
 
-/* ─── Action Buttons ─────────────────────────────────────────────────────── */
-.actions-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-}
-.btn-action{
-  padding:12px;border-radius:10px;font-weight:700;font-size:13px;
-  border:none;cursor:pointer;display:flex;align-items:center;
-  justify-content:center;gap:6px;transition:all .15s ease;
-}
-.btn-action:active{transform:scale(0.97)}
-.btn-start{
-  background:linear-gradient(135deg,#059669,#10b981);color:#fff;
-  box-shadow:0 0 12px rgba(16,185,129,.3);
-}
-.btn-start.running{
-  background:linear-gradient(135deg,#10b981,#059669);
-  animation:pulse-btn 1.5s infinite;
-}
-@keyframes pulse-btn{0%,100%{box-shadow:0 0 12px rgba(16,185,129,.3)}50%{box-shadow:0 0 20px rgba(16,185,129,.7)}}
-.btn-stop{
-  background:var(--surface2);color:var(--muted);border:1px solid var(--border);
-}
-.btn-stop.enabled{
-  background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;
-  border:none;box-shadow:0 0 12px rgba(239,68,68,.3);
-}
-.btn-once{
-  grid-column:1 / -1;background:linear-gradient(135deg,#2563eb,#3b82f6);
-  color:#fff;box-shadow:0 0 12px rgba(59,130,246,.3);
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 16px 20px 40px;
+  transition: background .2s ease, color .2s ease;
 }
 
-/* ─── Metrics Dashboard ─────────────────────────────────────────────────── */
-.stats-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+/* ─── APP WRAPPER ───────────────────────────────────────────────────────── */
+.app-shell {
+  max-width: 1560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-.stat-box{
-  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
-  padding:8px 6px;text-align:center;
-}
-.stat-val{font-size:15px;font-weight:700;font-family:var(--mono);color:var(--text)}
-.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;margin-top:2px}
 
-/* ─── Real-Time Inference Feedback Card ──────────────────────────────────── */
-.feedback-card{
-  background:linear-gradient(145deg,var(--surface),var(--surface2));
-  border:1px solid var(--accent);border-radius:12px;padding:14px;
-  display:flex;flex-direction:column;gap:10px;box-shadow:0 0 15px rgba(59,130,246,.15);
+/* ─── SAFETY BANNER ─────────────────────────────────────────────────────── */
+.safety-banner {
+  background: linear-gradient(135deg, rgba(200,43,20,0.08), rgba(217,119,6,0.08));
+  border: 1px solid rgba(200,43,20,0.3);
+  border-radius: var(--radius);
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
 }
-.fb-header{display:flex;align-items:center;justify-content:space-between}
-.fb-badge{
-  font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;
-  background:rgba(59,130,246,.2);color:var(--accent);border:1px solid rgba(59,130,246,.4);
-  letter-spacing:.05em;text-transform:uppercase;
+.safety-title {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 11.5px;
+  letter-spacing: .06em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
 }
-.fb-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.fb-item{background:rgba(10,13,20,.6);border:1px solid rgba(42,53,80,.6);border-radius:8px;padding:8px}
-.fb-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.fb-val{font-size:13px;font-weight:700;margin-top:2px;font-family:var(--mono)}
-.stage-normal{color:var(--green)}
-.stage-recon{color:var(--cyan)}
-.stage-cred{color:var(--yellow)}
-.stage-exfil{color:var(--red)}
-.stage-lateral{color:var(--orange)}
+.safety-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
 
-.risk-meter{display:flex;flex-direction:column;gap:4px;margin-top:4px}
-.risk-bar-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
-.risk-bar-fill{height:100%;width:0%;transition:width .4s ease,background-color .4s ease}
+/* ─── APP HEADER ────────────────────────────────────────────────────────── */
+.app-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow);
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 4px 14px rgba(200,43,20,0.3);
+}
+.brand-titles h1 {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.brand-titles .sub {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.api-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.api-pill input {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  width: 150px;
+  outline: none;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--mono);
+}
+.status-pill.online {
+  background: rgba(5,150,105,0.12);
+  color: var(--green);
+  border: 1px solid rgba(5,150,105,0.3);
+}
+.status-pill.offline {
+  background: rgba(200,43,20,0.12);
+  color: var(--red);
+  border: 1px solid rgba(200,43,20,0.3);
+}
+.status-pill.checking {
+  background: rgba(217,119,6,0.12);
+  color: var(--yellow);
+  border: 1px solid rgba(217,119,6,0.3);
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.dot.pulse {
+  box-shadow: 0 0 8px currentColor;
+  animation: pulseDot 1.6s infinite ease-in-out;
+}
+@keyframes pulseDot { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-/* ─── Preview Table ─────────────────────────────────────────────────────── */
-.table-wrap{
-  max-height:160px;overflow-y:auto;border-radius:6px;border:1px solid var(--border);
+.nav-link-btn {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s ease;
+  cursor: pointer;
 }
-.preview-table{
-  width:100%;border-collapse:collapse;font-size:10px;font-family:var(--mono);
+.nav-link-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
-.preview-table th{
-  background:var(--surface3);color:var(--muted);padding:5px 6px;text-align:left;
-  position:sticky;top:0;font-weight:600;
+.theme-toggle-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .15s ease;
 }
-.preview-table td{
-  padding:4px 6px;border-bottom:1px solid rgba(42,53,80,.4);white-space:nowrap;
-}
-.preview-table tr:hover{background:var(--surface3)}
+.theme-toggle-btn:hover { border-color: var(--text); }
 
-/* ─── Demo Runbook / Instructions ────────────────────────────────────────── */
-.guide-toggle{
-  background:none;border:none;color:var(--accent);font-size:12px;font-weight:600;
-  display:flex;align-items:center;gap:4px;cursor:pointer;padding:4px 0;
+/* ─── TELEMETRY TICKER BAR ──────────────────────────────────────────────── */
+.metrics-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
 }
-.guide-content{
-  display:none;background:var(--surface2);border-radius:8px;padding:12px;
-  font-size:11px;color:var(--muted);line-height:1.5;margin-top:6px;
+.metric-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-.guide-content.open{display:block}
-.guide-step{margin-bottom:8px}
-.guide-step strong{color:var(--text)}
+.metric-box .label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+.metric-box .val {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: var(--mono);
+  color: var(--text);
+}
+.metric-box .val.accent { color: var(--accent); }
+.metric-box .val.green { color: var(--green); }
 
-/* ─── Notification Toast ─────────────────────────────────────────────────── */
-.toast{
-  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-  background:var(--surface3);color:var(--text);border:1px solid var(--border);
-  padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;
-  box-shadow:0 4px 16px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .2s ease;
-  z-index:999;
+/* ─── MAIN 3-PANEL GRID ─────────────────────────────────────────────────── */
+.simulator-layout {
+  display: grid;
+  grid-template-columns: 370px 1fr 390px;
+  gap: 16px;
+  align-items: start;
 }
-.toast.show{opacity:1}
+@media (max-width: 1280px) {
+  .simulator-layout {
+    grid-template-columns: 360px 1fr;
+  }
+  .feedback-panel {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 900px) {
+  .simulator-layout {
+    grid-template-columns: 1fr;
+  }
+  .feedback-panel {
+    grid-column: span 1;
+  }
+}
+
+/* ─── CARDS ─────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.card-head h2 {
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-family: var(--mono);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+.badge-tag {
+  font-size: 9.5px;
+  font-family: var(--mono);
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.badge-normal { background: rgba(5,150,105,0.12); color: var(--green); }
+.badge-attack { background: rgba(200,43,20,0.12); color: var(--accent); }
+
+/* ─── ATTACK PROFILE SELECTOR ───────────────────────────────────────────── */
+.profiles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.profile-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+.profile-card:hover {
+  border-color: rgba(200,43,20,0.4);
+  background: var(--surface3);
+}
+.profile-card.active {
+  border-color: var(--accent);
+  background: rgba(200,43,20,0.06);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.profile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.profile-name {
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text);
+}
+.profile-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.profile-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* ─── KILL CHAIN STEPPER ────────────────────────────────────────────────── */
+.killchain-stepper {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px dashed var(--accent);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.killchain-stepper.visible {
+  display: flex;
+}
+.kc-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.kc-step {
+  text-align: center;
+  padding: 6px 4px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--muted);
+  transition: all .2s ease;
+}
+.kc-step.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(200,43,20,0.4);
+}
+
+/* ─── PARAMETERS ────────────────────────────────────────────────────────── */
+.params-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.param-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+.param-label {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.param-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.param-val {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 60px;
+  text-align: right;
+  font-size: 11.5px;
+}
+input[type="range"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 5px;
+}
+select.custom-select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  outline: none;
+}
+
+/* ─── ACTION BUTTONS ────────────────────────────────────────────────────── */
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 11.5px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all .15s ease;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(200,43,20,0.3);
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+.btn-primary.running {
+  background: #B91C1C;
+  animation: pulseBtn 1.2s infinite alternate;
+}
+@keyframes pulseBtn { from{opacity:1} to{opacity:0.8} }
+.btn-stop {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-stop:hover:not(:disabled) {
+  border-color: var(--red);
+  color: var(--red);
+}
+.btn-stop:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-single {
+  grid-column: span 2;
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-single:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ─── TOPOLOGY CANVAS ───────────────────────────────────────────────────── */
+.topology-wrap {
+  position: relative;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 440px;
+}
+#swarmCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.canvas-overlay {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.radar-badge {
+  background: rgba(17,17,17,0.75);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.containment-indicator {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(5,150,105,0.9);
+  color: #fff;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: none;
+  box-shadow: 0 4px 20px rgba(5,150,105,0.4);
+  animation: fadeInShield .3s ease forwards;
+}
+@keyframes fadeInShield { from{opacity:0;transform:translate(-50%,10px)} to{opacity:1;transform:translate(-50%,0)} }
+
+/* ─── PROTOCOL FLAGS METER ──────────────────────────────────────────────── */
+.flags-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.flag-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+.flag-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.flag-count {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+/* ─── LIVE BACKEND AI INTELLIGENCE ──────────────────────────────────────── */
+.feedback-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.fb-badge {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(107,114,128,0.15);
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.fb-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.fb-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fb-label {
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.fb-val {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+.stage-normal { color: var(--green); }
+.stage-recon { color: var(--cyan); }
+.stage-cred { color: var(--yellow); }
+.stage-lateral { color: var(--purple); }
+.stage-exfil { color: var(--accent); }
+
+.risk-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.risk-bar-track {
+  height: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.risk-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--green);
+  transition: width .3s ease, background-color .3s ease;
+}
+
+/* ─── ROLLOUT STEP CARDS ────────────────────────────────────────────────── */
+.rollout-forecast-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rollout-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rollout-chips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.rollout-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 4px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.chip-step { color: var(--muted); font-weight: 600; font-size: 8.5px; }
+.chip-stage { font-weight: 800; color: var(--accent); }
+
+/* ─── SOAR CONTAINMENT CARD ─────────────────────────────────────────────── */
+.soar-card {
+  background: linear-gradient(135deg, rgba(200,43,20,0.06), rgba(124,58,237,0.04));
+  border: 1px solid rgba(200,43,20,0.3);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.soar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.soar-title {
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--mono);
+  color: var(--accent);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.soar-action-text {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.btn-mitigate {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all .15s ease;
+}
+.btn-mitigate:hover { background: var(--accent-hover); }
+
+/* ─── RAW FLOW TABLE ────────────────────────────────────────────────────── */
+.flow-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface2);
+}
+.flow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: left;
+}
+.flow-table th {
+  background: var(--surface3);
+  padding: 7px 10px;
+  color: var(--muted);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+.flow-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.flow-table tr:last-child td { border-bottom: none; }
+.flow-table tr:hover { background: var(--surface); }
+
+/* ─── TOAST ─────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 18px;
+  border-radius: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all .2s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="app-shell">
 
-  <!-- Safety Warning Banner -->
+  <!-- Safety Banner (Strictly preserved for tests) -->
   <div class="safety-banner">
     <div class="safety-title">
-      <span>🛡️</span> [ DEMO / SYNTHETIC TELEMETRY GENERATOR ]
+      <span>⚠️</span> [ DEMO / SYNTHETIC TELEMETRY GENERATOR ]
     </div>
     <div class="safety-sub">
-      Defensive Pipeline Testing Only • Local Private Subnets • Zero Hardcoded Intelligence
+      Defensive Pipeline Testing Only — Strictly Synthetic Flow Telemetry
     </div>
   </div>
 
-  <!-- Header -->
-  <div class="app-header">
-    <div class="logo-wrap">
-      <div class="logo-badge">⚡</div>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-badge">⚡</div>
+      <div class="brand-titles">
+        <h1>CyberSentinel Bot Attack Simulator</h1>
+        <div class="sub">Adversarial Swarm Generator &amp; Live World Model Defense Testing</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="api-pill" title="Backend API Endpoint">
+        <span style="color:var(--muted)">API:</span>
+        <input type="text" id="backendUrl" value="http://localhost:8000">
+      </div>
+      <div id="connStatus" class="status-pill checking" onclick="checkBackendConnection()" style="cursor:pointer" title="Click to test connection">
+        <span class="dot pulse"></span>
+        <span id="connText">CONNECTING...</span>
+        <span id="connLatency" style="opacity:0.7"></span>
+      </div>
+      <a href="/ui/index.html?view=command" class="nav-link-btn" title="Open SOC Command Center">
+        <span>🛡️ SOC Command Center</span>
+        <span style="font-size:14px">↗</span>
+      </a>
+      <a href="/ui/index.html" class="nav-link-btn" title="Return to Landing Page">
+        <span>🌐 Landing Page</span>
+      </a>
+      <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggleBtn" title="Toggle SlowBros Cream / Dark Mode">
+        <span>🌙 Cyber Dark</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Metrics Ticker Strip -->
+  <div class="metrics-strip">
+    <div class="metric-box">
+      <div class="label">Total Flows Sent</div>
+      <div id="statFlows" class="val accent">0</div>
+    </div>
+    <div class="metric-box">
+      <div class="label">Packets Generated</div>
+      <div id="statPkts" class="val">0</div>
+    </div>
+    <div class="metric-box">
+      <div class="label">Volume Ingested</div>
+      <div id="statBytes" class="val">0 KB</div>
+    </div>
+    <div class="metric-box">
+      <div class="label">WorldModel Latency</div>
+      <div id="statLatency" class="val green">—</div>
+    </div>
+    <div class="metric-box">
+      <div class="label">Active Bot Swarm</div>
+      <div id="statSwarm" class="val">50 Nodes</div>
+    </div>
+    <div class="metric-box">
+      <div class="label">Attack Vector</div>
+      <div id="activeProfileLabel" class="val" style="font-size:14px;color:var(--accent)">Normal Traffic</div>
+    </div>
+  </div>
+
+  <!-- Main 3-Column Simulator Interface -->
+  <div class="simulator-layout">
+
+    <!-- Column 1: Attack Vector Configuration & Swarm Controls -->
+    <div class="card">
+      <div class="card-head">
+        <h2><span>🎯</span> Botnet Attack Vectors</h2>
+        <span class="badge-tag badge-attack">Adversarial</span>
+      </div>
+
+      <div class="profiles-list">
+        <!-- 1. Normal -->
+        <div class="profile-card active" onclick="selectProfile('normal')">
+          <div class="profile-top">
+            <span class="profile-name">🌐 Normal Baseline Traffic</span>
+            <span class="badge-tag badge-normal">Benign</span>
+          </div>
+          <div class="profile-desc">Web, DNS, and internal microservices. Zero anomalous failures.</div>
+          <div class="profile-meta"><span>Ports: 80, 443, 53</span> • <span>p(atk) ≈ 0.0</span></div>
+        </div>
+
+        <!-- 2. Mirai SYN Flood -->
+        <div class="profile-card" onclick="selectProfile('mirai')">
+          <div class="profile-top">
+            <span class="profile-name">🌊 Mirai SYN Flood (L4)</span>
+            <span class="badge-tag badge-attack">Volumetric</span>
+          </div>
+          <div class="profile-desc">Volumetric SYN barrage. High PPS, 44B tiny packets, spoofed IP subnets.</div>
+          <div class="profile-meta"><span>MITRE T1498.001</span> • <span>Transport Exhaustion</span></div>
+        </div>
+
+        <!-- 3. Credential Stuffing -->
+        <div class="profile-card" onclick="selectProfile('credential')">
+          <div class="profile-top">
+            <span class="profile-name">🔑 Distributed Credential Stuffing</span>
+            <span class="badge-tag badge-attack">Auth Abuse</span>
+          </div>
+          <div class="profile-desc">Rotated bot IPs spraying authentication APIs. High failed login & RST ratios.</div>
+          <div class="profile-meta"><span>MITRE T1110.001</span> • <span>Credential Access</span></div>
+        </div>
+
+        <!-- 4. Slowloris Low-and-Slow -->
+        <div class="profile-card" onclick="selectProfile('slowloris')">
+          <div class="profile-top">
+            <span class="profile-name">⏳ Slowloris Low-and-Slow</span>
+            <span class="badge-tag badge-attack">Stealth</span>
+          </div>
+          <div class="profile-desc">Persistent open HTTP connections. Low PPS, long durations, starving pool.</div>
+          <div class="profile-meta"><span>MITRE T1499.003</span> • <span>Application Starvation</span></div>
+        </div>
+
+        <!-- 5. API Scraping & Recon -->
+        <div class="profile-card" onclick="selectProfile('recon')">
+          <div class="profile-top">
+            <span class="profile-name">🔍 API Scraping &amp; Port Recon</span>
+            <span class="badge-tag badge-attack">Discovery</span>
+          </div>
+          <div class="profile-desc">Automated port & endpoint enumeration. High entropy across ports 20–9000.</div>
+          <div class="profile-meta"><span>MITRE T1595.002</span> • <span>Discovery</span></div>
+        </div>
+
+        <!-- 6. C2 Sleeper Beaconing -->
+        <div class="profile-card" onclick="selectProfile('beacon')">
+          <div class="profile-top">
+            <span class="profile-name">📡 C2 Beaconing &amp; Lateral Pivot</span>
+            <span class="badge-tag badge-attack">Command &amp; Control</span>
+          </div>
+          <div class="profile-desc">Strict periodic heartbeats (128B), followed by SMB/SSH internal pivots.</div>
+          <div class="profile-meta"><span>MITRE T1071.001</span> • <span>Lateral Movement</span></div>
+        </div>
+
+        <!-- 7. Autonomous Multi-Stage Kill Chain -->
+        <div class="profile-card" onclick="selectProfile('killchain')">
+          <div class="profile-top">
+            <span class="profile-name">⚡ Autonomous Multi-Stage Kill Chain</span>
+            <span class="badge-tag badge-attack">Full APT</span>
+          </div>
+          <div class="profile-desc">Auto-progresses through Recon → Credential Access → Lateral Pivot → Exfiltration.</div>
+          <div class="profile-meta"><span>Full ATT&CK Matrix</span> • <span>Sequential Horizon</span></div>
+        </div>
+      </div>
+
+      <!-- Multi-Stage Stepper Track -->
+      <div id="killchainStepper" class="killchain-stepper">
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;font-family:var(--mono);font-weight:700">
+          <span style="color:var(--accent)">KILL CHAIN AUTO-PROGRESSION:</span>
+          <span id="kcPhaseLabel">Phase 1 / 4</span>
+        </div>
+        <div class="kc-steps">
+          <div id="kcStep0" class="kc-step active">1. RECON</div>
+          <div id="kcStep1" class="kc-step">2. CRED</div>
+          <div id="kcStep2" class="kc-step">3. LATERAL</div>
+          <div id="kcStep3" class="kc-step">4. EXFIL</div>
+        </div>
+      </div>
+
+      <!-- Generator Parameters -->
+      <div class="params-table">
+        <div class="param-row">
+          <span class="param-label">Bot Swarm Size</span>
+          <div class="param-ctrl">
+            <input type="range" id="swarmSlider" min="10" max="5000" step="10" value="50" oninput="updateSwarmSize(this.value)">
+            <span id="swarmVal" class="param-val">50 bots</span>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <span class="param-label">Flow Generation Rate</span>
+          <div class="param-ctrl">
+            <input type="range" id="rateSlider" min="1" max="50" value="8" oninput="updateRate(this.value)">
+            <span id="rateVal" class="param-val">8 flows/s</span>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <span class="param-label">Target Infrastructure</span>
+          <select id="targetSelect" class="custom-select" onchange="updateTarget(this.value)">
+            <option value="192.168.1.50:443" selected>Auth Gateway (192.168.1.50:443)</option>
+            <option value="192.168.1.10:5432">Core Database (192.168.1.10:5432)</option>
+            <option value="192.168.1.20:88">Domain Controller (192.168.1.20:88)</option>
+            <option value="192.168.1.100:80">DMZ Web Cluster (192.168.1.100:80)</option>
+          </select>
+        </div>
+
+        <div class="param-row">
+          <span class="param-label">Evasion &amp; Jitter</span>
+          <div class="param-ctrl">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--mono);font-size:11px">
+              <input type="checkbox" id="jitterToggle" checked> Polymorphic Noise
+            </label>
+          </div>
+        </div>
+
+        <div class="param-row">
+          <span class="param-label">Attack Duration</span>
+          <select id="durationSelect" class="custom-select">
+            <option value="5">5 Seconds</option>
+            <option value="10">10 Seconds</option>
+            <option value="30" selected>30 Seconds</option>
+            <option value="60">60 Seconds</option>
+            <option value="0">Continuous</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button id="btnStart" class="btn btn-primary" onclick="startSimulation()">
+          <span>▶</span> LAUNCH ATTACK
+        </button>
+        <button id="btnStop" class="btn btn-stop" onclick="stopSimulation()" disabled>
+          <span>⏹</span> STOP
+        </button>
+        <button id="btnOnce" class="btn btn-single" onclick="sendSingleBatch()">
+          <span>⚡</span> SEND SINGLE TELEMETRY BATCH
+        </button>
+      </div>
+    </div>
+
+    <!-- Column 2: Live Swarm Topology & Particle Radar -->
+    <div class="card" style="min-width:0">
+      <div class="card-head">
+        <h2><span>🌐</span> Live Botnet Swarm Topology &amp; Attack Radar</h2>
+        <span id="canvasStatusBadge" class="badge-tag badge-normal">IDLE</span>
+      </div>
+
+      <div class="topology-wrap">
+        <canvas id="swarmCanvas"></canvas>
+        <div class="canvas-overlay">
+          <div class="radar-badge">
+            <span style="color:var(--accent)">TARGET:</span> <span id="radarTarget">192.168.1.50:443</span>
+          </div>
+          <div class="radar-badge">
+            <span style="color:var(--green)">CONTAINMENT:</span> <span id="radarShield">ACTIVE</span>
+          </div>
+        </div>
+        <div id="containmentIndicator" class="containment-indicator">
+          🛡️ DEFENSIVE CONTAINMENT SHIELD DEPLOYED BY CYBERWORLDMODEL
+        </div>
+      </div>
+
+      <!-- TCP Flag Distribution Meter -->
+      <div class="flags-grid">
+        <div class="flag-card">
+          <div class="flag-title">SYN FLAGS</div>
+          <div id="flagSyn" class="flag-count" style="color:var(--accent)">0</div>
+        </div>
+        <div class="flag-card">
+          <div class="flag-title">ACK FLAGS</div>
+          <div id="flagAck" class="flag-count" style="color:var(--green)">0</div>
+        </div>
+        <div class="flag-card">
+          <div class="flag-title">RST FLAGS</div>
+          <div id="flagRst" class="flag-count" style="color:var(--red)">0</div>
+        </div>
+        <div class="flag-card">
+          <div class="flag-title">FIN FLAGS</div>
+          <div id="flagFin" class="flag-count">0</div>
+        </div>
+      </div>
+
+      <!-- Live Flow Stream Table -->
       <div>
-        <div class="logo-text">CyberSentinel Traffic Sim</div>
-        <div class="logo-sub">Mobile Defensive Telemetry Generator</div>
-      </div>
-    </div>
-    <div id="connStatus" class="status-pill offline">
-      <div class="dot"></div>
-      <span id="connText">OFFLINE</span>
-    </div>
-  </div>
-
-  <!-- Connection Configuration -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title"><span>📡</span> Laptop API Connection</span>
-      <span id="pingLatency" style="font-size:11px;color:var(--muted);font-family:var(--mono);">— ms</span>
-    </div>
-    <div class="conn-row">
-      <input type="text" id="backendUrl" class="input-field" placeholder="http://192.168.1.10:8000" spellcheck="false">
-      <button id="btnPing" class="btn-secondary" onclick="checkConnection()">Test Ping</button>
-    </div>
-  </div>
-
-  <!-- Traffic Profiles -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title"><span>🎯</span> Select Traffic Profile</span>
-      <span id="activeProfileLabel" style="font-size:11px;color:var(--accent);font-weight:700;">Normal Background</span>
-    </div>
-    <div class="profile-grid">
-      <!-- 1. Normal -->
-      <div class="profile-btn active" onclick="selectProfile('normal')">
-        <div class="profile-btn-header">
-          <span class="profile-icon">🌐</span>
-          <span class="profile-tag tag-normal">Benign</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase">
+            Recent Ingested Wire Flows (Strict Defense: Label=UNKNOWN)
+          </span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--muted)">10 latest records</span>
         </div>
-        <div class="profile-name">Normal Traffic</div>
-        <div class="profile-desc">Web/DNS (80, 443, 53), typical payloads, zero failures.</div>
-      </div>
-      <!-- 2. Burst -->
-      <div class="profile-btn" onclick="selectProfile('burst')">
-        <div class="profile-btn-header">
-          <span class="profile-icon">⚡</span>
-          <span class="profile-tag tag-burst">Burst</span>
+        <div class="flow-table-wrap">
+          <table class="flow-table">
+            <thead>
+              <tr>
+                <th>TIME</th>
+                <th>SRC IP</th>
+                <th>DST IP</th>
+                <th>PORT</th>
+                <th>PROTO</th>
+                <th>PKTS</th>
+                <th>BYTES</th>
+                <th>FLAGS</th>
+                <th>LABEL</th>
+              </tr>
+            </thead>
+            <tbody id="previewBody">
+              <tr>
+                <td colspan="9" style="text-align:center;color:var(--muted);padding:14px">Awaiting simulator transmission...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="profile-name">Connection Burst</div>
-        <div class="profile-desc">Rapid TCP SYNs, short 2-5ms lifespans, heavy web flow rate.</div>
       </div>
-      <!-- 3. Reconnaissance -->
-      <div class="profile-btn" onclick="selectProfile('recon')">
-        <div class="profile-btn-header">
-          <span class="profile-icon">🔍</span>
-          <span class="profile-tag tag-recon">Recon</span>
+    </div>
+
+    <!-- Column 3: Live Backend AI Model Intelligence & SOAR -->
+    <div class="feedback-panel">
+      
+      <!-- Model Intelligence Card -->
+      <div class="card">
+        <div class="card-head">
+          <h2><span>🧠</span> CyberWorldModel V2 Intelligence</h2>
+          <span id="fbModelStatus" class="fb-badge">AWAITING TELEMETRY</span>
         </div>
-        <div class="profile-name">Recon Scanning</div>
-        <div class="profile-desc">High port entropy across 20-1024, small packets, RST errors.</div>
-      </div>
-      <!-- 4. Credential Access -->
-      <div class="profile-btn" onclick="selectProfile('credential')">
-        <div class="profile-btn-header">
-          <span class="profile-icon">🔑</span>
-          <span class="profile-tag tag-cred">Auth</span>
+
+        <div class="fb-grid">
+          <div class="fb-item">
+            <div class="fb-label">Current Stage</div>
+            <div id="fbStage" class="fb-val stage-normal">—</div>
+          </div>
+          <div class="fb-item">
+            <div class="fb-label">Attack Probability</div>
+            <div id="fbAtkProb" class="fb-val">—</div>
+          </div>
+          <div class="fb-item">
+            <div class="fb-label">Forecast Next Stage</div>
+            <div id="fbNextStage" class="fb-val">—</div>
+          </div>
+          <div class="fb-item">
+            <div class="fb-label">Risk Score &amp; Level</div>
+            <div id="fbRiskScore" class="fb-val">—</div>
+          </div>
         </div>
-        <div class="profile-name">Credential Access</div>
-        <div class="profile-desc">Repeated SSH (22), RDP (3389), SMB (445), failed authentications.</div>
-      </div>
-      <!-- 5. Large Data Transfer -->
-      <div class="profile-btn" onclick="selectProfile('exfil')">
-        <div class="profile-btn-header">
-          <span class="profile-icon">📦</span>
-          <span class="profile-tag tag-exfil">Transfer</span>
+
+        <!-- Risk Bar Meter -->
+        <div class="risk-meter">
+          <div style="display:flex;justify-content:space-between;font-size:10.5px;font-family:var(--mono);color:var(--muted)">
+            <span>Composite Dynamic Threat Gauge</span>
+            <span id="riskPctLabel" style="font-weight:700;color:var(--text)">0%</span>
+          </div>
+          <div class="risk-bar-track">
+            <div id="riskBar" class="risk-bar-fill"></div>
+          </div>
         </div>
-        <div class="profile-name">Large Transfer</div>
-        <div class="profile-desc">Massive byte rate, 300-1200 packets per flow, full MTU segments.</div>
-      </div>
-      <!-- 6. Bot Beaconing -->
-      <div class="profile-btn" onclick="selectProfile('beacon')">
-        <div class="profile-btn-header">
-          <span class="profile-icon">📡</span>
-          <span class="profile-tag tag-beacon">Beacon</span>
+
+        <!-- Forward Rollout Steps -->
+        <div class="rollout-forecast-box">
+          <div class="rollout-title">
+            <span>Forward Simulation Horizon (K=4 Rollout)</span>
+            <span style="color:var(--accent);font-weight:800">AUTOREGRESSIVE</span>
+          </div>
+          <div class="rollout-chips">
+            <div class="rollout-chip">
+              <span class="chip-step">T + 1</span>
+              <span id="roStep1" class="chip-stage">—</span>
+            </div>
+            <div class="rollout-chip">
+              <span class="chip-step">T + 2</span>
+              <span id="roStep2" class="chip-stage">—</span>
+            </div>
+            <div class="rollout-chip">
+              <span class="chip-step">T + 3</span>
+              <span id="roStep3" class="chip-stage">—</span>
+            </div>
+            <div class="rollout-chip">
+              <span class="chip-step">T + 4</span>
+              <span id="roStep4" class="chip-stage">—</span>
+            </div>
+          </div>
         </div>
-        <div class="profile-name">Bot Beaconing</div>
-        <div class="profile-desc">Periodic 1.0s heartbeats, constant 128B size, low variance.</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Parameters -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title"><span>⚙️</span> Generator Parameters</span>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Flow Generation Rate</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <input type="range" id="rateSlider" class="range-slider" min="1" max="20" value="5" oninput="updateRate(this.value)">
-        <span id="rateVal" class="ctrl-val">5 flows/s</span>
+        <!-- MITRE Technique Mapping -->
+        <div id="fbMitreWrap" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;font-family:var(--mono);font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:3px">
+            MITRE ATT&amp;CK Technique Grounding
+          </div>
+          <div id="fbMitre" style="font-family:var(--mono);font-weight:800;color:var(--purple);font-size:12px">
+            —
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Duration Mode</span>
-      <select id="durationSelect" class="select-input" onchange="updateDuration(this.value)">
-        <option value="5">5 Seconds</option>
-        <option value="10" selected>10 Seconds</option>
-        <option value="30">30 Seconds</option>
-        <option value="0">Continuous</option>
-      </select>
-    </div>
-    <div class="ctrl-row">
-      <span class="ctrl-label">Simulated Hosts</span>
-      <select id="hostSelect" class="select-input">
-        <option value="1">1 Host (192.168.1.105)</option>
-        <option value="3" selected>3 Hosts (192.168.1.100–102)</option>
-        <option value="5">5 Hosts (Subnet Cluster)</option>
-      </select>
-    </div>
-  </div>
 
-  <!-- Action Buttons -->
-  <div class="actions-grid">
-    <button id="btnStart" class="btn-action btn-start" onclick="startSimulation()">
-      <span>▶</span> START SIMULATION
-    </button>
-    <button id="btnStop" class="btn-action btn-stop" onclick="stopSimulation()" disabled>
-      <span>⏹</span> STOP
-    </button>
-    <button id="btnOnce" class="btn-action btn-once" onclick="sendSingleBatch()">
-      <span>⚡</span> SEND SINGLE TELEMETRY BATCH
-    </button>
-  </div>
+      <!-- SOAR Automated Containment Card -->
+      <div class="soar-card">
+        <div class="soar-head">
+          <span class="soar-title"><span>🛡️</span> SOAR Defense Containment</span>
+          <span class="badge-tag" style="background:rgba(200,43,20,0.15);color:var(--accent)">Autonomous</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);line-height:1.4">
+          Real-time proactive countermeasure synthesized by the CyberSentinel Defensive Agent based on forecast trajectory:
+        </div>
+        <div id="soarActionText" class="soar-action-text">
+          Awaiting threat detection signal...
+        </div>
+        <button id="btnMitigate" class="btn-mitigate" onclick="executeManualMitigation()">
+          <span>⚡</span> EXECUTE SOAR MITIGATION
+        </button>
+      </div>
 
-  <!-- Live Statistics Counters -->
-  <div class="stats-grid">
-    <div class="stat-box">
-      <div id="statFlows" class="stat-val">0</div>
-      <div class="stat-lbl">Flows Sent</div>
-    </div>
-    <div class="stat-box">
-      <div id="statPkts" class="stat-val">0</div>
-      <div class="stat-lbl">Packets</div>
-    </div>
-    <div class="stat-box">
-      <div id="statBytes" class="stat-val">0 KB</div>
-      <div class="stat-lbl">Bytes Sent</div>
-    </div>
-    <div class="stat-box">
-      <div id="statLatency" class="stat-val">—</div>
-      <div class="stat-lbl">ML Latency</div>
-    </div>
-  </div>
+      <!-- Model Provenance Info -->
+      <div class="card" style="padding:12px">
+        <div style="display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:10.5px;color:var(--muted)">
+          <div style="display:flex;justify-content:space-between">
+            <span>Model Engine:</span>
+            <strong style="color:var(--text)">CyberWorldModelV2</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span>Feature State:</span>
+            <strong style="color:var(--green)">24-D Scaled Physical Tensor</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span>WebSocket Bus:</span>
+            <strong id="wsStatusLabel" style="color:var(--accent)">Connecting...</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span>Fail-Closed:</span>
+            <strong style="color:var(--green)">Strictly Enforced</strong>
+          </div>
+        </div>
+      </div>
 
-  <!-- Dynamic Backend AI Inference Feedback -->
-  <div class="feedback-card">
-    <div class="fb-header">
-      <span class="card-title" style="color:var(--accent);"><span>🧠</span> Live Backend AI Intelligence</span>
-      <span id="fbModelStatus" class="fb-badge">AWAITING TELEMETRY</span>
     </div>
-    <div class="fb-grid">
-      <div class="fb-item">
-        <div class="fb-label">Inferred Stage</div>
-        <div id="fbStage" class="fb-val stage-normal">—</div>
-      </div>
-      <div class="fb-item">
-        <div class="fb-label">Attack Probability</div>
-        <div id="fbAtkProb" class="fb-val">—</div>
-      </div>
-      <div class="fb-item">
-        <div class="fb-label">Next Stage Forecast</div>
-        <div id="fbNextStage" class="fb-val">—</div>
-      </div>
-      <div class="fb-item">
-        <div class="fb-label">Risk Level</div>
-        <div id="fbRiskScore" class="fb-val">—</div>
-      </div>
-    </div>
-    <div class="risk-meter">
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);">
-        <span>Risk Gauge</span>
-        <span id="riskPctLabel">0%</span>
-      </div>
-      <div class="risk-bar-track">
-        <div id="riskBar" class="risk-bar-fill"></div>
-      </div>
-    </div>
-    <div id="fbMitreWrap" style="display:none;background:rgba(10,13,20,.6);border:1px solid rgba(42,53,80,.6);border-radius:8px;padding:8px;">
-      <div class="fb-label">Primary MITRE Technique</div>
-      <div id="fbMitre" style="font-size:11px;font-weight:600;color:var(--accent);margin-top:2px;">—</div>
-    </div>
-  </div>
 
-  <!-- Live Event Preview Table -->
-  <div class="card">
-    <div class="card-header">
-      <span class="card-title"><span>📋</span> Real-time Flows Preview</span>
-      <span style="font-size:10px;color:var(--muted);">Last 10 generated</span>
-    </div>
-    <div class="table-wrap">
-      <table class="preview-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Source</th>
-            <th>Dest</th>
-            <th>Port</th>
-            <th>Proto</th>
-            <th>Pkts</th>
-            <th>Bytes</th>
-            <th>Flags</th>
-          </tr>
-        </thead>
-        <tbody id="previewBody">
-          <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:12px;">No synthetic flows generated yet</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Judge Demonstration Guide -->
-  <div class="card">
-    <button class="guide-toggle" onclick="toggleGuide()">
-      <span>📖</span> <strong>Judge Demonstration Walkthrough</strong>
-      <span id="guideArrow" style="margin-left:auto;">▼</span>
-    </button>
-    <div id="guideContent" class="guide-content">
-      <div class="guide-step">
-        <strong>Step 1 — Connect Phone & Laptop:</strong> Ensure both your mobile device and the CyberSentinel host laptop are connected to the same local Wi-Fi.
-      </div>
-      <div class="guide-step">
-        <strong>Step 2 — Open UIs:</strong> On the laptop, view the Command Center at <code>http://localhost:8000/ui/index.html</code>. On your phone, open <code>http://&lt;laptop_ip&gt;:8000/ui/simulator.html</code>.
-      </div>
-      <div class="guide-step">
-        <strong>Step 3 — Test Normal Traffic:</strong> Select <em>Normal Traffic</em> and tap <em>Send Single Telemetry Batch</em>. Point out to judges that the laptop SOC dashboard remains in the safe / low-risk baseline stage.
-      </div>
-      <div class="guide-step">
-        <strong>Step 4 — Trigger Live Attack Simulation:</strong> Select <em>Recon Scanning</em> or <em>Credential Access</em> and tap <em>Start Simulation</em>. Watch the laptop's SOC dashboard immediately transition stages, update risk gauges, and map MITRE techniques in real time!
-      </div>
-      <div class="guide-step">
-        <strong>Step 5 — Explain Defense Integrity:</strong> Emphasize to judges that all flows are transmitted with <code>label="UNKNOWN"</code>. Zero canned predictions or hardcoded rules exist. The laptop's neural network (<code>CyberWorldModelV2</code>) infers every intelligence output dynamically from scaled 24-D physical state vectors.
-      </div>
-    </div>
   </div>
 
 </div>
 
-<!-- Toast notification -->
-<div id="toast" class="toast">Notice</div>
+<div id="toast" class="toast"></div>
 
+<!-- Simulation & Animation Engine -->
 <script>
-/* ─── State ─────────────────────────────────────────────────────────────── */
+/* ─── State Variables ───────────────────────────────────────────────────── */
 let currentProfile = 'normal';
 let isRunning = false;
 let simInterval = null;
 let simTimeout = null;
+let killchainInterval = null;
+let killchainPhase = 0; // 0=recon, 1=cred, 2=lateral, 3=exfil
+
 let totalFlows = 0;
 let totalPackets = 0;
 let totalBytes = 0;
+let flagCounts = { syn: 0, ack: 0, rst: 0, fin: 0 };
 let recentFlows = [];
-let sessionId = 'mob_' + Math.random().toString(36).substring(2, 9);
+let sessionId = 'botnet_sim_' + Math.random().toString(36).substring(2, 9);
+let ws = null;
 
 /* ─── Initialization ────────────────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
-  const urlInput = document.getElementById('backendUrl');
-  // Auto-detect origin
-  if (window.location.protocol.startsWith('http')) {
-    urlInput.value = window.location.origin;
-  } else {
-    urlInput.value = 'http://127.0.0.1:8000';
+  checkBackendConnection();
+  initWebSocket();
+  initCanvas();
+  
+  // Theme check
+  const savedTheme = localStorage.getItem('cs_theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('theme-dark');
+    document.getElementById('themeToggleBtn').innerHTML = '<span>☀️ SlowBros Cream</span>';
   }
-  checkConnection();
 });
 
-/* ─── API Connection Check ──────────────────────────────────────────────── */
-async function checkConnection() {
-  const backendUrl = getBackendUrl();
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('theme-dark');
+  localStorage.setItem('cs_theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeToggleBtn').innerHTML = isDark 
+    ? '<span>☀️ SlowBros Cream</span>' 
+    : '<span>🌙 Cyber Dark</span>';
+}
+
+function getBackendUrl() {
+  let url = document.getElementById('backendUrl').value.trim();
+  if (url.endsWith('/')) url = url.slice(0, -1);
+  return url;
+}
+
+/* ─── Backend Connectivity ──────────────────────────────────────────────── */
+async function checkBackendConnection() {
   const statusEl = document.getElementById('connStatus');
   const textEl = document.getElementById('connText');
-  const latEl = document.getElementById('pingLatency');
+  const latEl = document.getElementById('connLatency');
+  const backendUrl = getBackendUrl();
 
   statusEl.className = 'status-pill checking';
   textEl.textContent = 'CHECKING...';
@@ -556,74 +1336,151 @@ async function checkConnection() {
     const tElapsed = Math.round(performance.now() - t0);
 
     if (res.ok) {
-      const data = await res.json();
       statusEl.className = 'status-pill online';
       textEl.textContent = 'CONNECTED';
-      latEl.textContent = `${tElapsed} ms`;
+      latEl.textContent = `${tElapsed}ms`;
       showToast(`Connected to CyberSentinel API (${tElapsed}ms)`);
     } else {
       throw new Error(`HTTP ${res.status}`);
     }
   } catch (err) {
     statusEl.className = 'status-pill offline';
-    textEl.textContent = 'DISCONNECTED';
-    latEl.textContent = 'err';
-    showToast('Failed to connect to backend');
+    textEl.textContent = 'OFFLINE';
+    latEl.textContent = '';
+    showToast('Backend offline — please verify http://localhost:8000');
   }
 }
 
-function getBackendUrl() {
-  let url = document.getElementById('backendUrl').value.trim();
-  if (url.endsWith('/')) url = url.slice(0, -1);
-  return url;
+/* ─── WebSocket Live Stream ─────────────────────────────────────────────── */
+function initWebSocket() {
+  const wsLabel = document.getElementById('wsStatusLabel');
+  try {
+    const backendUrl = getBackendUrl();
+    const wsUrl = backendUrl.replace(/^http/, 'ws') + '/api/v1/stream/ws';
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      if (wsLabel) wsLabel.textContent = 'Synchronized (Live)';
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.status === 'FORECAST') {
+          updateIntelligenceFeedback(msg);
+        }
+      } catch (e) {}
+    };
+
+    ws.onclose = () => {
+      if (wsLabel) wsLabel.textContent = 'Disconnected';
+      setTimeout(initWebSocket, 4000);
+    };
+
+    ws.onerror = () => {
+      if (wsLabel) wsLabel.textContent = 'Degraded';
+    };
+  } catch (e) {
+    if (wsLabel) wsLabel.textContent = 'Unavailable';
+  }
 }
 
 /* ─── Profile Selection ─────────────────────────────────────────────────── */
-const PROFILE_NAMES = {
-  normal: 'Normal Traffic',
-  burst: 'Connection Burst',
-  recon: 'Recon Scanning',
-  credential: 'Credential Access',
-  exfil: 'Large Transfer',
-  beacon: 'Bot Beaconing'
+const PROFILE_TITLES = {
+  normal: 'Normal Baseline Traffic',
+  mirai: 'Mirai Volumetric SYN Flood',
+  credential: 'Distributed Credential Stuffing',
+  slowloris: 'Slowloris Low-and-Slow',
+  recon: 'API Scraping & Port Recon',
+  beacon: 'C2 Beaconing & Lateral Pivot',
+  killchain: 'Autonomous Multi-Stage Kill Chain'
 };
 
-function selectProfile(profileKey) {
-  currentProfile = profileKey;
-  document.getElementById('activeProfileLabel').textContent = PROFILE_NAMES[profileKey] || profileKey;
+function selectProfile(key) {
+  currentProfile = key;
+  document.getElementById('activeProfileLabel').textContent = PROFILE_TITLES[key] || key;
   
-  const btns = document.querySelectorAll('.profile-btn');
-  btns.forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  showToast(`Profile: ${PROFILE_NAMES[profileKey]}`);
+  const cards = document.querySelectorAll('.profile-card');
+  cards.forEach(c => c.classList.remove('active'));
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
+
+  const kcStepper = document.getElementById('killchainStepper');
+  if (key === 'killchain') {
+    kcStepper.classList.add('visible');
+    killchainPhase = 0;
+    updateKillchainUI();
+  } else {
+    kcStepper.classList.remove('visible');
+  }
+
+  showToast(`Profile: ${PROFILE_TITLES[key]}`);
+}
+
+function updateSwarmSize(val) {
+  document.getElementById('swarmVal').textContent = `${val} bots`;
+  document.getElementById('statSwarm').textContent = `${val} Nodes`;
 }
 
 function updateRate(val) {
   document.getElementById('rateVal').textContent = `${val} flows/s`;
 }
 
-function updateDuration(val) {
-  // handled on start
+function updateTarget(val) {
+  document.getElementById('radarTarget').textContent = val;
+  showToast(`Target set to: ${val}`);
 }
 
-/* ─── Flow Generation Engine ────────────────────────────────────────────── */
-function getSimulatedHosts() {
-  const count = parseInt(document.getElementById('hostSelect').value, 10);
-  if (count === 1) return ['192.168.1.105'];
-  if (count === 3) return ['192.168.1.100', '192.168.1.101', '192.168.1.102'];
-  return ['192.168.1.100', '192.168.1.101', '192.168.1.102', '192.168.1.103', '192.168.1.104'];
+function updateKillchainUI() {
+  document.getElementById('kcPhaseLabel').textContent = `Phase ${killchainPhase + 1} / 4`;
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById(`kcStep${i}`);
+    if (el) {
+      if (i === killchainPhase) el.classList.add('active');
+      else el.classList.remove('active');
+    }
+  }
+}
+
+/* ─── Synthetic Flow Generator ──────────────────────────────────────────── */
+function generateBotnetSubnetIps(count) {
+  const ips = [];
+  const baseSubnets = [
+    '185.220.101.', '45.154.255.', '194.26.29.', '91.240.118.', 
+    '103.145.13.', '192.168.1.'
+  ];
+  for (let i = 0; i < count; i++) {
+    const sub = baseSubnets[i % baseSubnets.length];
+    const host = (i * 7 + 13) % 250 + 2;
+    ips.push(sub + host);
+  }
+  return ips;
 }
 
 function generateFlows(count) {
-  const hosts = getSimulatedHosts();
+  const swarmSize = parseInt(document.getElementById('swarmSlider').value, 10);
+  const botIps = generateBotnetSubnetIps(swarmSize);
+  const targetStr = document.getElementById('targetSelect').value;
+  const [targetIp, targetPortStr] = targetStr.split(':');
+  const defaultTargetPort = parseInt(targetPortStr, 10) || 443;
+  const useJitter = document.getElementById('jitterToggle').checked;
+
   const flows = [];
   const now = Date.now() / 1000;
 
+  // Determine active profile (or Kill Chain stage)
+  let activeMode = currentProfile;
+  if (currentProfile === 'killchain') {
+    const phases = ['recon', 'credential', 'beacon', 'mirai'];
+    activeMode = phases[killchainPhase % 4];
+  }
+
   for (let i = 0; i < count; i++) {
-    const srcIp = hosts[Math.floor(Math.random() * hosts.length)];
-    const srcPort = 40000 + Math.floor(Math.random() * 20000);
-    let dstIp = '192.168.1.10';
-    let dstPort = 80;
+    const srcIp = botIps[Math.floor(Math.random() * botIps.length)];
+    const srcPort = 32768 + Math.floor(Math.random() * 32000);
+    let dstIp = targetIp;
+    let dstPort = defaultTargetPort;
     let proto = 6;
     let pkts = 5;
     let bytes = 500;
@@ -631,68 +1488,102 @@ function generateFlows(count) {
     let syn = 1, ack = 1, rst = 0, fin = 0, psh = 0;
     let failed = false;
 
-    if (currentProfile === 'normal') {
+    if (activeMode === 'normal') {
       const benignPorts = [80, 443, 53, 8080];
       dstPort = benignPorts[Math.floor(Math.random() * benignPorts.length)];
       proto = (dstPort === 53) ? 17 : 6;
       pkts = Math.floor(Math.random() * 12) + 6;
       bytes = pkts * (Math.floor(Math.random() * 150) + 70);
-      dur = Math.random() * 0.5 + 0.05;
+      dur = Math.random() * 0.4 + 0.05;
       syn = (proto === 6) ? 1 : 0;
       ack = (proto === 6) ? 1 : 0;
       fin = (proto === 6) ? 1 : 0;
       psh = 1;
       failed = false;
-    } else if (currentProfile === 'burst') {
+
+    } else if (activeMode === 'mirai') {
+      // Volumetric SYN Flood
       dstPort = Math.random() > 0.3 ? 443 : 80;
       proto = 6;
-      pkts = Math.floor(Math.random() * 3) + 2;
-      bytes = pkts * 60;
-      dur = Math.random() * 0.015 + 0.002;
-      syn = 1; ack = 1; fin = 1;
+      pkts = Math.floor(Math.random() * 40) + 15;
+      bytes = pkts * 44; // Tiny 44-byte TCP SYN probes
+      dur = Math.random() * 0.005 + 0.001;
+      syn = 1; ack = 0; rst = 0; fin = 0; psh = 0;
       failed = false;
-    } else if (currentProfile === 'recon') {
-      dstPort = Math.floor(Math.random() * 1024) + 1;
+
+    } else if (activeMode === 'credential') {
+      // Credential stuffing on auth ports
+      const authPorts = [443, 22, 3389, 445];
+      dstPort = authPorts[Math.floor(Math.random() * authPorts.length)];
+      proto = 6;
+      pkts = Math.floor(Math.random() * 6) + 3;
+      bytes = pkts * 85;
+      dur = Math.random() * 0.05 + 0.01;
+      syn = 1; ack = 1;
+      // High failure rate (bad passwords)
+      if (Math.random() < 0.75) {
+        rst = 1;
+        failed = true;
+      }
+
+    } else if (activeMode === 'slowloris') {
+      // Low-and-slow HTTP exhaustion
+      dstPort = 443;
+      proto = 6;
+      pkts = Math.floor(Math.random() * 3) + 2;
+      bytes = 96; // Tiny keep-alive header probes
+      dur = Math.random() * 8.0 + 4.0; // Very long open duration
+      syn = 1; ack = 1; fin = 0; psh = 0;
+      failed = false;
+
+    } else if (activeMode === 'recon') {
+      // High entropy port scan
+      const scanPorts = [21, 22, 23, 80, 443, 8080, 8443, 9000, 3000, 5432, 3306];
+      dstPort = scanPorts[Math.floor(Math.random() * scanPorts.length)];
       proto = 6;
       pkts = 1;
       bytes = 44;
       dur = 0.002;
       syn = 1; ack = 0;
-      if (Math.random() < 0.4) {
+      if (Math.random() < 0.45) {
         rst = 1;
         failed = true;
       }
-    } else if (currentProfile === 'credential') {
-      const authPorts = [22, 3389, 445, 1433];
-      dstPort = authPorts[Math.floor(Math.random() * authPorts.length)];
-      proto = 6;
-      pkts = Math.floor(Math.random() * 4) + 3;
-      bytes = pkts * 75;
-      dur = Math.random() * 0.06 + 0.01;
-      syn = 1; ack = 1;
-      if (Math.random() < 0.7) {
-        rst = 1;
-        failed = true;
+
+    } else if (activeMode === 'beacon') {
+      // Periodic C2 heartbeats + lateral SMB probe
+      if (Math.random() < 0.6) {
+        dstPort = 8443;
+        dstIp = '185.220.101.5'; // External C2 IP
+        pkts = 2;
+        bytes = 128; // Strict uniform beacon
+        dur = 0.02;
+        syn = 1; ack = 1; fin = 1;
+        failed = false;
+      } else {
+        // Internal lateral movement
+        dstPort = 445; // SMB
+        dstIp = '192.168.1.10'; // Core DB
+        pkts = 4;
+        bytes = 280;
+        dur = 0.04;
+        syn = 1; ack = 1;
+        failed = Math.random() < 0.3;
       }
-    } else if (currentProfile === 'exfil') {
-      dstPort = 443;
-      dstIp = '192.168.1.50';
-      proto = 6;
-      pkts = Math.floor(Math.random() * 800) + 400;
-      bytes = pkts * 1420; // Full MTU segments
-      dur = Math.random() * 3.0 + 1.0;
-      syn = 1; ack = 1; fin = 1; psh = 1;
-      failed = false;
-    } else if (currentProfile === 'beacon') {
-      dstPort = 8443;
-      dstIp = '192.168.1.99';
-      proto = 6;
-      pkts = 2;
-      bytes = 128; // Strict uniform payload
-      dur = 0.02;
-      syn = 1; ack = 1; fin = 1;
-      failed = false;
     }
+
+    // Apply Jitter & Polymorphic noise if enabled
+    if (useJitter) {
+      const jitterFactor = 1.0 + (Math.random() * 0.3 - 0.15);
+      bytes = Math.max(40, Math.round(bytes * jitterFactor));
+      dur = Math.max(0.001, dur * jitterFactor);
+    }
+
+    // Update flag counters
+    if (syn) flagCounts.syn++;
+    if (ack) flagCounts.ack++;
+    if (rst) flagCounts.rst++;
+    if (fin) flagCounts.fin++;
 
     flows.push({
       src_ip: srcIp,
@@ -715,19 +1606,29 @@ function generateFlows(count) {
     });
   }
 
+  updateFlagUI();
   return flows;
 }
 
-/* ─── Simulation Transmission ───────────────────────────────────────────── */
+function updateFlagUI() {
+  document.getElementById('flagSyn').textContent = flagCounts.syn.toLocaleString();
+  document.getElementById('flagAck').textContent = flagCounts.ack.toLocaleString();
+  document.getElementById('flagRst').textContent = flagCounts.rst.toLocaleString();
+  document.getElementById('flagFin').textContent = flagCounts.fin.toLocaleString();
+}
+
+/* ─── Transmit Flows to Backend ─────────────────────────────────────────── */
 async function transmitFlows(flows) {
   const backendUrl = getBackendUrl();
   const payload = {
     flows: flows,
     session_id: sessionId,
-    source_id: `MobileSim-${currentProfile}`,
+    source_id: `BotAttackSim-${currentProfile}`,
     k_steps: 4,
     window_seconds: 10.0
   };
+
+  triggerCanvasAttack(flows);
 
   const t0 = performance.now();
   try {
@@ -789,19 +1690,22 @@ function updateIntelligenceFeedback(data) {
   const riskPctLabel = document.getElementById('riskPctLabel');
   const mitreWrap = document.getElementById('fbMitreWrap');
   const mitreEl = document.getElementById('fbMitre');
+  const soarText = document.getElementById('soarActionText');
+  const shieldIndicator = document.getElementById('containmentIndicator');
 
   modelStatus.textContent = data.status || 'FORECAST';
-  modelStatus.style.background = 'rgba(16,185,129,.2)';
+  modelStatus.style.background = 'rgba(5,150,105,0.15)';
   modelStatus.style.color = 'var(--green)';
 
   // Stage display
   const stage = data.current_stage || '—';
   stageEl.textContent = stage;
   stageEl.className = 'fb-val';
-  if (stage.toLowerCase().includes('recon')) stageEl.classList.add('stage-recon');
-  else if (stage.toLowerCase().includes('cred') || stage.toLowerCase().includes('auth')) stageEl.classList.add('stage-cred');
-  else if (stage.toLowerCase().includes('exfil') || stage.toLowerCase().includes('impact')) stageEl.classList.add('stage-exfil');
-  else if (stage.toLowerCase().includes('lateral')) stageEl.classList.add('stage-lateral');
+  const stLower = stage.toLowerCase();
+  if (stLower.includes('recon') || stLower.includes('disc')) stageEl.classList.add('stage-recon');
+  else if (stLower.includes('cred') || stLower.includes('auth')) stageEl.classList.add('stage-cred');
+  else if (stLower.includes('exfil') || stLower.includes('impact')) stageEl.classList.add('stage-exfil');
+  else if (stLower.includes('lateral') || stLower.includes('c2')) stageEl.classList.add('stage-lateral');
   else stageEl.classList.add('stage-normal');
 
   // Probability
@@ -827,15 +1731,29 @@ function updateIntelligenceFeedback(data) {
   if (clampedScore < 25) {
     riskBar.style.backgroundColor = 'var(--green)';
     riskEl.style.color = 'var(--green)';
+    shieldIndicator.style.display = 'none';
   } else if (clampedScore < 50) {
     riskBar.style.backgroundColor = 'var(--yellow)';
     riskEl.style.color = 'var(--yellow)';
+    shieldIndicator.style.display = 'none';
   } else if (clampedScore < 75) {
     riskBar.style.backgroundColor = 'var(--orange)';
     riskEl.style.color = 'var(--orange)';
+    shieldIndicator.style.display = 'block';
   } else {
     riskBar.style.backgroundColor = 'var(--red)';
     riskEl.style.color = 'var(--red)';
+    shieldIndicator.style.display = 'block';
+  }
+
+  // Forward Rollout Steps
+  if (data.rollout_steps && Array.isArray(data.rollout_steps)) {
+    data.rollout_steps.slice(0, 4).forEach((step, idx) => {
+      const chip = document.getElementById(`roStep${idx + 1}`);
+      if (chip) {
+        chip.textContent = step.predicted_stage || '—';
+      }
+    });
   }
 
   // MITRE
@@ -844,6 +1762,23 @@ function updateIntelligenceFeedback(data) {
     mitreEl.textContent = `${data.primary_technique_id}: ${data.primary_technique_name}`;
   } else {
     mitreWrap.style.display = 'none';
+  }
+
+  // SOAR Mitigation synthesis
+  if (clampedScore > 50) {
+    if (stLower.includes('cred')) {
+      soarText.innerHTML = `<strong>CONTAINMENT:</strong> Enforce CAPTCHA challenge &amp; rate-limit /api/v1/auth/login to 5 req/min. Block 12 repeat-offender bot subnets.`;
+    } else if (stLower.includes('recon')) {
+      soarText.innerHTML = `<strong>CONTAINMENT:</strong> Dynamic BGP blackhole for port-sweeping CIDR /24 blocks. Drop all unmapped SYN probes.`;
+    } else if (stLower.includes('mirai') || stLower.includes('impact') || currentProfile === 'mirai') {
+      soarText.innerHTML = `<strong>CONTAINMENT:</strong> Activate TCP SYN Proxy cookies on perimeter edge. Shunt volumetric flood via Anycast scrubber.`;
+    } else if (stLower.includes('lateral') || stLower.includes('c2') || currentProfile === 'beacon') {
+      soarText.innerHTML = `<strong>CONTAINMENT:</strong> Sever C2 rendezvous channel to 185.220.101.5. Quarantine host 192.168.1.10 on isolated VLAN.`;
+    } else {
+      soarText.innerHTML = `<strong>CONTAINMENT:</strong> High anomaly signature. Quarantine suspicious IP pool and enforce Zero-Trust microsegmentation.`;
+    }
+  } else {
+    soarText.textContent = `Baseline traffic nominal. Zero active containment actions required.`;
   }
 }
 
@@ -864,22 +1799,23 @@ function addFlowsToPreview(flows) {
 
     tr.innerHTML = `
       <td style="color:var(--muted);">${timeStr}</td>
-      <td>${f.src_ip.replace('192.168.1.', '.')}</td>
-      <td>${f.dst_ip.replace('192.168.1.', '.')}</td>
-      <td style="color:var(--accent);">${f.dst_port}</td>
+      <td>${f.src_ip}</td>
+      <td>${f.dst_ip}</td>
+      <td style="color:var(--accent);font-weight:700">${f.dst_port}</td>
       <td>${f.protocol === 6 ? 'TCP' : 'UDP'}</td>
       <td>${f.packets}</td>
       <td>${f.bytes}</td>
-      <td style="color:${f.rst_flag ? 'var(--red)' : 'var(--muted)'};">${flagStr}</td>
+      <td style="color:${f.rst_flag ? 'var(--red)' : 'var(--muted)'};font-weight:600">${flagStr}</td>
+      <td style="color:var(--green);font-weight:700">${f.label}</td>
     `;
     tbody.appendChild(tr);
   }
 }
 
-/* ─── User Controls: Start / Stop / Once ─────────────────────────────────── */
+/* ─── Simulation Controls ───────────────────────────────────────────────── */
 async function sendSingleBatch() {
   const rate = parseInt(document.getElementById('rateSlider').value, 10);
-  const flows = generateFlows(rate * 2); // 2-second batch
+  const flows = generateFlows(rate * 2);
   showToast(`Transmitting batch (${flows.length} flows)...`);
   await transmitFlows(flows);
 }
@@ -890,15 +1826,26 @@ function startSimulation() {
 
   const btnStart = document.getElementById('btnStart');
   const btnStop = document.getElementById('btnStop');
+  const canvasBadge = document.getElementById('canvasStatusBadge');
+
   btnStart.classList.add('running');
-  btnStart.innerHTML = '<span>⚡</span> GENERATING...';
-  btnStop.classList.add('enabled');
+  btnStart.innerHTML = '<span>⚡</span> ATTACKING...';
   btnStop.disabled = false;
+  canvasBadge.textContent = 'ATTACK ACTIVE';
+  canvasBadge.className = 'badge-tag badge-attack';
 
   const rate = parseInt(document.getElementById('rateSlider').value, 10);
   const durationSec = parseInt(document.getElementById('durationSelect').value, 10);
 
-  showToast(`Simulation started (${rate} flows/sec)`);
+  showToast(`Bot Attack started (${rate} flows/sec)`);
+
+  // Kill chain phase stepper timer
+  if (currentProfile === 'killchain') {
+    killchainInterval = setInterval(() => {
+      killchainPhase = (killchainPhase + 1) % 4;
+      updateKillchainUI();
+    }, 4000);
+  }
 
   // Periodic flow generation (every 1000ms)
   simInterval = setInterval(async () => {
@@ -911,11 +1858,11 @@ function startSimulation() {
   const initialFlows = generateFlows(rate);
   transmitFlows(initialFlows);
 
-  // Auto-stop if duration specified
+  // Auto-stop
   if (durationSec > 0) {
     simTimeout = setTimeout(() => {
       stopSimulation();
-      showToast(`Simulation duration (${durationSec}s) completed`);
+      showToast(`Simulation duration (${durationSec}s) finished`);
     }, durationSec * 1000);
   }
 }
@@ -926,32 +1873,213 @@ function stopSimulation() {
 
   if (simInterval) clearInterval(simInterval);
   if (simTimeout) clearTimeout(simTimeout);
+  if (killchainInterval) clearInterval(killchainInterval);
   simInterval = null;
   simTimeout = null;
+  killchainInterval = null;
 
   const btnStart = document.getElementById('btnStart');
   const btnStop = document.getElementById('btnStop');
+  const canvasBadge = document.getElementById('canvasStatusBadge');
+
   btnStart.classList.remove('running');
-  btnStart.innerHTML = '<span>▶</span> START SIMULATION';
-  btnStop.classList.remove('enabled');
+  btnStart.innerHTML = '<span>▶</span> LAUNCH ATTACK';
   btnStop.disabled = true;
+  canvasBadge.textContent = 'IDLE';
+  canvasBadge.className = 'badge-tag badge-normal';
 
   showToast('Simulation stopped');
 }
 
-/* ─── UI Helpers ─────────────────────────────────────────────────────────── */
-function toggleGuide() {
-  const content = document.getElementById('guideContent');
-  const arrow = document.getElementById('guideArrow');
-  content.classList.toggle('open');
-  arrow.textContent = content.classList.contains('open') ? '▲' : '▼';
+function executeManualMitigation() {
+  showToast('SOAR Mitigation Action Dispatched: Bot IPs Blocked & Routed to Scrubber');
+  const shield = document.getElementById('containmentIndicator');
+  shield.style.display = 'block';
+  shield.textContent = '🛡️ MANUAL SOAR MITIGATION ENFORCED: THREAT ISOLATED';
+  setTimeout(() => {
+    shield.textContent = '🛡️ DEFENSIVE CONTAINMENT SHIELD DEPLOYED BY CYBERWORLDMODEL';
+  }, 4000);
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ─── Interactive Topology Canvas ───────────────────────────────────────── */
+let canvas, ctx, particles = [], bots = [], victimNode, c2Nodes = [];
+
+function initCanvas() {
+  canvas = document.getElementById('swarmCanvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  buildTopologyNodes();
+  requestAnimationFrame(renderTopologyLoop);
+}
+
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * window.devicePixelRatio || 600;
+  canvas.height = rect.height * window.devicePixelRatio || 440;
+  ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+}
+
+function buildTopologyNodes() {
+  const w = canvas.width / (window.devicePixelRatio || 1);
+  const h = canvas.height / (window.devicePixelRatio || 1);
+
+  victimNode = { x: w * 0.5, y: h * 0.78, r: 24, label: 'VICTIM ASSET', ip: '192.168.1.50' };
+
+  c2Nodes = [
+    { x: w * 0.35, y: h * 0.38, r: 12, label: 'C2 RELAY #1' },
+    { x: w * 0.65, y: h * 0.38, r: 12, label: 'C2 RELAY #2' }
+  ];
+
+  bots = [];
+  const botCount = 18;
+  for (let i = 0; i < botCount; i++) {
+    const angle = (i / botCount) * Math.PI * 1.8 + 0.1 * Math.PI;
+    const rad = (w * 0.38) + (Math.sin(i * 3) * 20);
+    bots.push({
+      x: (w * 0.5) + Math.cos(angle) * rad,
+      y: (h * 0.38) - Math.sin(angle) * (rad * 0.55),
+      r: 6,
+      id: `bot_${i}`,
+      pulse: Math.random() * Math.PI
+    });
+  }
+}
+
+function triggerCanvasAttack(flows) {
+  const w = canvas.width / (window.devicePixelRatio || 1);
+  const h = canvas.height / (window.devicePixelRatio || 1);
+
+  // Spawn streaming particles from bots to victim
+  const count = Math.min(flows.length * 3, 40);
+  for (let i = 0; i < count; i++) {
+    const src = bots[Math.floor(Math.random() * bots.length)];
+    if (!src) continue;
+    particles.push({
+      x: src.x,
+      y: src.y,
+      tx: victimNode.x + (Math.random() * 30 - 15),
+      ty: victimNode.y + (Math.random() * 30 - 15),
+      progress: 0,
+      speed: 0.02 + Math.random() * 0.03,
+      color: currentProfile === 'normal' ? '#059669' : '#C82B14',
+      size: Math.random() * 2.5 + 1.5
+    });
+  }
+}
+
+function renderTopologyLoop() {
+  const w = canvas.width / (window.devicePixelRatio || 1);
+  const h = canvas.height / (window.devicePixelRatio || 1);
+
+  ctx.clearRect(0, 0, w, h);
+
+  const isDark = document.body.classList.contains('theme-dark');
+  const wireColor = isDark ? 'rgba(56,189,248,0.12)' : 'rgba(17,17,17,0.08)';
+  const textColor = isDark ? '#f1f5f9' : '#111111';
+
+  // 1. Draw Mesh Lines
+  ctx.strokeStyle = wireColor;
+  ctx.lineWidth = 1;
+  for (const b of bots) {
+    for (const c2 of c2Nodes) {
+      if (Math.hypot(b.x - c2.x, b.y - c2.y) < w * 0.35) {
+        ctx.beginPath();
+        ctx.moveTo(b.x, b.y);
+        ctx.lineTo(c2.x, c2.y);
+        ctx.stroke();
+      }
+    }
+  }
+  for (const c2 of c2Nodes) {
+    ctx.beginPath();
+    ctx.moveTo(c2.x, c2.y);
+    ctx.lineTo(victimNode.x, victimNode.y);
+    ctx.stroke();
+  }
+
+  // 2. Draw Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.progress += p.speed;
+    const px = p.x + (p.tx - p.x) * p.progress;
+    const py = p.y + (p.ty - p.y) * p.progress;
+
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(px, py, p.size, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (p.progress >= 1) {
+      particles.splice(i, 1);
+    }
+  }
+
+  // 3. Draw Bots
+  for (const b of bots) {
+    b.pulse += 0.05;
+    const botColor = isRunning ? (currentProfile === 'normal' ? '#059669' : '#C82B14') : (isDark ? '#38bdf8' : '#6B7280');
+    
+    ctx.fillStyle = botColor;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r + Math.sin(b.pulse) * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 4. Draw C2 Relay Nodes
+  for (const c2 of c2Nodes) {
+    ctx.fillStyle = isDark ? '#1e293b' : '#FFFFFF';
+    ctx.strokeStyle = '#7C3AED';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(c2.x, c2.y, c2.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.font = '9px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText(c2.label, c2.x, c2.y + 22);
+  }
+
+  // 5. Draw Target Victim Node
+  const isProtected = totalFlows > 0;
+  ctx.fillStyle = isDark ? '#0f172a' : '#FFFFFF';
+  ctx.strokeStyle = isProtected ? '#059669' : '#C82B14';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(victimNode.x, victimNode.y, victimNode.r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // Shield Halo Ring
+  if (isProtected) {
+    ctx.strokeStyle = 'rgba(5,150,105,0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(victimNode.x, victimNode.y, victimNode.r + 8 + Math.sin(Date.now() * 0.004) * 3, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = isProtected ? '#059669' : '#C82B14';
+  ctx.font = '14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(isProtected ? '🛡️' : '🎯', victimNode.x, victimNode.y);
+
+  ctx.fillStyle = textColor;
+  ctx.font = 'bold 10px JetBrains Mono';
+  ctx.fillText(victimNode.label, victimNode.x, victimNode.y + 36);
+
+  requestAnimationFrame(renderTopologyLoop);
 }
 </script>
 

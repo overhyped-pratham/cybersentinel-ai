@@ -292,6 +292,15 @@ export default function App() {
             <a href="#metrics" className="hover:text-[#C82B14] transition-colors uppercase">
               Metrics
             </a>
+            <a
+              href={typeof window !== 'undefined' && window.location.port === '8000' ? '/ui/simulator.html' : 'http://localhost:8000/ui/simulator.html'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#C82B14] hover:text-[#A9220E] font-bold flex items-center gap-1 transition-colors uppercase"
+              title="Launch Adversarial Bot Attack Simulator"
+            >
+              <span>⚡ Bot Simulator</span>
+            </a>
             <span className="flex items-center gap-1.5 text-neutral-400">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span className="text-neutral-600 font-mono text-[11px]">
@@ -429,6 +438,16 @@ export default function App() {
                 <span>VIEW ARCHITECTURE</span>
                 <ArrowDown className="w-4 h-4" />
               </button>
+
+              <a
+                href={typeof window !== 'undefined' && window.location.port === '8000' ? '/ui/simulator.html' : 'http://localhost:8000/ui/simulator.html'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white border border-[#C82B14] hover:bg-[#C82B14]/5 text-[#C82B14] font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-full px-6 py-4 transition-all flex items-center gap-2 shadow-sm"
+              >
+                <span>⚡ BOT ATTACK SIMULATOR</span>
+                <span className="text-base">↗</span>
+              </a>
             </div>
           </div>
 
