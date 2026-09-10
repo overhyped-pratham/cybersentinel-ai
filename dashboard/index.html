@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CyberSentinel AI — Proactive Attack Forecasting & SOC Command Center</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+<!-- Spline 3D Runtime loader with offline + CDN fallback -->
+<script type="module" src="spline-viewer.js" onerror="this.onerror=null;this.src='https://unpkg.com/@splinetool/viewer@1.9.72/build/spline-viewer.js';"></script>
 <!-- Offline-first Three.js loader with CDN fallback -->
 <script src="three.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';"></script>
 
@@ -217,6 +219,180 @@ input, select, textarea { font-family: var(--font); outline: none; }
 @keyframes pulseDot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+
+/* ─── SPLINE 3D GLOBE & ARCHITECTURE PIPELINE STYLES ─────────────────── */
+.spline-globe-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(0, 240, 255, 0.08) 0%, rgba(6, 8, 16, 0.95) 75%);
+  border-radius: 24px;
+  overflow: hidden;
+}
+spline-viewer {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.spline-spotlight {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, rgba(59, 130, 246, 0.05) 50%, transparent 75%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 1;
+}
+.architecture-section {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 80px 60px 100px;
+  border-top: 1px solid rgba(56, 189, 248, 0.15);
+  position: relative;
+}
+.arch-header {
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto 50px;
+}
+.arch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: var(--accent);
+  padding: 5px 16px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+.arch-title {
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 12px;
+}
+.arch-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.data-pulse-bar {
+  background: rgba(11, 17, 32, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 16px;
+  padding: 14px 24px;
+  margin-bottom: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.data-pulse-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.2), transparent);
+  animation: dataPulseAnim 3s infinite linear;
+}
+@keyframes dataPulseAnim {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+.pipeline-11-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  position: relative;
+}
+.pipe-step-card {
+  background: rgba(11, 17, 32, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  transition: all 0.25s ease;
+}
+.pipe-step-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15);
+  background: rgba(16, 25, 46, 0.9);
+}
+.pipe-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.pipe-step-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+.pipe-step-tag {
+  font-size: 9.5px;
+  font-family: var(--mono);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+.pipe-step-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+.pipe-step-sub {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+.pipe-step-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  flex: 1;
+}
+.pipe-progress-line {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.pipe-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-blue));
 }
 
 /* ─── VIEW A: CINEMATIC 3D LANDING PAGE ──────────────────────────────── */
@@ -1245,18 +1421,53 @@ input, select, textarea { font-family: var(--font); outline: none; }
 <div id="viewLanding">
   <!-- Landing Navigation -->
   <nav class="landing-nav">
-    <div class="landing-logo">
+    <div class="landing-logo" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" style="cursor:pointer">
       <div class="landing-logo-icon">🛡️</div>
       <div>
         <div style="font-weight:900;letter-spacing:0.04em">CYBERSENTINEL AI</div>
         <div style="font-size:9.5px;color:var(--muted);letter-spacing:0.08em">SIH 2026 PROACTIVE SOC INTELLIGENCE</div>
       </div>
     </div>
+
+    <!-- 5 Live HUD Status Indicators -->
+    <div style="display:flex;align-items:center;gap:18px;font-size:11px;font-family:var(--mono)">
+      <!-- 1. LIVE NETWORK -->
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(11,17,32,0.7);padding:4px 10px;border-radius:6px;border:1px solid rgba(56,189,248,0.2)">
+        <span class="status-dot ok pulse"></span>
+        <span style="color:var(--muted)">LIVE NETWORK:</span>
+        <strong style="color:var(--accent)">10 Gbps INGEST</strong>
+      </div>
+
+      <!-- 2. GLOBAL TELEMETRY -->
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(11,17,32,0.7);padding:4px 10px;border-radius:6px;border:1px solid rgba(56,189,248,0.2)">
+        <span>🌐</span>
+        <span style="color:var(--muted)">GLOBAL TELEMETRY:</span>
+        <strong style="color:#38bdf8">8 NODES</strong>
+      </div>
+
+      <!-- 3. THREAT INTELLIGENCE -->
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(11,17,32,0.7);padding:4px 10px;border-radius:6px;border:1px solid rgba(56,189,248,0.2)">
+        <span>🛡️</span>
+        <span style="color:var(--muted)">THREAT INTELLIGENCE:</span>
+        <strong style="color:var(--purple)">ATT&CK v14</strong>
+      </div>
+
+      <!-- 4. MODEL STATUS -->
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(11,17,32,0.7);padding:4px 10px;border-radius:6px;border:1px solid rgba(56,189,248,0.2)">
+        <span>🧠</span>
+        <span style="color:var(--muted)">MODEL STATUS:</span>
+        <strong style="color:var(--green)">CYBERWORLDMODEL V2</strong>
+      </div>
+
+      <!-- 5. SYSTEM ONLINE -->
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(11,17,32,0.7);padding:4px 10px;border-radius:6px;border:1px solid rgba(56,189,248,0.2)">
+        <span class="status-dot ok"></span>
+        <span style="color:var(--muted)">SYSTEM ONLINE:</span>
+        <strong style="color:var(--green)">NOMINAL</strong>
+      </div>
+    </div>
+
     <div class="landing-nav-links">
-      <a href="#features" class="landing-nav-link" onclick="scrollToPillars(event)">⚡ Capabilities</a>
-      <a href="#pipeline" class="landing-nav-link" onclick="enterCommandCenter('secTelemetry')">📡 Live Telemetry</a>
-      <a href="#model" class="landing-nav-link" onclick="enterCommandCenter('secModel')">🧠 CyberWorldModel V2</a>
-      <a href="#mitre" class="landing-nav-link" onclick="enterCommandCenter('secMitre')">🛡️ MITRE Context</a>
       <button class="btn btn-cta" onclick="enterCommandCenter()">
         <span>⚡ ENTER COMMAND CENTER</span>
         <span style="font-size:16px">→</span>
@@ -1279,7 +1490,7 @@ input, select, textarea { font-family: var(--font); outline: none; }
       </h1>
 
       <div class="hero-subtitle">
-        AI-Powered Network Attack Forecasting & Autonomous SOC Defense
+        AI-POWERED NETWORK ATTACK FORECASTING
       </div>
 
       <div class="hero-quote">
@@ -1287,9 +1498,7 @@ input, select, textarea { font-family: var(--font); outline: none; }
       </div>
 
       <p class="hero-desc">
-        Real-time telemetry. Behavioral forecasting. Explainable intelligence. Powered by 
-        <strong style="color:#fff">CyberWorldModelV2</strong>, an autoregressive neural transition world model 
-        that projects cyber attack trajectories multi-step into the future before damage occurs.
+        CyberSentinel transforms network telemetry into behavioral intelligence, forecasts the next attack stage, explains the prediction, assesses risk, and assists SOC analysts with evidence-backed response recommendations.
       </p>
 
       <div class="hero-actions">
@@ -1297,31 +1506,15 @@ input, select, textarea { font-family: var(--font); outline: none; }
           <span>⚡ ENTER COMMAND CENTER</span>
           <span style="font-size:16px">→</span>
         </button>
+        <button class="btn btn-secondary" onclick="scrollToArchitecture(event)">
+          <span>🏛️ VIEW ARCHITECTURE</span>
+        </button>
         <button class="btn btn-secondary" onclick="enterCommandCenter('secDemo'); triggerDemoPhase(1);">
           <span>🎬 Judge Demo Mode</span>
         </button>
-        <button class="btn btn-secondary" onclick="enterCommandCenter('secRollout'); triggerK4Simulation();">
-          <span>🔮 Run K-Step Simulation</span>
-        </button>
       </div>
 
-      <!-- Quick Subsystem Live Indicators -->
-      <div style="display:flex;align-items:center;gap:18px;margin-top:10px;font-size:11px;color:var(--muted)">
-        <span style="display:flex;align-items:center;gap:6px">
-          <span class="status-dot ok pulse"></span>
-          <span>Live Ingest: <strong id="lpIngestStatus" style="color:#fff">Active</strong></span>
-        </span>
-        <span style="display:flex;align-items:center;gap:6px">
-          <span class="status-dot ok"></span>
-          <span>Model: <strong style="color:#fff">CyberWorldModelV2</strong> (T*=1.568)</span>
-        </span>
-        <span style="display:flex;align-items:center;gap:6px">
-          <span class="status-dot ok"></span>
-          <span>MITRE Matrix: <strong style="color:#fff">Enterprise v14</strong></span>
-        </span>
-      </div>
-
-      <!-- 4 Pillars Stats -->
+      <!-- Live Pillars Stats -->
       <div class="hero-stats-row" id="features">
         <div class="hero-stat-card">
           <div class="hero-stat-val text-accent">24-D</div>
@@ -1342,13 +1535,16 @@ input, select, textarea { font-family: var(--font); outline: none; }
       </div>
     </div>
 
-    <!-- Right: Three.js Interactive Earth Globe -->
+    <!-- Right: Visual Centerpiece — Spline 3D Globe + Three.js Sensor Grid -->
     <div class="globe-viewport-container">
-      <div id="globeCanvasContainer">
+      <div id="globeCanvasContainer" style="position:relative">
+        <!-- Floating Spotlight Ambient Glow -->
+        <div class="spline-spotlight"></div>
+
         <!-- Floating HUD elements -->
         <div class="globe-hud-top-left">
           <span>🌐</span>
-          <span>GLOBAL THREAT SENSOR GRID • THREE.JS</span>
+          <span id="globeModeLabel">GLOBAL TELEMETRY SENSOR GRID • SPLINE 3D</span>
         </div>
 
         <div class="globe-hud-top-right">
@@ -1364,7 +1560,7 @@ input, select, textarea { font-family: var(--font); outline: none; }
         <div class="globe-telemetry-pill">
           <div style="font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px">
             <span class="status-dot ok pulse"></span>
-            <span>REAL-TIME INGESTION</span>
+            <span>THREAT INTELLIGENCE</span>
           </div>
           <div style="color:var(--muted);font-size:10px">
             Pkts: <span id="globePktRate" style="color:#fff;font-weight:700">—</span> | 
@@ -1372,8 +1568,23 @@ input, select, textarea { font-family: var(--font); outline: none; }
           </div>
         </div>
 
+        <!-- Primary Centerpiece: Spline 3D Scene -->
+        <div id="splineGlobeContainer" class="spline-globe-wrapper">
+          <spline-viewer
+            id="splineViewerEl"
+            url="scene.splinecode"
+            loading-anim-type="spinner-small-dark"
+          ></spline-viewer>
+        </div>
+
+        <!-- Secondary Fallback / Mode: Three.js Earth Canvas (hidden by default) -->
+        <div id="threeGlobeContainer" style="display:none;width:100%;height:100%;position:absolute;top:0;left:0"></div>
+
         <!-- Controls ribbon -->
         <div class="globe-hud-controls">
+          <button class="globe-hud-btn active" id="btnToggle3DMode" onclick="toggle3DGlobeMode()" title="Switch between Spline 3D and Three.js Grid">
+            🌐 <span>Spline 3D</span>
+          </button>
           <button class="globe-hud-btn" id="btnGlobeSpeed" onclick="cycleGlobeSpeed()" title="Toggle Rotation Cadence">
             ⏱️ <span id="lblGlobeSpeed">1.0x</span>
           </button>
@@ -1387,11 +1598,182 @@ input, select, textarea { font-family: var(--font); outline: none; }
       </div>
     </div>
   </main>
+
+  <!-- Architecture Section: HOW CYBERSENTINEL THINKS -->
+  <section id="architecture" class="architecture-section">
+    <div class="arch-header">
+      <div class="arch-badge">
+        <span>⚡</span>
+        <span>HOW CYBERSENTINEL THINKS</span>
+      </div>
+      <h2 class="arch-title">11-Step Neural Attack Forecasting Pipeline</h2>
+      <p class="arch-desc">
+        Zero hardcoded intelligence. Telemetry streams from raw network packet buffers into sliding statistical windows, projects through 24-D robust scaling, forecasts multi-step transitions with CyberWorldModelV2, and grounds evidence to MITRE ATT&CK Enterprise v14 tactics.
+      </p>
+    </div>
+
+    <!-- Animated Data Pulse Indicator Ribbon -->
+    <div class="data-pulse-bar">
+      <div style="display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--accent);z-index:2">
+        <span class="status-dot ok pulse"></span>
+        <strong>DATA PULSE:</strong>
+        <span>RAW PACKETS → 24-D STATE TENSOR → RECURRENT LATENT ROLLOUT → EXPLAINABLE DEFENSIVE MITIGATION</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;font-family:var(--mono);font-size:11px;color:var(--muted);z-index:2">
+        <span>LATENCY: &lt;12ms</span>
+        <span>•</span>
+        <span>TOP-1: 97.7%</span>
+        <span>•</span>
+        <span>ZERO HARDCODING</span>
+      </div>
+    </div>
+
+    <!-- 11 Pipeline Steps Grid -->
+    <div class="pipeline-11-grid">
+      <!-- Step 01 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 01</span>
+          <span class="pipe-step-tag">Raw Ingest</span>
+        </div>
+        <div class="pipe-step-name">Live Network Telemetry</div>
+        <div class="pipe-step-sub">PCAP & NetFlow Ingestion</div>
+        <div class="pipe-step-desc">Captures line-rate packet buffers, NetFlow v9/IPFIX records, and raw socket streams with zero-copy ring buffers.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:9%"></div></div>
+      </div>
+
+      <!-- Step 02 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 02</span>
+          <span class="pipe-step-tag">Aggregation</span>
+        </div>
+        <div class="pipe-step-name">LiveIngestService</div>
+        <div class="pipe-step-sub">Temporal Windowing</div>
+        <div class="pipe-step-desc">Aggregates packet streams into windowed statistical flows, tracking rate bursts, duration, and protocol distributions.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:18%"></div></div>
+      </div>
+
+      <!-- Step 03 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 03</span>
+          <span class="pipe-step-tag">Normalization</span>
+        </div>
+        <div class="pipe-step-name">24-D State Vector</div>
+        <div class="pipe-step-sub">RobustScaler Baseline</div>
+        <div class="pipe-step-desc">Transforms flows into 24-dimensional feature representations normalized against empirical medians and interquartile ranges.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:27%"></div></div>
+      </div>
+
+      <!-- Step 04 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 04</span>
+          <span class="pipe-step-tag">Deep Model</span>
+        </div>
+        <div class="pipe-step-name">CyberWorldModelV2</div>
+        <div class="pipe-step-sub">Neural Transition Matrix</div>
+        <div class="pipe-step-desc">Autoregressive recurrent GRU architecture with learned transition matrices modeling temporal adversarial state evolution.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:36%"></div></div>
+      </div>
+
+      <!-- Step 05 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 05</span>
+          <span class="pipe-step-tag">Calibration</span>
+        </div>
+        <div class="pipe-step-name">Temperature Scaling</div>
+        <div class="pipe-step-sub">Optimal T* = 1.568</div>
+        <div class="pipe-step-desc">Post-processing temperature calibration via Nelder-Mead optimization achieves an empirical Brier score of 0.0452.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:45%"></div></div>
+      </div>
+
+      <!-- Step 06 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 06</span>
+          <span class="pipe-step-tag">Inference</span>
+        </div>
+        <div class="pipe-step-name">Probability Distribution</div>
+        <div class="pipe-step-sub">Softmax Stage Likelihood</div>
+        <div class="pipe-step-desc">Produces well-calibrated posterior probability distributions across all 10 unified MITRE attack lifecycle stages.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:54%"></div></div>
+      </div>
+
+      <!-- Step 07 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 07</span>
+          <span class="pipe-step-tag">Attribution</span>
+        </div>
+        <div class="pipe-step-name">Transition Detection</div>
+        <div class="pipe-step-sub">|ΔS| Feature Attribution</div>
+        <div class="pipe-step-desc">Identifies active attack stage transitions in real time with 83.33% empirical accuracy via feature-space perturbation gradients.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:63%"></div></div>
+      </div>
+
+      <!-- Step 08 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 08</span>
+          <span class="pipe-step-tag">Projection</span>
+        </div>
+        <div class="pipe-step-name">Multi-Step Simulation</div>
+        <div class="pipe-step-sub">Autoregressive Rollout (K=1..4)</div>
+        <div class="pipe-step-desc">Projects adversarial progression up to 4 temporal horizons into the future before the attacker reaches crown-jewel assets.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:72%"></div></div>
+      </div>
+
+      <!-- Step 09 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 09</span>
+          <span class="pipe-step-tag">Lifecycle</span>
+        </div>
+        <div class="pipe-step-name">Dynamic Lifecycle Resolution</div>
+        <div class="pipe-step-sub">Runtime NOW vs SIM States</div>
+        <div class="pipe-step-desc">Resolves observed history, active real-time attack stage (NOW), and simulated forward stages (SIM) with zero hardcoded logic.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:81%"></div></div>
+      </div>
+
+      <!-- Step 10 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 10</span>
+          <span class="pipe-step-tag">Grounding</span>
+        </div>
+        <div class="pipe-step-name">MITRE ATT&CK Grounding</div>
+        <div class="pipe-step-sub">Enterprise Matrix v14</div>
+        <div class="pipe-step-desc">Grounds predicted adversary behavior to MITRE Enterprise tactics, techniques, procedures, and empirical sub-technique IDs.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:90%"></div></div>
+      </div>
+
+      <!-- Step 11 -->
+      <div class="pipe-step-card">
+        <div class="pipe-card-top">
+          <span class="pipe-step-num">STEP 11</span>
+          <span class="pipe-step-tag">Defense</span>
+        </div>
+        <div class="pipe-step-name">Proactive SOC Triage</div>
+        <div class="pipe-step-sub">RiskEngine & Mitigation</div>
+        <div class="pipe-step-desc">Calculates composite risk score and synthesizes deterministic, evidence-backed mitigation steps for rapid SOC response.</div>
+        <div class="pipe-progress-line"><div class="pipe-progress-fill" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <!-- Enter Command Center Action -->
+    <div style="text-align:center;margin-top:60px">
+      <button class="btn btn-cta" onclick="enterCommandCenter()" style="padding:16px 36px;font-size:14px">
+        <span>⚡ ENTER FULL SOC COMMAND CENTER</span>
+        <span style="font-size:18px">→</span>
+      </button>
+    </div>
+  </section>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- VIEW B: SOC COMMAND CENTER DASHBOARD                                   -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
 <div id="viewCommandCenter">
   <!-- Left Navigation Sidebar -->
   <aside class="soc-sidebar">
@@ -3213,8 +3595,39 @@ const GLOBAL_SOC_SENSORS = [
   { name: 'São Paulo (LATAM CERT)', lat: -23.5505, lon: -46.6333, status: 'Active' },
 ];
 
+
+// ─── 3D SPLINE GLOBE & ARCHITECTURE SCROLL HELPERS ───────────────────────
+let current3DMode = 'spline'; // 'spline' or 'three'
+
+function toggle3DGlobeMode() {
+  const splineEl = document.getElementById('splineGlobeContainer');
+  const threeEl = document.getElementById('threeGlobeContainer');
+  const btn = document.getElementById('btnToggle3DMode');
+  const lbl = document.getElementById('globeModeLabel');
+
+  if (current3DMode === 'spline') {
+    current3DMode = 'three';
+    if (splineEl) splineEl.style.display = 'none';
+    if (threeEl) threeEl.style.display = 'block';
+    if (btn) btn.innerHTML = '🛰️ <span>Sensor Grid</span>';
+    if (lbl) lbl.textContent = 'GLOBAL THREAT SENSOR GRID • THREE.JS';
+  } else {
+    current3DMode = 'spline';
+    if (splineEl) splineEl.style.display = 'flex';
+    if (threeEl) threeEl.style.display = 'none';
+    if (btn) btn.innerHTML = '🌐 <span>Spline 3D</span>';
+    if (lbl) lbl.textContent = 'GLOBAL TELEMETRY SENSOR GRID • SPLINE 3D';
+  }
+}
+
+function scrollToArchitecture(e) {
+  if (e) e.preventDefault();
+  const el = document.getElementById('architecture');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
 function initThreeGlobe() {
-  const container = document.getElementById('globeCanvasContainer');
+  const container = document.getElementById('threeGlobeContainer') || document.getElementById('globeCanvasContainer');
   if (!container || typeof THREE === 'undefined') return;
 
   const w = container.clientWidth || 600;
