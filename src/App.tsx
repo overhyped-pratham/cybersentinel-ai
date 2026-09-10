@@ -245,7 +245,7 @@ export default function App() {
       <section className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex flex-col gap-8">
         {/* Render the Exact SplineSceneBasic Component as Landing Page Centerpiece */}
         <div className="w-full">
-          <SplineSceneBasic />
+          <SplineSceneBasic onEnterSOC={handleEnterCommandCenter} />
         </div>
 
         {/* Call to Action Banner & Stats beneath the 3D Scene */}
