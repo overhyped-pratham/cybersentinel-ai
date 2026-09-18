@@ -27,6 +27,7 @@ if str(_ROOT) not in sys.path:
 from backend.api.endpoints import router
 from backend.api.stream_endpoints import stream_router
 from backend.api.agent_endpoints import agent_router
+from backend.api.prd_endpoints import prd_router
 from backend.services.model_service import ModelService
 from backend.services.replay_service import ReplayService
 from backend.services.live_ingest_service import LiveIngestService
@@ -131,6 +132,46 @@ if _DASHBOARD.exists():
 app.include_router(router, prefix="/api/v1")
 app.include_router(stream_router, prefix="/api/v1")
 app.include_router(agent_router, prefix="/api/v1")
+
+# Canonical PRD Endpoints (/api/traffic, /api/predict, /api/dashboard, etc.)
+app.include_router(prd_router, prefix="/api")
+
+
+# ---------------------------------------------------------------------------
+# WebSocket Endpoint: WS /ws/live (PRD Section 19)
+# ---------------------------------------------------------------------------
+
+from fastapi import WebSocket, WebSocketDisconnect
+import asyncio
+import datetime
+
+@app.websocket("/ws/live")
+async def live_websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    logger.info("Client connected to live WebSocket /ws/live")
+    try:
+        while True:
+            try:
+                data = await asyncio.wait_for(websocket.receive_text(), timeout=2.0)
+                import json
+                msg = json.loads(data)
+                if msg.get("type") == "ping":
+                    await websocket.send_json({
+                        "type": "pong",
+                        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+                    })
+            except asyncio.TimeoutError:
+                from backend.api.prd_endpoints import _alert_manager
+                stats = _alert_manager.stats
+                recent = _alert_manager.alerts[-1] if _alert_manager.alerts else None
+                await websocket.send_json({
+                    "type": "telemetry_pulse",
+                    "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    "stats": stats,
+                    "latest_alert": recent,
+                })
+    except WebSocketDisconnect:
+        logger.info("Client disconnected from live WebSocket /ws/live")
 
 
 # ---------------------------------------------------------------------------

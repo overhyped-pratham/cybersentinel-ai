@@ -1,0 +1,43 @@
+{
+  "experiment_name": "Held-Out Attack Family / Novel Behavior Evaluation",
+  "held_out_family": "EXFILTRATION",
+  "timestamp": "2026-09-18T05:54:46Z",
+  "leakage_controls": [
+    "Attack family 'EXFILTRATION' strictly held out from classifier training (0 samples in train).",
+    "FeatureScaler fitted strictly on known training data.",
+    "Autoencoder novelty detector trained strictly on benign baseline.",
+    "Threshold calibrated strictly on unseen benign validation windows."
+  ],
+  "known_attack_performance": {
+    "accuracy": 0.9885,
+    "precision_macro": 0.9875,
+    "recall_macro": 0.9875,
+    "f1_macro": 0.9872,
+    "false_positive_rate": 0.0,
+    "mean_latency_ms": 0.029,
+    "test_samples": 87,
+    "classes_evaluated": [
+      "BENIGN",
+      "CREDENTIAL_ACCESS",
+      "LATERAL_MOVEMENT",
+      "RECONNAISSANCE"
+    ]
+  },
+  "held_out_novel_behavior_performance": {
+    "held_out_family": "EXFILTRATION",
+    "sample_count": 36,
+    "novelty_detection_rate": 1.0,
+    "auroc": 1.0,
+    "mean_known_confidence": 0.5003,
+    "mean_anomaly_score": 1.0,
+    "mean_reconstruction_error": 2562.375997,
+    "mean_risk_score": 77.45,
+    "calibrated_threshold": 0.013547,
+    "novel_behavior_rate": 1.0,
+    "mean_latency_ms": 25.596,
+    "assigned_known_categories": {
+      "CREDENTIAL_ACCESS": 36
+    }
+  },
+  "interpretation": "When presented with held-out 'EXFILTRATION' telemetry, the Known Attack Classifier exhibits uncertain known-class confidence, while the Layer 2 Novelty Detector achieves 100.0% anomaly detection rate (AUROC=1.0000). The dynamic Risk Engine escalates risk (mean=77.4/100) and flags the event as 'Potential Novel Behavior', preserving human-in-the-loop validation without guessing attack types."
+}

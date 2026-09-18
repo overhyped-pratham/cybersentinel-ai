@@ -131,6 +131,18 @@ class SmokeTestRunner:
         csvs = list(sample_dir.glob("*.csv")) if sample_dir.exists() else []
         self.record("Scenario Datasets (datasets/sample/*.csv)", len(csvs) > 0, f"{len(csvs)} scenario CSVs")
 
+        # Check CyberSentinel X Layer 1 Known Classifier artifact
+        clf_path = _ROOT / "models" / "classifier" / "known_classifier.pkl"
+        self.record("Layer 1 Known Classifier (known_classifier.pkl)", clf_path.exists(), "Trained XGBoost multi-class artifact")
+
+        # Check CyberSentinel X Layer 2 Novelty Autoencoder artifact
+        ae_path = _ROOT / "models" / "novelty" / "autoencoder.pt"
+        self.record("Layer 2 Novelty Autoencoder (autoencoder.pt)", ae_path.exists(), "Trained PyTorch benign baseline autoencoder")
+
+        # Check Unseen Attack Experiment Report
+        unseen_path = _ROOT / "experiments" / "unseen_attack" / "unseen_experiment_report.json"
+        self.record("Unseen Attack Experiment Report (unseen_experiment_report.json)", unseen_path.exists(), "Held-out evaluation metrics logged")
+
     def check_ml_engine(self) -> None:
         try:
             from backend.services.model_service import ModelService
@@ -263,6 +275,22 @@ class SmokeTestRunner:
                 # 6. /replay/scenarios
                 r_scen = client.get("/api/v1/replay/scenarios")
                 self.record("API Endpoint: GET /api/v1/replay/scenarios", r_scen.status_code == 200, f"{len(r_scen.json().get('scenarios', []))} scenarios available")
+
+                # 7. PRD Canonical: GET /api/dashboard
+                r_dash = client.get("/api/dashboard")
+                self.record("API Endpoint: GET /api/dashboard", r_dash.status_code == 200, f"HTTP {r_dash.status_code}")
+
+                # 8. PRD Canonical: GET /api/statistics
+                r_stats = client.get("/api/statistics")
+                self.record("API Endpoint: GET /api/statistics", r_stats.status_code == 200, f"Uptime: {r_stats.json().get('uptime_seconds')}s")
+
+                # 9. PRD Canonical: POST /api/traffic
+                r_traf = client.post("/api/traffic", json={"src_ip": "10.0.0.1", "dst_ip": "10.0.0.2", "features": [0.0]*24})
+                self.record("API Endpoint: POST /api/traffic", r_traf.status_code == 200, f"Verdict: {r_traf.json().get('threat_classification')}")
+
+                # 10. PRD Canonical: GET /api/attack-story/live
+                r_story = client.get("/api/attack-story/live")
+                self.record("API Endpoint: GET /api/attack-story/live", r_story.status_code == 200, f"Story: {r_story.json().get('title')[:30]}...")
         except Exception as e:
             self.record("FastAPI Endpoint Verification", False, str(e))
 
@@ -273,7 +301,10 @@ class SmokeTestRunner:
             has_analyst = "AI SECURITY ANALYST" in content
             has_floating = "floatingAnalystBtn" in content
             has_context_strip = "analystContextStrip" in content
-            self.record("SOC Dashboard (dashboard/index.html)", has_analyst and has_floating and has_context_strip, "AI Security Analyst Console integrated")
+            has_story = "secAttackStory" in content
+            has_unseen = "secUnseenDemo" in content
+            has_adapt = "secAdaptiveLearning" in content
+            self.record("SOC Dashboard (dashboard/index.html)", has_analyst and has_floating and has_context_strip and has_story and has_unseen and has_adapt, "AI Security Analyst + Attack Story + Unseen Demo + Adaptive Learning")
         else:
             self.record("SOC Dashboard (dashboard/index.html)", False, "File missing")
 

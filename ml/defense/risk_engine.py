@@ -103,6 +103,14 @@ class ForecastEvent:
     # Explainability
     top_features: List[Dict[str, Any]]     # top-K changed features from explainability module
 
+    # Novelty & Anomaly signals (Layer 2 & Layer 1 integration)
+    anomaly_score: float = 0.0             # normalized [0, 1] from AutoencoderNoveltyDetector
+    reconstruction_error: float = 0.0      # raw MSE from Autoencoder
+    is_novel: bool = False                 # True if flagged as Potential Novel Behavior
+    novelty_label: str = "Normal Baseline"
+    known_category: Optional[str] = None   # category from KnownAttackClassifier
+    known_confidence: float = 0.0          # confidence from KnownAttackClassifier
+
     # Context
     scenario_id: Optional[str] = None     # trace/scenario identifier for replay mode
 
@@ -120,6 +128,12 @@ class ForecastEvent:
             "transition_detected": self.transition_detected,
             "stage_probabilities": {k: round(v, 4) for k, v in self.stage_probabilities.items()},
             "top_features": self.top_features[:5],
+            "anomaly_score": round(self.anomaly_score, 4),
+            "reconstruction_error": round(self.reconstruction_error, 6),
+            "is_novel": bool(self.is_novel),
+            "novelty_label": self.novelty_label,
+            "known_category": self.known_category,
+            "known_confidence": round(self.known_confidence, 4),
             "scenario_id": self.scenario_id,
         }
 
@@ -187,6 +201,10 @@ class RiskAssessment:
     recommended_priority: str       # defensive action priority
     time_to_transition_hint: str    # human hint about transition timing
     formula_description: str        # formula provenance
+    component_anomaly: float = 0.0  # contribution from anomaly deviation
+    anomaly_score: float = 0.0      # normalized anomaly score [0, 1]
+    is_novel: bool = False          # novelty flag
+    threat_classification: str = "Known Threat"  # "Potential Novel Behavior" | "Known Threat" | "Benign Baseline"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -194,11 +212,14 @@ class RiskAssessment:
             "severity": self.severity,
             "recommended_priority": self.recommended_priority,
             "time_to_transition_hint": self.time_to_transition_hint,
+            "is_novel": self.is_novel,
+            "threat_classification": self.threat_classification,
             "components": {
                 "attack_probability": round(self.component_attack, 4),
                 "stage_severity": round(self.component_severity, 4),
                 "forecast_confidence": round(self.component_confidence, 4),
                 "horizon_urgency": round(self.component_urgency, 4),
+                "anomaly_deviation": round(self.component_anomaly, 4),
             },
             "formula": self.formula_description,
         }
@@ -217,6 +238,7 @@ class RiskEngine:
           + w_severity  * severity(predicted_next_stage)
           + w_confidence * P(predicted_stage)
           + w_urgency   * urgency(horizon_k)
+          + w_anomaly   * anomaly_score
         )
     """
 
@@ -241,6 +263,9 @@ class RiskEngine:
 
         # Component 2: Predicted stage severity
         sev = cfg.severity_scores.get(event.predicted_stage, cfg.severity_scores.get("UNKNOWN", 0.2))
+        is_novel = getattr(event, "is_novel", False)
+        if is_novel and sev < 0.60:
+            sev = 0.60
         c_severity = cfg.weight_severity * sev
 
         # Component 3: Forecast confidence
@@ -250,8 +275,22 @@ class RiskEngine:
         urgency = cfg.urgency_map.get(horizon_steps, 0.40)
         c_urgency = cfg.weight_urgency * urgency
 
-        raw_score = c_attack + c_severity + c_conf + c_urgency
+        # Component 5: Anomaly signal (if configured)
+        anomaly_val = getattr(event, "anomaly_score", 0.0)
+        weight_anom = getattr(cfg, "weight_anomaly", 0.0)
+        c_anomaly = weight_anom * float(anomaly_val)
+
+        raw_score = c_attack + c_severity + c_conf + c_urgency + c_anomaly
         risk_score = min(100.0, max(0.0, raw_score * 100.0))
+
+        # Threat classification adhering to PRD Principle 5
+        is_novel = getattr(event, "is_novel", False)
+        if is_novel:
+            threat_cls = "Potential Novel Behavior"
+        elif event.predicted_stage != "BENIGN" and event.attack_probability >= 0.5:
+            threat_cls = "Known Threat"
+        else:
+            threat_cls = "Benign Baseline"
 
         # Priority thresholds
         if risk_score >= cfg.threshold_critical:
@@ -296,4 +335,8 @@ class RiskEngine:
             recommended_priority=priority,
             time_to_transition_hint=hint,
             formula_description=formula,
+            component_anomaly=c_anomaly,
+            anomaly_score=float(anomaly_val),
+            is_novel=is_novel,
+            threat_classification=threat_cls,
         )

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-09-18T06:05:42Z",
+  "platform": "win32",
+  "python_version": "3.14.2",
+  "torch_device": "cpu",
+  "measurements": {
+    "feature_scaler_latency_ms": 1.439,
+    "layer1_xgboost_latency_ms": 0.627,
+    "layer1_shap_attribution_latency_ms": 1.771,
+    "layer2_autoencoder_latency_ms": 0.409,
+    "layer3_risk_engine_latency_ms": 0.006,
+    "layer4_world_model_k4_rollout_latency_ms": 7.811,
+    "full_e2e_pipeline_latency_ms": 17.608,
+    "full_e2e_throughput_events_per_sec": 56.8,
+    "fast_path_latency_ms": 17.106,
+    "fast_path_throughput_events_per_sec": 58.5,
+    "process_rss_memory_mb": 545.52
+  }
+}
