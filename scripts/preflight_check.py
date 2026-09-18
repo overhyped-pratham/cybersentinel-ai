@@ -191,6 +191,19 @@ class PreflightChecker:
                 pass
         self.record("Zero Hardcoded Attack Intelligence", found_hardcoded == 0, "No hardcoded lookup tables or fixed branches found")
 
+        # 8. Adaptive Learner & Demo Samples (Phase 14)
+        print("\n[Section 8: Adaptive Learner & Demo Sequence]")
+        try:
+            from backend.api.prd_endpoints import DEMO_SAMPLES
+            from ml.adaptation.adaptive_learner import AdaptiveLearner
+            self.record("Demo Samples Configuration", len(DEMO_SAMPLES) >= 4, f"{len(DEMO_SAMPLES)} real telemetry replay steps available")
+            learner = AdaptiveLearner()
+            self.record("AdaptiveLearner & Rollback Readiness", hasattr(learner, "adapt_model") and hasattr(learner, "rollback"), f"Active Version: {learner.active_version}")
+            judge_m_p = _ROOT / "artifacts" / "demo" / "judge_metrics.json"
+            self.record("Judge Presentation Metrics Artifact", judge_m_p.exists(), str(judge_m_p.name))
+        except Exception as exc:
+            self.record("Adaptive Learner & Demo Verification", False, str(exc))
+
         # Summary
         elapsed = time.time() - start_time
         total = len(self.checks)
@@ -200,7 +213,7 @@ class PreflightChecker:
         print("\n" + "=" * 72)
         print(f"PREFLIGHT CHECK SUMMARY: {passed}/{total} CHECKS PASSED ({elapsed:.2f}s)")
         if failed == 0:
-            print("STATUS: ALL PREFLIGHT CHECKS PASSED — READY FOR HACKATHON EVALUATION [SUCCESS]")
+            print("STATUS: ALL PREFLIGHT CHECKS PASSED -- READY FOR HACKATHON EVALUATION [SUCCESS]")
         else:
             print(f"STATUS: {failed} CHECK(S) FAILED [ERROR]")
         print("=" * 72)
@@ -208,7 +221,14 @@ class PreflightChecker:
         return failed == 0
 
 
-if __name__ == "__main__":
+def preflight_check() -> bool:
     checker = PreflightChecker()
-    success = checker.run_all()
+    return checker.run_all()
+
+
+run_preflight_checks = preflight_check
+
+
+if __name__ == "__main__":
+    success = preflight_check()
     sys.exit(0 if success else 1)

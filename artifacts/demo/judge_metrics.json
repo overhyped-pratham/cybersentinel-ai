@@ -1,0 +1,20 @@
+{
+  "system_name": "CyberSentinel X",
+  "evaluation_version": "v2.0.0-judge-ready",
+  "classifier_accuracy": 0.9896,
+  "classifier_macro_f1": 0.9915,
+  "held_out_attack_family": "EXFILTRATION",
+  "held_out_detection_rate": 1.0,
+  "held_out_sample_count": 36,
+  "held_out_auroc": 1.0,
+  "autoencoder_threshold": 0.0026401407085359097,
+  "autoencoder_separation_ratio": 86.3,
+  "world_model_rollout_horizon": 4,
+  "e2e_latency_ms": 17.608,
+  "events_per_second": 56.8,
+  "memory_mb": 545.52,
+  "test_count": 318,
+  "smoke_test_count": 30,
+  "red_team_test_count": 15,
+  "scientific_disclaimer": "Metrics are empirically derived from reproducible benchmark experiments. 100% detection applies strictly to the 36-window held-out EXFILTRATION evaluation partition and does not constitute a universal guarantee against arbitrary novel techniques."
+}

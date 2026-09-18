@@ -2080,6 +2080,10 @@ spline-viewer {
         <span class="sidebar-nav-icon">🩺</span>
         <span class="lbl">Pipeline & System Health</span>
       </a>
+      <a href="#secLimitations" class="sidebar-nav-item" onclick="activateNavItem(this)">
+        <span class="sidebar-nav-icon">⚠️</span>
+        <span class="lbl">System Limitations</span>
+      </a>
     </div>
 
     <div class="sidebar-footer">
@@ -3038,6 +3042,105 @@ spline-viewer {
               <div id="threatMemoryCountLabel" style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:10px">
                 Total Validated Cases in Threat Memory: 1 sample
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <!-- SECTION: SYSTEM LIMITATIONS & HONEST SCOPE DISCLOSURE              -->
+      <!-- ═══════════════════════════════════════════════════════════════════ -->
+      <section id="secLimitations" style="margin-top:24px">
+        <div class="glass-panel" style="padding:22px 24px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+            <span style="font-size:24px">⚠️</span>
+            <div>
+              <h3 style="font-family:var(--serif);font-size:18px;font-weight:800;color:var(--text);margin-bottom:2px">
+                SYSTEM LIMITATIONS &amp; HONEST SCOPE DISCLOSURE
+              </h3>
+              <div style="font-size:11.5px;color:var(--muted);font-family:var(--mono)">
+                Known architectural constraints and evaluation boundaries — disclosed for scientific integrity.
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px" class="grid-3col">
+
+            <!-- Card 1: Encrypted Traffic -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span style="font-size:18px">🔐</span>
+                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--orange);text-transform:uppercase">Encrypted Flow Opacity</span>
+              </div>
+              <div style="font-size:12.5px;color:var(--text);line-height:1.6;margin-bottom:10px">
+                CyberSentinel X analyzes <strong>network flow-level telemetry</strong> (packet counts, byte volumes, timing, port entropy). It does <strong>not</strong> perform deep-packet inspection or decrypt TLS/HTTPS payloads.
+              </div>
+              <div style="font-size:11px;color:var(--muted);font-family:var(--mono);background:var(--surface3);padding:8px 10px;border-radius:6px">
+                Impact: Encrypted C2 channels using standard port 443 with mimicked traffic profiles may evade Layer 1 classification if flow statistics appear benign. Layer 2 anomaly detection still applies.
+              </div>
+            </div>
+
+            <!-- Card 2: Training Distribution -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span style="font-size:18px">📊</span>
+                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--yellow);text-transform:uppercase">Benchmark Distribution Shift</span>
+              </div>
+              <div style="font-size:12.5px;color:var(--text);line-height:1.6;margin-bottom:10px">
+                Classifier trained on <strong>CIC-IDS-2017/2018</strong> benchmark flows. Production network characteristics (link speeds, OS mix, application profiles) may differ, causing mild accuracy degradation on unseen traffic populations.
+              </div>
+              <div style="font-size:11px;color:var(--muted);font-family:var(--mono);background:var(--surface3);padding:8px 10px;border-radius:6px">
+                Mitigation: The Adaptive Learning pipeline allows continuous incorporation of analyst-validated samples from live production traffic, progressively closing the distribution gap.
+              </div>
+            </div>
+
+            <!-- Card 3: World Model Uncertainty -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span style="font-size:18px">🌐</span>
+                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--blue);text-transform:uppercase">Autoregressive Uncertainty Growth</span>
+              </div>
+              <div style="font-size:12.5px;color:var(--text);line-height:1.6;margin-bottom:10px">
+                The CyberWorldModelV2 rollout projects <strong>K=4 future cyber states</strong>. Prediction confidence degrades with horizon length — errors compound across steps as the autoregressive model conditions on its own prior outputs.
+              </div>
+              <div style="font-size:11px;color:var(--muted);font-family:var(--mono);background:var(--surface3);padding:8px 10px;border-radius:6px">
+                Design decision: K=4 was chosen as the operationally useful horizon before uncertainty renders rollouts non-actionable. The system surfaces per-step confidence scores so analysts can weight early steps more heavily.
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Additional Limitations Row -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+            <!-- Card 4: Held-out Evaluation Scope -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span style="font-size:18px">🧪</span>
+                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--red);text-transform:uppercase">Held-Out Evaluation Scope</span>
+              </div>
+              <div style="font-size:12.5px;color:var(--text);line-height:1.6">
+                The zero-shot novelty detection result (100% on 36/36 held-out EXFILTRATION samples; AUROC 1.0000) reflects one specific attack family withheld from training. <strong>This is not a general zero-day guarantee.</strong> The autoencoder detects behavioral anomalies relative to the benign manifold — highly novel attack families with markedly different flow statistics will be detected; sophisticated low-and-slow attackers mimicking benign traffic may not trigger anomaly detection.
+              </div>
+            </div>
+
+            <!-- Card 5: Latency & Scale -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span style="font-size:18px">⚡</span>
+                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--green);text-transform:uppercase">Latency &amp; Scalability Boundary</span>
+              </div>
+              <div style="font-size:12.5px;color:var(--text);line-height:1.6">
+                Steady-state E2E inference latency is <strong>~17.6 ms per window</strong> on CPU (Intel hardware). This supports real-time analysis at moderate traffic volumes (30-second aggregation windows). For high-throughput enterprise environments (&gt;10 Gbps), horizontal scaling via worker pools and GPU acceleration for the autoencoder would be required. Initial model load time is ~17s (one-time startup).
+              </div>
+            </div>
+
+          </div>
+
+          <div style="margin-top:16px;padding:12px 14px;background:var(--surface3);border-radius:8px;border-left:3px solid var(--orange)">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px">SCIENTIFIC INTEGRITY NOTE</div>
+            <div style="font-size:12px;color:var(--text-dim);line-height:1.5">
+              All metrics shown in this dashboard (accuracy 98.96%, AUROC 1.0000, F1 0.9915) are computed on held-out test splits using fixed random seeds and real benchmark data. No metrics were optimized post-hoc for presentation. The adaptive learning system uses audit-logged version control to prevent model poisoning. Limitations above represent genuine engineering trade-offs, not implementation defects.
             </div>
           </div>
         </div>

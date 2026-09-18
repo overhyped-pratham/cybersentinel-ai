@@ -304,7 +304,8 @@ class SmokeTestRunner:
             has_story = "secAttackStory" in content
             has_unseen = "secUnseenDemo" in content
             has_adapt = "secAdaptiveLearning" in content
-            self.record("SOC Dashboard (dashboard/index.html)", has_analyst and has_floating and has_context_strip and has_story and has_unseen and has_adapt, "AI Security Analyst + Attack Story + Unseen Demo + Adaptive Learning")
+            has_limits = "secLimitations" in content
+            self.record("SOC Dashboard (dashboard/index.html)", has_analyst and has_floating and has_context_strip and has_story and has_unseen and has_adapt and has_limits, "AI Security Analyst + Attack Story + Unseen Demo + Adaptive Learning + Limitations")
         else:
             self.record("SOC Dashboard (dashboard/index.html)", False, "File missing")
 

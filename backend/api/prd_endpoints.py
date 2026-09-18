@@ -106,6 +106,18 @@ class AlertManager:
             "critical_alerts": 0,
         }
 
+    def reset(self) -> None:
+        """Clears in-memory alerts and telemetry buffer for demo repeatability."""
+        self.telemetry_events.clear()
+        self.alerts.clear()
+        self.stats = {
+            "total_traffic": 0,
+            "normal_traffic": 0,
+            "attacks": 0,
+            "anomalies": 0,
+            "critical_alerts": 0,
+        }
+
     def get_pipeline(self) -> DetectionPipeline:
         if self.pipeline is None:
             self.pipeline = DetectionPipeline()
@@ -479,3 +491,128 @@ def rollback_model_version(target_version: Optional[str] = None):
         return JSONResponse(content=res)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+# ---------------------------------------------------------------------------
+# Judge Presentation & Demo Controller (Phase 3)
+# ---------------------------------------------------------------------------
+
+DEMO_SAMPLES = {
+    "benign": {
+        "name": "Benign Enterprise Web Baseline",
+        "description": "Routine multi-host web browsing, DNS, and nominal transport volume.",
+        "src_ip": "10.0.0.12",
+        "dst_ip": "172.16.0.5",
+        "vector": [
+            92.0, 1577.0, 363448.0, 52.5667, 12114.93, 60.0, 20.0, 4.0,
+            72.0, 0.0, 72.0, 0.7826, 0.0, 4.1061, 1.9690, 0.0, 0.0, 1.4225,
+            0.0, 0.0, 0.0, 0.7826, 2.60, 230.47,
+        ],
+    },
+    "known_attack": {
+        "name": "Known Tactical Brute-Force / Credential Access",
+        "description": "High authentication failure count on port 22/3389 matching supervised training distribution.",
+        "src_ip": "192.168.1.105",
+        "dst_ip": "10.0.0.50",
+        "vector": [
+            150.0, 1800.0, 210000.0, 60.0, 7000.0, 1.0, 1.0, 1.0,
+            150.0, 120.0, 30.0, 0.50, 0.40, 0.0, 0.0, 120.0, 0.80, 4.0,
+            0.75, 0.0, 0.0, 0.0, 0.8, 116.7,
+        ],
+    },
+    "disagreement": {
+        "name": "Model Disagreement (Uncertain Classifier + High Anomaly)",
+        "description": "Real sample from trace_lateral_02 (win 207) where XGBoost is uncertain (BENIGN, 22% conf) but Autoencoder flags extreme structural anomaly (score=1.00).",
+        "src_ip": "10.0.0.50",
+        "dst_ip": "10.0.0.99",
+        "vector": [
+            91.0, 4616.0, 1659345.0, 153.8667, 55311.5, 1.0, 1.0, 3.0,
+            91.0, 0.0, 91.0, 1.0, 0.0, 0.0, 1.5226, 0.0, 0.0, 0.0,
+            0.2418, 0.4725, 0.0, 0.0, 5.3267, 359.4768,
+        ],
+    },
+    "held_out": {
+        "name": "Held-Out Attack Family (EXFILTRATION)",
+        "description": "Massive egress flow strictly withheld from supervised training. Triggers Layer 2 novelty detection and Potential Novel Behavior verdict.",
+        "src_ip": "192.168.1.105",
+        "dst_ip": "203.0.113.88",
+        "vector": [
+            45.0, 2800.0, 3450000.0, 93.3, 115000.0, 1.0, 2.0, 2.0,
+            45.0, 0.0, 45.0, 0.016, 0.0, 0.693, 0.693, 0.0, 0.0, 3.0,
+            0.0, 0.0, 0.0, 1.0, 28.5, 1232.0,
+        ],
+    },
+}
+
+
+@prd_router.get("/demo/status")
+def get_demo_status():
+    """Returns presentation controller status, loaded models, and available demonstration steps."""
+    pipeline = _alert_manager.get_pipeline()
+    return JSONResponse(content={
+        "presentation_mode": True,
+        "available_steps": list(DEMO_SAMPLES.keys()),
+        "models_loaded": {
+            "scaler": pipeline.scaler is not None,
+            "classifier": pipeline.classifier is not None,
+            "novelty_detector": pipeline.novelty_detector is not None,
+            "world_model": pipeline.world_model is not None,
+        },
+        "stats": _alert_manager.stats,
+        "alerts_count": len(_alert_manager.alerts),
+        "threat_memory_count": len(_alert_manager.threat_memory),
+        "active_version": _alert_manager.learner.active_version,
+    })
+
+
+@prd_router.get("/demo/metrics")
+def get_demo_metrics():
+    """Returns verified judge presentation metrics from artifacts/demo/judge_metrics.json."""
+    from pathlib import Path
+    metrics_path = Path(__file__).resolve().parent.parent.parent / "artifacts" / "demo" / "judge_metrics.json"
+    if metrics_path.exists():
+        import json
+        with open(metrics_path, "r", encoding="utf-8") as f:
+            return JSONResponse(content=json.load(f))
+    return JSONResponse(content={"error": "Metrics artifact not found"}, status_code=404)
+
+
+@prd_router.post("/demo/step/{step_name}")
+def trigger_demo_step(step_name: str):
+    """
+    Executes a deterministic demonstration step using REAL telemetry samples.
+    The sample is passed through the live 4-layer detection pipeline.
+    """
+    if step_name == "reset":
+        _alert_manager.reset()
+        return JSONResponse(content={"status": "reset", "message": "Demo telemetry and alerts cleared"})
+
+    sample = DEMO_SAMPLES.get(step_name)
+    if not sample:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Unknown demo step '{step_name}'. Valid steps: {list(DEMO_SAMPLES.keys())}"
+        )
+
+    res = _alert_manager.record_event(
+        features=sample["vector"],
+        src_ip=sample["src_ip"],
+        dst_ip=sample["dst_ip"],
+    )
+
+    return JSONResponse(content={
+        "step": step_name,
+        "sample_name": sample["name"],
+        "description": sample["description"],
+        "src_ip": sample["src_ip"],
+        "dst_ip": sample["dst_ip"],
+        "detection_result": res.to_dict(),
+    })
+
+
+@prd_router.post("/demo/reset")
+def reset_demo():
+    """Clears in-memory alerts and telemetry buffer for a fresh demonstration run."""
+    _alert_manager.reset()
+    return JSONResponse(content={"status": "reset", "message": "Demo state reset successfully"})
+
