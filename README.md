@@ -63,12 +63,15 @@ cybersentinel-ai/
 │   ├── state/          # NetworkStateBuilder (24-D physical state vector, 0 leakage)
 │   ├── defense/        # Dynamic RiskEngine (multi-factor severity scoring)
 │   ├── calibration/    # Temperature scaling calibration artifact (T*=1.5680)
-│   └── preprocessing/  # FeatureScaler, SequenceBuilder, StageLabeler
+│   ├── preprocessing/  # FeatureScaler, SequenceBuilder, StageLabeler
+│   ├── classifier/     # Layer 1 KnownAttackClassifier (XGBoost multi-class + SHAP)
+│   ├── novelty/        # Layer 2 AutoencoderNoveltyDetector (PyTorch baseline)
+│   └── adaptation/     # Phase 17 AdaptiveLearner, ThreatMemory & Rollback Guard
 ├── mitre/              # MITRE ATT&CK v14 deterministic stage-to-technique mapper
 ├── datasets/           # Multi-scenario flow traces (multistage attack traces)
 ├── docs/               # Architecture, audit reports, benchmarks, validation docs
-├── scripts/            # Inference benchmarks, training pipelines, start launcher
-└── tests/              # Test suite (248/248 passing: causality, live ingest, WS, equivalence, Phase 14, Phase 16, Simulator)
+├── scripts/            # Inference benchmarks, smoke tests, training pipelines
+└── tests/              # Test suite (328/328 passing: causality, live ingest, WS, equivalence, Phase 14, Phase 16, Simulator, Adaptive Learning, Grounded Gemini)
 ```
 
 ---
@@ -133,11 +136,19 @@ Generate controlled synthetic telemetry from any smartphone/tablet on the local 
 
 ## 6. Verification & Benchmarking
 
-Run the complete 248-test automated suite:
+### Automated Verification Test Suite (328 / 328 Passing)
+Run the complete automated test suite covering causality, live ingestion, WebSockets, model equivalence, Phase 14 multi-host, Phase 16 two-machine, bot simulator, Adaptive Learning evaluation, and grounded Gemini reasoning:
 ```powershell
 pytest tests/ -v
 ```
 
+### Pre-Flight System Smoke Test (30 / 30 Checks Passed)
+Execute the comprehensive end-to-end smoke test validating all 6 core subsystems (models, scalers, PyTorch world model, explainability, Gemini analyst, and endpoints):
+```powershell
+python scripts/smoke_test.py
+```
+
+### Performance & Memory Stability Benchmark
 Run the Phase 13 performance and memory stability benchmark:
 ```powershell
 python scripts/benchmark_phase13.py --runs 100
@@ -153,7 +164,40 @@ python scripts/benchmark_phase13.py --runs 100
 
 ---
 
-## 7. Security Boundaries, Hardening & Fail-Closed Behavior
+## 7. Human-in-the-Loop Adaptive Learning (Phase 17)
+
+CyberSentinel AI incorporates a continuous learning loop with human oversight evaluated on held-out unseen data:
+
+$$\text{Telemetry Alert} \xrightarrow{\text{Novelty Autoencoder}} \text{Analyst Validation} \xrightarrow{\text{ThreatMemory}} \text{AdaptiveLearner} \xrightarrow{\text{Unseen Test}} \text{Deploy / Rollback}$$
+
+1. **Unseen Anomaly Detection**: Layer 2 PyTorch Autoencoder detects statistical divergence from benign network baselines.
+2. **SOC Analyst Validation**: The analyst validates novel samples through the interactive console without interrupting live monitoring.
+3. **ThreatMemory Ledger**: Confirmed samples enter persistent `ThreatMemory` with full timestamp and provenance metadata.
+4. **Controlled Adaptation**: Model fine-tuning is bounded to preserve zero data leakage and avoid catastrophic forgetting.
+5. **Instant Rollback Guard**: If validation metrics degrade on held-out test sets, the system automatically rolls back to the prior certified model checkpoint.
+
+See [`docs/ADAPTIVE_LEARNING_VERIFICATION.md`](docs/ADAPTIVE_LEARNING_VERIFICATION.md) for full experimental metrics and verification proof.
+
+---
+
+## 8. Deployment Options
+
+### Local / LAN SOC Command Center (Judging & Live Demos)
+```powershell
+python scripts/start_server.py --host 0.0.0.0 --port 8000
+```
+- **SOC Dashboard**: `http://localhost:8000/ui/index.html?view=command`
+- **Mobile Simulator**: `http://<LAN_IP>:8000/ui/simulator.html`
+- **Interactive API Docs**: `http://localhost:8000/docs`
+
+### Cloud Deployment (Render / Docker)
+The repository includes a production `Dockerfile` and `render.yaml` blueprint:
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `uvicorn backend.app:app --host 0.0.0.0 --port $PORT`
+
+---
+
+## 9. Security Boundaries, Hardening & Fail-Closed Behavior
 
 - **Strictly Defensive**: Operates exclusively as a passive observer, forecaster, and explainer. Does not inject packets, perform port scans, or execute offensive actions.
 - **Zero Hardcoded Intelligence**: No stage transitions, risk scores, probabilities, or feature importances are hardcoded or scenario-dependent. All intelligence is computed at runtime from observed telemetry.
@@ -167,7 +211,7 @@ python scripts/benchmark_phase13.py --runs 100
 
 ---
 
-## 8. Limitations
+## 10. Limitations
 
 - **Window Granularity**: High-frequency attacks occurring entirely within < 1 second are aggregated into the containing 30-second window.
 - **Zero Lookahead Constraint**: The model cannot predict unprecedented external zero-day vectors that do not perturb network traffic patterns.
