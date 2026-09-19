@@ -5,6 +5,10 @@ scipy
 pandas
 scikit-learn
 xgboost
+shap
+joblib
+matplotlib
+seaborn
 fastapi
 uvicorn[standard]
 pydantic
@@ -13,3 +17,5 @@ google-genai
 websockets
 requests
 pyyaml
+python-dateutil
+psutil
