@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#F9F6F0">
 <title>CyberSentinel Traffic Simulator — Botnet Attack Simulator & Threat Emulation Swarm</title>
 <link rel="manifest" href="/ui/manifest.json">
@@ -300,12 +303,281 @@ body {
     grid-column: span 2;
   }
 }
+
+/* ─── TABLET & MOBILE RESPONSIVE ENGINE (max-width: 900px) ───────────────── */
 @media (max-width: 900px) {
+  body {
+    padding: 12px 12px 80px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(80px, calc(65px + env(safe-area-inset-bottom)));
+  }
+  .app-shell {
+    gap: 12px;
+  }
+  .app-header {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .brand-titles h1 {
+    font-size: 17px;
+  }
+  .brand-titles .sub {
+    font-size: 10px;
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .api-pill {
+    flex: 1 1 auto;
+    min-width: 130px;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+  .api-pill input {
+    width: 100%;
+    min-width: 70px;
+    font-size: 10px;
+  }
+  .status-pill {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+  .nav-link-btn, .theme-toggle-btn {
+    padding: 4px 9px;
+    font-size: 10.5px;
+  }
+
+  /* 2x3 Compact Telemetry Ticker on Mobile */
+  .metrics-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .metric-box {
+    padding: 8px 10px;
+    gap: 2px;
+  }
+  .metric-box .label {
+    font-size: 9px;
+  }
+  .metric-box .val {
+    font-size: 16px;
+  }
+
+  /* Ergonomic mobile stack order: 
+     1: Attack Vector Selection & Launch Buttons
+     2: Live Threat Intelligence & Rollout
+     3: Radar Topology & Wire Flow Records */
   .simulator-layout {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .simulator-layout > .card:nth-child(1) {
+    order: 1;
   }
   .feedback-panel {
+    order: 2;
+    grid-column: auto;
+  }
+  .simulator-layout > .card:nth-child(2) {
+    order: 3;
+  }
+
+  /* Touch-friendly buttons (iOS HIG / Android 44px min touch targets) */
+  .action-buttons {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .btn {
+    min-height: 46px;
+    font-size: 11px;
+    touch-action: manipulation;
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  .btn-single {
+    min-height: 44px;
+  }
+
+  /* Compact Topology Radar Canvas on Mobile */
+  .topology-wrap {
+    height: 220px;
+  }
+
+  /* Touch feedback & compact profile cards */
+  .profile-card {
+    padding: 9px 11px;
+    touch-action: manipulation;
+  }
+  .profile-card:active {
+    transform: scale(0.985);
+  }
+  .profile-name {
+    font-size: 12px;
+  }
+  .profile-desc {
+    font-size: 10.5px;
+  }
+
+  /* 2x2 Flag meter grid */
+  .flags-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .flag-card {
+    padding: 6px 8px;
+  }
+  .flag-count {
+    font-size: 14px;
+  }
+
+  /* Flow Table scrolling */
+  .flow-table-wrap {
+    max-height: 180px;
+  }
+  .flow-table th, .flow-table td {
+    padding: 4px 6px;
+    font-size: 9.5px;
+  }
+
+  /* Rollout chips */
+  .rollout-chips {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .rollout-chip {
+    padding: 6px 2px;
+  }
+  .chip-step {
+    font-size: 8px;
+  }
+  .chip-stage {
+    font-size: 8.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .brand-group {
+    justify-content: flex-start;
+  }
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .api-pill {
+    width: 100%;
+  }
+  .status-pill {
+    justify-content: center;
+  }
+  .metrics-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+  .btn-single {
     grid-column: span 1;
+  }
+}
+
+/* ─── MOBILE STICKY ACTION DOCK ──────────────────────────────────────────── */
+.mobile-action-dock {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-action-dock {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    backdrop-filter: blur(12px);
+  }
+  .dock-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 55%;
+  }
+  .dock-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
+  }
+  .dock-profile {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dock-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .dock-btn {
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-weight: 800;
+    font-size: 11px;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 40px;
+    padding: 8px 14px;
+    touch-action: manipulation;
+    transition: all .15s ease;
+  }
+  .dock-btn-launch {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(200, 43, 20, 0.35);
+  }
+  .dock-btn-launch.running {
+    background: #B91C1C;
+    animation: pulseBtn 1.2s infinite alternate;
+  }
+  .dock-btn-launch:active {
+    transform: scale(0.96);
+  }
+  .dock-btn-stop {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+  }
+  .dock-btn-stop:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 }
 
@@ -1319,6 +1591,22 @@ select.custom-select {
 
 </div>
 
+<!-- Mobile Quick-Action Dock (Fixed at bottom on mobile screens <= 768px) -->
+<div id="mobileActionDock" class="mobile-action-dock">
+  <div class="dock-info">
+    <span class="dock-dot" id="dockDot"></span>
+    <span class="dock-profile" id="dockProfileLabel">Normal Baseline Traffic</span>
+  </div>
+  <div class="dock-actions">
+    <button class="dock-btn dock-btn-launch" id="dockBtnLaunch" onclick="startSimulation()">
+      <span>⚡</span> LAUNCH
+    </button>
+    <button class="dock-btn dock-btn-stop" id="dockBtnStop" onclick="stopSimulation()" disabled title="Stop Attack">
+      <span>⏹</span>
+    </button>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <!-- Simulation & Animation Engine -->
@@ -1394,6 +1682,10 @@ window.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('theme-dark');
     document.getElementById('themeToggleBtn').innerHTML = '<span>☀️ SlowBros Cream</span>';
   }
+
+  // Init mobile dock label
+  const dockProfile = document.getElementById('dockProfileLabel');
+  if (dockProfile) dockProfile.textContent = PROFILE_TITLES['normal'] || 'Normal Baseline Traffic';
 });
 
 function toggleTheme() {
@@ -1493,7 +1785,10 @@ const PROFILE_TITLES = {
 
 function selectProfile(key) {
   currentProfile = key;
-  document.getElementById('activeProfileLabel').textContent = PROFILE_TITLES[key] || key;
+  const title = PROFILE_TITLES[key] || key;
+  document.getElementById('activeProfileLabel').textContent = title;
+  const dockProfile = document.getElementById('dockProfileLabel');
+  if (dockProfile) dockProfile.textContent = title;
   
   const cards = document.querySelectorAll('.profile-card');
   cards.forEach(c => c.classList.remove('active'));
@@ -1942,6 +2237,16 @@ function startSimulation() {
   canvasBadge.textContent = 'ATTACK ACTIVE';
   canvasBadge.className = 'badge-tag badge-attack';
 
+  const dockBtnLaunch = document.getElementById('dockBtnLaunch');
+  const dockBtnStop = document.getElementById('dockBtnStop');
+  const dockDot = document.getElementById('dockDot');
+  if (dockBtnLaunch) {
+    dockBtnLaunch.classList.add('running');
+    dockBtnLaunch.innerHTML = '<span>⚡</span> ATTACKING...';
+  }
+  if (dockBtnStop) dockBtnStop.disabled = false;
+  if (dockDot) dockDot.style.background = 'var(--accent)';
+
   const rate = parseInt(document.getElementById('rateSlider').value, 10);
   const durationSec = parseInt(document.getElementById('durationSelect').value, 10);
 
@@ -1996,6 +2301,16 @@ function stopSimulation() {
   canvasBadge.textContent = 'IDLE';
   canvasBadge.className = 'badge-tag badge-normal';
 
+  const dockBtnLaunch = document.getElementById('dockBtnLaunch');
+  const dockBtnStop = document.getElementById('dockBtnStop');
+  const dockDot = document.getElementById('dockDot');
+  if (dockBtnLaunch) {
+    dockBtnLaunch.classList.remove('running');
+    dockBtnLaunch.innerHTML = '<span>⚡</span> LAUNCH';
+  }
+  if (dockBtnStop) dockBtnStop.disabled = true;
+  if (dockDot) dockDot.style.background = 'var(--green)';
+
   showToast('Simulation stopped');
 }
 
@@ -2034,6 +2349,7 @@ function resizeCanvas() {
   canvas.width = rect.width * window.devicePixelRatio || 600;
   canvas.height = rect.height * window.devicePixelRatio || 440;
   ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  buildTopologyNodes();
 }
 
 function buildTopologyNodes() {
