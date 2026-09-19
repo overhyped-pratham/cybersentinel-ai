@@ -1,0 +1,15 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+numpy
+scipy
+pandas
+scikit-learn
+xgboost
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+google-genai
+websockets
+requests
+pyyaml
