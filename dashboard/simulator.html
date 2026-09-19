@@ -912,7 +912,7 @@ select.custom-select {
     <div class="header-actions">
       <div class="api-pill" title="Backend API Endpoint">
         <span style="color:var(--muted)">API:</span>
-        <input type="text" id="backendUrl" value="http://localhost:8000">
+        <input type="text" id="backendUrl" value="" placeholder="e.g. http://localhost:8000" title="Backend API Origin (auto-detected)">
       </div>
       <div id="connStatus" class="status-pill checking" onclick="checkBackendConnection()" style="cursor:pointer" title="Click to test connection">
         <span class="dot pulse"></span>
@@ -1339,8 +1339,51 @@ let recentFlows = [];
 let sessionId = 'botnet_sim_' + Math.random().toString(36).substring(2, 9);
 let ws = null;
 
+/* ─── Backend URL Resolution ────────────────────────────────────────────── */
+function getDefaultBackendUrl() {
+  if (typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.startsWith('http')) {
+    // If running on Vite dev server (port 5173 or 3000), point to FastAPI backend port 8000
+    if (window.location.port === '5173' || window.location.port === '3000') {
+      return `${window.location.protocol}//${window.location.hostname}:8000`;
+    }
+    // Production / Render / LAN server: use same origin
+    return window.location.origin;
+  }
+  return 'http://localhost:8000';
+}
+
+function getBackendUrl() {
+  const el = document.getElementById('backendUrl');
+  let url = (el && el.value) ? el.value.trim() : '';
+  if (!url) {
+    url = getDefaultBackendUrl();
+    if (el) el.value = url;
+  }
+  if (url.endsWith('/')) url = url.slice(0, -1);
+  return url;
+}
+
 /* ─── Initialization ────────────────────────────────────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
+  const backendInput = document.getElementById('backendUrl');
+  if (backendInput) {
+    const saved = localStorage.getItem('cs_simulator_backend_url');
+    backendInput.value = saved || getDefaultBackendUrl();
+
+    backendInput.addEventListener('change', () => {
+      localStorage.setItem('cs_simulator_backend_url', backendInput.value.trim());
+      checkBackendConnection();
+      initWebSocket();
+    });
+    backendInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        localStorage.setItem('cs_simulator_backend_url', backendInput.value.trim());
+        checkBackendConnection();
+        initWebSocket();
+      }
+    });
+  }
+
   checkBackendConnection();
   initWebSocket();
   initCanvas();
@@ -1359,12 +1402,6 @@ function toggleTheme() {
   document.getElementById('themeToggleBtn').innerHTML = isDark 
     ? '<span>☀️ SlowBros Cream</span>' 
     : '<span>🌙 Cyber Dark</span>';
-}
-
-function getBackendUrl() {
-  let url = document.getElementById('backendUrl').value.trim();
-  if (url.endsWith('/')) url = url.slice(0, -1);
-  return url;
 }
 
 /* ─── Backend Connectivity ──────────────────────────────────────────────── */
@@ -1397,7 +1434,7 @@ async function checkBackendConnection() {
     statusEl.className = 'status-pill offline';
     textEl.textContent = 'OFFLINE';
     latEl.textContent = '';
-    showToast('Backend offline — please verify http://localhost:8000');
+    showToast(`Backend offline: unable to reach ${backendUrl}`);
   }
 }
 
@@ -1405,8 +1442,16 @@ async function checkBackendConnection() {
 function initWebSocket() {
   const wsLabel = document.getElementById('wsStatusLabel');
   try {
+    if (ws) {
+      try { ws.close(); } catch (e) {}
+      ws = null;
+    }
     const backendUrl = getBackendUrl();
-    const wsUrl = backendUrl.replace(/^http/, 'ws') + '/api/v1/stream/ws';
+    const isHttps = backendUrl.startsWith('https://');
+    const cleanHost = backendUrl.replace(/^https?:\/\//, '');
+    const wsProto = isHttps ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProto}//${cleanHost}/api/v1/stream/ws`;
+
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -1416,7 +1461,7 @@ function initWebSocket() {
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        if (msg.status === 'FORECAST') {
+        if (msg.status === 'FORECAST' || msg.status === 'SUCCESS' || msg.type === 'telemetry_pulse') {
           updateIntelligenceFeedback(msg);
         }
       } catch (e) {}
