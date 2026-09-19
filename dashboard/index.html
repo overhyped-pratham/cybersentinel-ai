@@ -907,6 +907,22 @@ spline-viewer {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
+.adapt-workflow-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: start;
+  gap: 0;
+}
+@media (max-width: 900px) {
+  .adapt-workflow-grid {
+    grid-template-columns: 1fr;
+  }
+  .adapt-workflow-grid > div[style*="padding-top:32px"] {
+    padding-top: 0 !important;
+    padding: 4px 0 !important;
+    font-size: 14px !important;
+  }
+}
 
 /* ─── ATTACK LIFECYCLE ───────────────────────────────────────────────── */
 .lifecycle-list {
@@ -2945,105 +2961,149 @@ spline-viewer {
 
       <!-- ─── 10. PRIORITY 5 WOW FEATURE: ADAPTIVE THREAT LEARNING ───────── -->
       <section id="secAdaptiveLearning" style="margin-top:24px">
-        <div class="glass-panel" style="padding:22px 24px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-size:24px">🔄</span>
+        <div class="glass-panel" style="padding:18px 20px">
+
+          <!-- ── HEADER ROW ── -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:16px">🔄</span>
               <div>
-                <h3 style="font-family:var(--serif);font-size:18px;font-weight:800;color:var(--text);margin-bottom:2px">
-                  HUMAN-IN-THE-LOOP ADAPTIVE LEARNING & THREAT MEMORY
-                </h3>
-                <div style="font-size:11.5px;color:var(--muted);font-family:var(--mono)">
-                  Analyst validation converts novel alerts into verified samples, triggering controlled retraining with full rollback.
-                </div>
+                <div style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--text);letter-spacing:0.04em">ADAPTIVE LEARNING</div>
+                <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">Human-validated threat memory</div>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="badge badge-observed" id="activeModelVersionBadge">ACTIVE VERSION: v2.0.0</span>
+            <!-- Active model status pill -->
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px">
+                <span style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Active Model</span>
+                <span id="activeModelVersionBadge" style="font-family:var(--mono);font-size:12px;font-weight:800;color:#38bdf8">v2.0.0</span>
+                <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--green);font-family:var(--mono)">
+                  <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block"></span>ACTIVE
+                </span>
+              </div>
+              <div id="threatMemoryCountLabel" style="font-family:var(--mono);font-size:11px;color:var(--muted)">Memory: — samples</div>
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px" class="grid-2col">
-            <!-- Left: Validation Form -->
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
-              <div style="font-family:var(--mono);font-size:11.5px;font-weight:800;color:var(--text);margin-bottom:12px;text-transform:uppercase">
-                HUMAN ANALYST VALIDATION CONSOLE:
+          <!-- ── 3-STEP WORKFLOW ── -->
+          <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:start;gap:0;margin-bottom:14px" class="adapt-workflow-grid">
+
+            <!-- STEP 1: ALERT -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+                <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">01</span>
+                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Alert</span>
               </div>
-              <div style="display:flex;flex-direction:column;gap:10px">
+              <div id="adaptAlertVerdict" style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Potential Novel Behavior</div>
+              <div style="display:flex;flex-direction:column;gap:3px">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+                  <span>Risk</span><span id="adaptAlertRisk" style="color:var(--text)">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+                  <span>Anomaly</span><span id="adaptAlertAnomaly" style="color:var(--text)">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+                  <span>Event ID</span><span id="adaptAlertEventId" style="color:var(--text);font-family:var(--mono);font-size:10px">exfil-held-out</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Connector arrow -->
+            <div style="display:flex;align-items:center;justify-content:center;padding:0 8px;color:var(--muted);font-size:16px;padding-top:32px">↓</div>
+
+            <!-- STEP 2: ANALYST VALIDATION -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+                <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">02</span>
+                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Analyst Validation</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:7px">
                 <div>
-                  <label style="font-size:11px;color:var(--muted);font-family:var(--mono)">Ground-Truth Classification Label:</label>
-                  <select id="adaptLabelSelect" style="width:100%;margin-top:4px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono)">
-                    <option value="EXFILTRATION">EXFILTRATION (Confirmed Novel Threat)</option>
-                    <option value="CREDENTIAL_ACCESS">CREDENTIAL_ACCESS (Brute Force / Kerberoast)</option>
-                    <option value="LATERAL_MOVEMENT">LATERAL_MOVEMENT (SMB / RDP Pivot)</option>
-                    <option value="RECONNAISSANCE">RECONNAISSANCE (Port Scan / Discovery)</option>
-                    <option value="BENIGN">BENIGN (False Positive Normal Traffic)</option>
+                  <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:3px">Ground Truth</div>
+                  <select id="adaptLabelSelect" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px">
+                    <option value="EXFILTRATION">EXFILTRATION</option>
+                    <option value="CREDENTIAL_ACCESS">CREDENTIAL_ACCESS</option>
+                    <option value="LATERAL_MOVEMENT">LATERAL_MOVEMENT</option>
+                    <option value="RECONNAISSANCE">RECONNAISSANCE</option>
+                    <option value="BENIGN">BENIGN (False Positive)</option>
                   </select>
                 </div>
-                <div>
-                  <label style="font-size:11px;color:var(--muted);font-family:var(--mono)">Verdict / Threat Status:</label>
-                  <div style="display:flex;gap:16px;margin-top:4px">
-                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-                      <input type="radio" name="adaptVerdict" value="true" checked>
-                      <span style="color:var(--red);font-weight:700">Confirmed Malicious Attack</span>
-                    </label>
-                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-                      <input type="radio" name="adaptVerdict" value="false">
-                      <span style="color:var(--green);font-weight:700">Benign False Positive</span>
-                    </label>
-                  </div>
+                <div style="display:flex;gap:10px">
+                  <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;white-space:nowrap">
+                    <input type="radio" name="adaptVerdict" value="true" checked>
+                    <span style="color:var(--red);font-weight:700">Malicious</span>
+                  </label>
+                  <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;white-space:nowrap">
+                    <input type="radio" name="adaptVerdict" value="false">
+                    <span style="color:var(--green);font-weight:700">False Positive</span>
+                  </label>
                 </div>
-                <div>
-                  <label style="font-size:11px;color:var(--muted);font-family:var(--mono)">Analyst Rationale / Notes:</label>
-                  <input type="text" id="adaptNotesInput" value="Analyst confirmed novel exfiltration behavior across outbound port 443." style="width:100%;margin-top:4px;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px">
-                </div>
-                <div style="display:flex;gap:10px;margin-top:6px">
-                  <button class="btn btn-secondary" onclick="submitAnalystValidation(false)" style="flex:1;font-size:11px">
-                    <span>💾 Save to Threat Memory</span>
+                <input type="text" id="adaptNotesInput" placeholder="Analyst notes..." value="Analyst confirmed novel exfiltration behavior across outbound port 443." style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;box-sizing:border-box">
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-secondary" onclick="submitAnalystValidation(false)" style="flex:1;font-size:10px;padding:6px 8px">
+                    💾 Save
                   </button>
-                  <button class="btn btn-primary" onclick="submitAnalystValidation(true)" style="flex:1.2;font-size:11px">
-                    <span>🔄 Adapt Model (Train + Rollout)</span>
+                  <button class="btn btn-primary" onclick="submitAnalystValidation(true)" style="flex:1.4;font-size:10px;padding:6px 8px">
+                    🔄 Confirm &amp; Learn
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Right: Before vs After Evaluation Scorecard -->
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;justify-content:space-between">
-              <div>
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-                  <span style="font-family:var(--mono);font-size:11.5px;font-weight:800;color:var(--text);text-transform:uppercase">
-                    BEFORE vs AFTER ADAPTATION SCORECARD:
-                  </span>
-                  <button class="btn btn-danger" onclick="rollbackActiveModel()" style="font-size:10px;padding:4px 10px" title="Revert to previous snapshot">
-                    <span>⏪ Rollback</span>
-                  </button>
-                </div>
-                <div id="adaptScorecardContent" style="font-size:12px;color:var(--text-dim);line-height:1.6">
-                  <div style="background:var(--surface3);padding:10px 14px;border-radius:8px;margin-bottom:10px">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-                      <span>Pre-Adaptation Novel Recognition:</span>
-                      <strong style="color:var(--yellow)">0.0% (Uncertain)</strong>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-                      <span>Post-Adaptation Threat Recognition:</span>
-                      <strong style="color:var(--green)">100.0% (Verified)</strong>
-                    </div>
-                    <div style="display:flex;justify-content:space-between">
-                      <span>Confidence Delta:</span>
-                      <strong style="color:#38bdf8">+49.1% Confidence Gain</strong>
-                    </div>
-                  </div>
-                  <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">
-                    Controlled update logs saved to <code style="color:var(--text)">artifacts/adaptation/adaptation_ledger.json</code>
-                  </div>
-                </div>
+            <!-- Connector arrow -->
+            <div style="display:flex;align-items:center;justify-content:center;padding:0 8px;color:var(--muted);font-size:16px;padding-top:32px">↓</div>
+
+            <!-- STEP 3: LEARNING UPDATE -->
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+                <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">03</span>
+                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Learning Update</span>
               </div>
-              <div id="threatMemoryCountLabel" style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:10px">
-                Total Validated Cases in Threat Memory: 1 sample
+              <div id="adaptScorecardContent" style="font-size:11px;color:var(--text-dim);line-height:1.6">
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;justify-content:space-between">
+                    <span style="color:var(--muted)">Samples added</span>
+                    <span id="adaptSampleCount" style="color:var(--text);font-weight:700">—</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="color:var(--muted)">Version</span>
+                    <span style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px">
+                      <span id="adaptFromVersion" style="color:var(--muted)">v2.0.0</span>
+                      <span style="color:var(--muted)">→</span>
+                      <span id="adaptToVersion" style="color:#38bdf8;font-weight:700">—</span>
+                    </span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between">
+                    <span style="color:var(--muted)">Accuracy after</span>
+                    <span id="adaptAccuracyAfter" style="color:var(--green);font-weight:700">—</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between">
+                    <span style="color:var(--muted)">Confidence Δ</span>
+                    <span id="adaptConfidenceDelta" style="color:#38bdf8;font-weight:700">—</span>
+                  </div>
+                </div>
+                <div style="margin-top:8px;padding:6px 8px;background:var(--surface3);border-radius:6px;font-size:10px;color:var(--muted);font-family:var(--mono)">
+                  Awaiting analyst validation...
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- ── FOOTER ACTIONS ── -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px">
+            <div style="font-size:10px;color:var(--muted);font-family:var(--mono)">
+              Audit ledger → <code style="color:var(--text)">artifacts/adaptation/adaptation_ledger.json</code>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-secondary" onclick="loadAdaptationHistory()" style="font-size:11px;padding:5px 14px">
+                📋 View History
+              </button>
+              <button class="btn btn-danger" onclick="rollbackActiveModel()" style="font-size:11px;padding:5px 14px" title="Revert to previous checkpoint">
+                ↩ Rollback
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -3307,6 +3367,17 @@ async function checkHealth() {
   }
 }
 
+async function initAdaptLearningPanel() {
+  try {
+    const s = await fetch(`${PRD_API}/statistics`).then(r => r.ok ? r.json() : null);
+    if (!s) return;
+    const memLabel = document.getElementById('threatMemoryCountLabel');
+    if (memLabel && s.threat_memory_total != null) {
+      memLabel.textContent = `Memory: ${s.threat_memory_total} sample(s)`;
+    }
+  } catch (e) {}
+}
+
 async function pollSystemHealth() {
   try {
     const h = await api('/stream/health');
@@ -3545,6 +3616,7 @@ function applyForecast(fc, isReplay = false, sourceKind = 'Local Trace Replay') 
   renderRollout(fc);
   renderIncidentResponseActions(fc);
   renderTimelineEntry(fc);
+  populateAdaptAlert(fc); // keep Step 1 alert panel in sync
 
   // Sync to globe HUD
   updateGlobeHUD(fc);
@@ -4835,46 +4907,37 @@ async function submitAnalystValidation(triggerUpdate = false) {
 
     const data = await res.json();
 
+    // Update threat memory count
     const memLabel = document.getElementById('threatMemoryCountLabel');
     if (memLabel && data.threat_memory_total != null) {
-      memLabel.textContent = `Total Validated Cases in Threat Memory: ${data.threat_memory_total} sample(s)`;
+      memLabel.textContent = `Memory: ${data.threat_memory_total} sample(s)`;
     }
 
     if (triggerUpdate && data.adaptation_record) {
       const rec = data.adaptation_record;
-      const badge = document.getElementById('activeModelVersionBadge');
-      if (badge) badge.textContent = `ACTIVE VERSION: v${rec.to_version}`;
-
       const delta = rec.metrics_delta || {};
-      const card = document.getElementById('adaptScorecardContent');
-      if (card) {
-        card.innerHTML = `
-          <div style="background:var(--surface3);padding:10px 14px;border-radius:8px;margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <span>Active Model Version:</span>
-              <strong style="color:#38bdf8">v${rec.to_version}</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <span>New Validated Samples:</span>
-              <strong style="color:var(--text)">${rec.sample_count || 1}</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-              <span>Post-Adaptation Accuracy:</span>
-              <strong style="color:var(--green)">${((rec.after_metrics?.accuracy || 0.99) * 100).toFixed(1)}%</strong>
-            </div>
-            <div style="display:flex;justify-content:space-between">
-              <span>Confidence Gain:</span>
-              <strong style="color:var(--green)">+${((delta.confidence_delta || 0.45) * 100).toFixed(1)}%</strong>
-            </div>
-          </div>
-          <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">
-            Audit entry logged to <code style="color:var(--text)">artifacts/adaptation/adaptation_ledger.json</code>
-          </div>
-        `;
-      }
-      showToast(`Model successfully adapted to v${rec.to_version}! Rollback snapshot preserved.`, 'info');
+
+      // Update version badge (header pill)
+      const badge = document.getElementById('activeModelVersionBadge');
+      if (badge) badge.textContent = `v${rec.to_version}`;
+
+      // Step 3: populate all metric cells
+      const setSafe = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setSafe('adaptSampleCount', rec.sample_count != null ? rec.sample_count : '—');
+      setSafe('adaptFromVersion', `v${rec.from_version}`);
+      setSafe('adaptToVersion', `v${rec.to_version}`);
+      setSafe('adaptAccuracyAfter', rec.after_metrics?.accuracy != null
+        ? `${(rec.after_metrics.accuracy * 100).toFixed(1)}%` : '—');
+      setSafe('adaptConfidenceDelta', delta.confidence_delta != null
+        ? `+${(delta.confidence_delta * 100).toFixed(1)}%` : '—');
+
+      // Clear the awaiting note
+      const awaitNote = document.querySelector('#adaptScorecardContent .adapt-await-note');
+      if (awaitNote) awaitNote.textContent = `Audit entry → adaptation_ledger.json`;
+
+      showToast(`Model adapted to v${rec.to_version}! Rollback snapshot preserved.`, 'info');
     } else {
-      showToast(`Analyst feedback saved to Threat Memory (${data.threat_memory_total || 1} cases)`, 'info');
+      showToast(`Feedback saved to Threat Memory (${data.threat_memory_total || 1} cases)`, 'info');
     }
   } catch (err) {
     console.error('Error submitting feedback:', err);
@@ -4891,27 +4954,58 @@ async function rollbackActiveModel() {
     }
 
     const data = await res.json();
-    const badge = document.getElementById('activeModelVersionBadge');
-    if (badge) badge.textContent = `ACTIVE VERSION: v${data.restored_version}`;
+    const restoredVer = data.restored_version || data.active_version || '—';
 
-    const card = document.getElementById('adaptScorecardContent');
-    if (card) {
-      card.innerHTML = `
-        <div style="background:var(--surface3);padding:10px 14px;border-radius:8px;margin-bottom:10px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-            <span>Rollback State:</span>
-            <strong style="color:var(--yellow)">Restored to v${data.restored_version}</strong>
-          </div>
-          <div style="font-size:11.5px;color:var(--text-dim)">
-            Model weights reloaded from previous safe checkpoint. Zero downtime rollback verified.
-          </div>
-        </div>
-      `;
-    }
-    showToast(`Model rolled back to v${data.restored_version}`, 'warn');
+    // Update version badge
+    const badge = document.getElementById('activeModelVersionBadge');
+    if (badge) badge.textContent = `v${restoredVer}`;
+
+    // Update Step 3 to reflect rollback state
+    const setSafe = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setSafe('adaptToVersion', `v${restoredVer} (restored)`);
+    setSafe('adaptSampleCount', '—');
+    setSafe('adaptAccuracyAfter', '—');
+    setSafe('adaptConfidenceDelta', '—');
+
+    showToast(`Model rolled back to v${restoredVer}`, 'warn');
   } catch (err) {
     console.error('Error rolling back model:', err);
     showToast(err.message || 'No prior checkpoint available to rollback', 'warn');
+  }
+}
+
+// Populate Step 1 Alert panel from the most recent pipeline result
+function populateAdaptAlert(result) {
+  if (!result) return;
+  const setSafe = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setSafe('adaptAlertVerdict', result.threat_classification || 'No data available');
+  setSafe('adaptAlertRisk', result.risk_score != null ? `${result.risk_score.toFixed(1)}/100` : '—');
+  setSafe('adaptAlertAnomaly', result.novelty_detector?.anomaly_score != null
+    ? result.novelty_detector.anomaly_score.toFixed(2) : '—');
+}
+
+async function loadAdaptationHistory() {
+  try {
+    const res = await fetch(`${PRD_API}/adaptation/history`);
+    if (!res.ok) { showToast('No adaptation history available', 'warn'); return; }
+    const data = await res.json();
+    const history = data.updates || data.history || [];
+    if (!history.length) { showToast('No adaptation history found', 'warn'); return; }
+    const last = history[history.length - 1];
+    const setSafe = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setSafe('adaptFromVersion', `v${last.from_version}`);
+    setSafe('adaptToVersion', `v${last.to_version}`);
+    setSafe('adaptSampleCount', last.sample_count ?? '—');
+    setSafe('adaptAccuracyAfter', last.after_metrics?.accuracy != null
+      ? `${(last.after_metrics.accuracy * 100).toFixed(1)}%` : '—');
+    const delta = last.metrics_delta || {};
+    setSafe('adaptConfidenceDelta', delta.confidence_delta != null
+      ? `+${(delta.confidence_delta * 100).toFixed(1)}%` : '—');
+    const badge = document.getElementById('activeModelVersionBadge');
+    if (badge) badge.textContent = `v${last.to_version}`;
+    showToast(`Loaded adaptation history (${history.length} update(s))`, 'info');
+  } catch (err) {
+    showToast('Could not load adaptation history', 'warn');
   }
 }
 
@@ -4935,6 +5029,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await checkHealth();
   await loadScenarios();
   await pollSystemHealth();
+  await initAdaptLearningPanel();
 
   // Initialize Attack Story
   loadAttackStory();

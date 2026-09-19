@@ -1,0 +1,48 @@
+{
+  "accuracy": 0.997396,
+  "classes": [
+    "BENIGN",
+    "CREDENTIAL_ACCESS",
+    "EXFILTRATION",
+    "LATERAL_MOVEMENT",
+    "RECONNAISSANCE"
+  ],
+  "confusion_matrix": [
+    [
+      114,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      78,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      36,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      77,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      78
+    ]
+  ],
+  "classification_report_text": "                   precision    recall  f1-score   support\n\n           BENIGN     0.9913    1.0000    0.9956       114\nCREDENTIAL_ACCESS     1.0000    1.0000    1.0000        78\n     EXFILTRATION     1.0000    1.0000    1.0000        36\n LATERAL_MOVEMENT     1.0000    0.9872    0.9935        78\n   RECONNAISSANCE     1.0000    1.0000    1.0000        78\n\n         accuracy                         0.9974       384\n        macro avg     0.9983    0.9974    0.9978       384\n     weighted avg     0.9974    0.9974    0.9974       384\n"
+}
