@@ -909,18 +909,14 @@ spline-viewer {
 }
 .adapt-workflow-grid {
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  align-items: start;
-  gap: 0;
+  grid-template-columns: 1fr 1.25fr 1fr;
+  gap: 16px;
+  align-items: stretch;
 }
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
   .adapt-workflow-grid {
     grid-template-columns: 1fr;
-  }
-  .adapt-workflow-grid > div[style*="padding-top:32px"] {
-    padding-top: 0 !important;
-    padding: 4px 0 !important;
-    font-size: 14px !important;
+    gap: 12px;
   }
 }
 
@@ -1622,8 +1618,18 @@ spline-viewer {
 /* ─── SYSTEM HEALTH PANEL ────────────────────────────────────────────── */
 .health-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+@media (max-width: 1200px) {
+  .health-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
 }
 .health-card {
   background: var(--surface2);
@@ -2862,6 +2868,10 @@ spline-viewer {
               <div class="health-card-stat" id="shWsClients">1 / 50 Clients</div>
               <div style="font-size:10px;color:var(--muted)">Bidirectional Event Hub</div>
             </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ─── 8. PRIORITY 1 WOW FEATURE: ATTACK STORY ENGINE ─────────── -->
       <section id="secAttackStory" style="margin-top:24px">
         <div class="glass-panel" style="padding:22px 24px">
@@ -2986,107 +2996,120 @@ spline-viewer {
           </div>
 
           <!-- ── 3-STEP WORKFLOW ── -->
-          <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:start;gap:0;margin-bottom:14px" class="adapt-workflow-grid">
+          <div class="adapt-workflow-grid" style="margin-bottom:14px">
 
             <!-- STEP 1: ALERT -->
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:0">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-                <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">01</span>
-                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Alert</span>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;min-width:0;display:flex;flex-direction:column;justify-content:space-between">
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">01</span>
+                    <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Alert Ingest</span>
+                  </div>
+                  <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">→ VALIDATE</span>
+                </div>
+                <div id="adaptAlertVerdict" style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Potential Novel Behavior</div>
+                <div style="display:flex;flex-direction:column;gap:5px">
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+                    <span>Risk Score</span><span id="adaptAlertRisk" style="color:var(--text);font-weight:700">—</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+                    <span>Anomaly Score</span><span id="adaptAlertAnomaly" style="color:var(--text);font-weight:700">—</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+                    <span>Event ID</span><span id="adaptAlertEventId" style="color:var(--text);font-family:var(--mono);font-size:10px">exfil-held-out</span>
+                  </div>
+                </div>
               </div>
-              <div id="adaptAlertVerdict" style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Potential Novel Behavior</div>
-              <div style="display:flex;flex-direction:column;gap:3px">
-                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
-                  <span>Risk</span><span id="adaptAlertRisk" style="color:var(--text)">—</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
-                  <span>Anomaly</span><span id="adaptAlertAnomaly" style="color:var(--text)">—</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
-                  <span>Event ID</span><span id="adaptAlertEventId" style="color:var(--text);font-family:var(--mono);font-size:10px">exfil-held-out</span>
-                </div>
+              <div style="margin-top:10px;padding:6px 8px;background:var(--surface3);border-radius:6px;font-size:10px;color:var(--muted);font-family:var(--mono)">
+                Pipeline event awaiting human confirmation
               </div>
             </div>
-
-            <!-- Connector arrow -->
-            <div style="display:flex;align-items:center;justify-content:center;padding:0 8px;color:var(--muted);font-size:16px;padding-top:32px">↓</div>
 
             <!-- STEP 2: ANALYST VALIDATION -->
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:0">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-                <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">02</span>
-                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Analyst Validation</span>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;min-width:0;display:flex;flex-direction:column;justify-content:space-between">
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">02</span>
+                    <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Analyst Validation</span>
+                  </div>
+                  <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">→ LEARN</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div>
+                    <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:3px">Ground Truth Classification</div>
+                    <select id="adaptLabelSelect" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;box-sizing:border-box">
+                      <option value="EXFILTRATION">EXFILTRATION (Novel Attack)</option>
+                      <option value="CREDENTIAL_ACCESS">CREDENTIAL_ACCESS</option>
+                      <option value="LATERAL_MOVEMENT">LATERAL_MOVEMENT</option>
+                      <option value="RECONNAISSANCE">RECONNAISSANCE</option>
+                      <option value="BENIGN">BENIGN (False Positive)</option>
+                    </select>
+                  </div>
+                  <div style="display:flex;gap:12px">
+                    <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;white-space:nowrap">
+                      <input type="radio" name="adaptVerdict" value="true" checked>
+                      <span style="color:var(--red);font-weight:700">Malicious</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;white-space:nowrap">
+                      <input type="radio" name="adaptVerdict" value="false">
+                      <span style="color:var(--green);font-weight:700">False Positive</span>
+                    </label>
+                  </div>
+                  <input type="text" id="adaptNotesInput" placeholder="Analyst notes..." value="Analyst confirmed novel exfiltration behavior across outbound port 443." style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;box-sizing:border-box">
+                </div>
               </div>
-              <div style="display:flex;flex-direction:column;gap:7px">
-                <div>
-                  <div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:3px">Ground Truth</div>
-                  <select id="adaptLabelSelect" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px">
-                    <option value="EXFILTRATION">EXFILTRATION</option>
-                    <option value="CREDENTIAL_ACCESS">CREDENTIAL_ACCESS</option>
-                    <option value="LATERAL_MOVEMENT">LATERAL_MOVEMENT</option>
-                    <option value="RECONNAISSANCE">RECONNAISSANCE</option>
-                    <option value="BENIGN">BENIGN (False Positive)</option>
-                  </select>
-                </div>
-                <div style="display:flex;gap:10px">
-                  <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;white-space:nowrap">
-                    <input type="radio" name="adaptVerdict" value="true" checked>
-                    <span style="color:var(--red);font-weight:700">Malicious</span>
-                  </label>
-                  <label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;white-space:nowrap">
-                    <input type="radio" name="adaptVerdict" value="false">
-                    <span style="color:var(--green);font-weight:700">False Positive</span>
-                  </label>
-                </div>
-                <input type="text" id="adaptNotesInput" placeholder="Analyst notes..." value="Analyst confirmed novel exfiltration behavior across outbound port 443." style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;box-sizing:border-box">
-                <div style="display:flex;gap:6px">
-                  <button class="btn btn-secondary" onclick="submitAnalystValidation(false)" style="flex:1;font-size:10px;padding:6px 8px">
-                    💾 Save
-                  </button>
-                  <button class="btn btn-primary" onclick="submitAnalystValidation(true)" style="flex:1.4;font-size:10px;padding:6px 8px">
-                    🔄 Confirm &amp; Learn
-                  </button>
-                </div>
+              <div style="display:flex;gap:6px;margin-top:10px">
+                <button class="btn btn-secondary" onclick="submitAnalystValidation(false)" style="flex:1;font-size:11px;padding:6px 10px" title="Save to threat memory without retraining">
+                  💾 Save
+                </button>
+                <button class="btn btn-primary" onclick="submitAnalystValidation(true)" style="flex:1.4;font-size:11px;padding:6px 10px" title="Retrain and deploy new model version">
+                  🔄 Confirm &amp; Learn
+                </button>
               </div>
             </div>
-
-            <!-- Connector arrow -->
-            <div style="display:flex;align-items:center;justify-content:center;padding:0 8px;color:var(--muted);font-size:16px;padding-top:32px">↓</div>
 
             <!-- STEP 3: LEARNING UPDATE -->
-            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;min-width:0">
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-                <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">03</span>
-                <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Learning Update</span>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;min-width:0;display:flex;flex-direction:column;justify-content:space-between">
+              <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-family:var(--mono);font-size:10px;font-weight:800;color:var(--muted);background:var(--surface3);border-radius:4px;padding:2px 6px">03</span>
+                    <span style="font-family:var(--mono);font-size:11px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.05em">Learning Update</span>
+                  </div>
+                  <span style="font-size:10px;color:var(--green);font-family:var(--mono)">● AUDITED</span>
+                </div>
+                <div id="adaptScorecardContent" style="font-size:11px;color:var(--text-dim);line-height:1.6">
+                  <div style="display:flex;flex-direction:column;gap:5px">
+                    <div style="display:flex;justify-content:space-between">
+                      <span style="color:var(--muted)">Samples Added</span>
+                      <span id="adaptSampleCount" style="color:var(--text);font-weight:700">—</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <span style="color:var(--muted)">Version Transition</span>
+                      <span style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px">
+                        <span id="adaptFromVersion" style="color:var(--muted)">v2.0.0</span>
+                        <span style="color:var(--muted)">→</span>
+                        <span id="adaptToVersion" style="color:#38bdf8;font-weight:700">—</span>
+                      </span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                      <span style="color:var(--muted)">Accuracy After</span>
+                      <span id="adaptAccuracyAfter" style="color:var(--green);font-weight:700">—</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                      <span style="color:var(--muted)">Confidence Δ</span>
+                      <span id="adaptConfidenceDelta" style="color:#38bdf8;font-weight:700">—</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div id="adaptScorecardContent" style="font-size:11px;color:var(--text-dim);line-height:1.6">
-                <div style="display:flex;flex-direction:column;gap:4px">
-                  <div style="display:flex;justify-content:space-between">
-                    <span style="color:var(--muted)">Samples added</span>
-                    <span id="adaptSampleCount" style="color:var(--text);font-weight:700">—</span>
-                  </div>
-                  <div style="display:flex;justify-content:space-between;align-items:center">
-                    <span style="color:var(--muted)">Version</span>
-                    <span style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px">
-                      <span id="adaptFromVersion" style="color:var(--muted)">v2.0.0</span>
-                      <span style="color:var(--muted)">→</span>
-                      <span id="adaptToVersion" style="color:#38bdf8;font-weight:700">—</span>
-                    </span>
-                  </div>
-                  <div style="display:flex;justify-content:space-between">
-                    <span style="color:var(--muted)">Accuracy after</span>
-                    <span id="adaptAccuracyAfter" style="color:var(--green);font-weight:700">—</span>
-                  </div>
-                  <div style="display:flex;justify-content:space-between">
-                    <span style="color:var(--muted)">Confidence Δ</span>
-                    <span id="adaptConfidenceDelta" style="color:#38bdf8;font-weight:700">—</span>
-                  </div>
-                </div>
-                <div style="margin-top:8px;padding:6px 8px;background:var(--surface3);border-radius:6px;font-size:10px;color:var(--muted);font-family:var(--mono)">
-                  Awaiting analyst validation...
-                </div>
+              <div style="margin-top:10px;padding:6px 8px;background:var(--surface3);border-radius:6px;font-size:10px;color:var(--muted);font-family:var(--mono)">
+                Awaiting analyst validation...
               </div>
             </div>
+
           </div>
 
           <!-- ── FOOTER ACTIONS ── -->
