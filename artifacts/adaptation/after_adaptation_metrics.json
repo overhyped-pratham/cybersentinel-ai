@@ -1,0 +1,96 @@
+{
+  "tag": "v2.1.0_adapted",
+  "n_samples": 60,
+  "accuracy": 1.0,
+  "macro_f1": 1.0,
+  "macro_precision": 1.0,
+  "macro_recall": 1.0,
+  "fpr_on_benign": 0.0,
+  "auroc": 1.0,
+  "latency_ms_per_sample": 0.026,
+  "per_class": {
+    "BENIGN": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 27
+    },
+    "CREDENTIAL_ACCESS": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 3
+    },
+    "EXFILTRATION": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 12
+    },
+    "LATERAL_MOVEMENT": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 15
+    },
+    "RECONNAISSANCE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 3
+    }
+  },
+  "confusion_matrix": [
+    [
+      27,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      3,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      12,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      15,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      3
+    ]
+  ],
+  "class_names": [
+    "BENIGN",
+    "CREDENTIAL_ACCESS",
+    "EXFILTRATION",
+    "LATERAL_MOVEMENT",
+    "RECONNAISSANCE"
+  ],
+  "label_distribution": {
+    "BENIGN": 27,
+    "CREDENTIAL_ACCESS": 3,
+    "EXFILTRATION": 12,
+    "LATERAL_MOVEMENT": 15,
+    "RECONNAISSANCE": 3
+  },
+  "test_hash": "cb641764c02ddc2b",
+  "model_version": "2.1.0"
+}

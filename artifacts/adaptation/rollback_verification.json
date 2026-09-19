@@ -1,0 +1,12 @@
+{
+  "status": "SUCCESS",
+  "adapted_version": "2.1.0",
+  "restored_version": "2.0.0",
+  "pre_adaptation_accuracy": 0.8,
+  "post_rollback_accuracy": 0.8,
+  "accuracy_difference": 0.0,
+  "pre_adaptation_macro_f1": 0.6667,
+  "post_rollback_macro_f1": 0.6667,
+  "macro_f1_difference": 0.0,
+  "mathematical_fidelity_verified": true
+}

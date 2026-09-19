@@ -1,0 +1,52 @@
+{
+  "random_seed": 42,
+  "base_train_files": [
+    "trace_benign_01.csv",
+    "trace_benign_02.csv",
+    "trace_benign_03.csv",
+    "trace_bruteforce_01.csv",
+    "trace_bruteforce_02.csv",
+    "trace_lateral_01.csv",
+    "trace_lateral_02.csv",
+    "trace_recon_01.csv",
+    "trace_recon_02.csv",
+    "trace_multistage_01.csv"
+  ],
+  "base_train_windows": 120,
+  "base_train_classes": [
+    "BENIGN",
+    "CREDENTIAL_ACCESS",
+    "LATERAL_MOVEMENT",
+    "RECONNAISSANCE"
+  ],
+  "validation_files": [
+    "trace_benign_04.csv",
+    "trace_bruteforce_03.csv",
+    "trace_lateral_03.csv",
+    "trace_recon_03.csv"
+  ],
+  "validation_windows": 48,
+  "adaptation_files": [
+    "trace_exfil_01.csv",
+    "trace_benign_05.csv",
+    "trace_bruteforce_delta.csv",
+    "trace_recon_gamma.csv"
+  ],
+  "adaptation_windows": 48,
+  "final_test_files": [
+    "trace_exfil_zeta.csv",
+    "trace_benign_alpha.csv",
+    "trace_benign_beta.csv",
+    "trace_lateral_epsilon.csv",
+    "trace_multistage_iota.csv"
+  ],
+  "final_test_windows": 60,
+  "final_test_hash": "cb641764c02ddc2b",
+  "final_test_distribution": {
+    "EXFILTRATION": 12,
+    "BENIGN": 27,
+    "LATERAL_MOVEMENT": 15,
+    "RECONNAISSANCE": 3,
+    "CREDENTIAL_ACCESS": 3
+  }
+}

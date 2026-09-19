@@ -1,0 +1,249 @@
+{
+  "mem_size_before": 0,
+  "mem_size_after": 48,
+  "samples_count": 48,
+  "validation_start": "2026-09-19T01:40:16.127580+00:00",
+  "validation_end": "2026-09-19T01:40:16.254070+00:00",
+  "samples": [
+    {
+      "sample_id": "val-4f7c7efc",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-a3d9bfe5",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-8deff96e",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-c3775968",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-90c9327d",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-d8e2a528",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-7d942bcb",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-f088bd7a",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-975c0a1f",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-bb2ab3ed",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-5677d64b",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-6e5f181e",
+      "validated_label": "EXFILTRATION",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-7e05ec68",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-2e6714a9",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-4bbcf5c6",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-64fe33ea",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-0a444472",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-ad1d5513",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-e8c5776a",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-d48082ae",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-3467f7c9",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-2c8f44e3",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-3d99f592",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-53e0d090",
+      "validated_label": "BENIGN",
+      "is_malicious": false
+    },
+    {
+      "sample_id": "val-671939f6",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-83a79491",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-8b86f6dd",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-f437428e",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-466fabb4",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-e62c6a82",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-8007c7c1",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-9467a367",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-079f3503",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-d2160693",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-e1aa518b",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-c0feab76",
+      "validated_label": "CREDENTIAL_ACCESS",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-43322a24",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-ccb0c712",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-8a009184",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-43efab5d",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-7b639b5d",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-8579e0ba",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-1f85dcfb",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-2980673a",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-32f290a9",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-2ef9562c",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-d5edf32a",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    },
+    {
+      "sample_id": "val-73fad2c5",
+      "validated_label": "RECONNAISSANCE",
+      "is_malicious": true
+    }
+  ]
+}

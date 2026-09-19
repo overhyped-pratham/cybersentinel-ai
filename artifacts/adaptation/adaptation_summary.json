@@ -1,0 +1,232 @@
+{
+  "from_version": "2.0.0",
+  "to_version": "2.1.0",
+  "sample_count": 48,
+  "adaptation_duration_seconds": 0.93,
+  "before_metrics": {
+    "tag": "v2.0.0_baseline",
+    "n_samples": 60,
+    "accuracy": 0.8,
+    "macro_f1": 0.6667,
+    "macro_precision": 0.64,
+    "macro_recall": 0.8,
+    "fpr_on_benign": 0.0,
+    "auroc": 1.0,
+    "latency_ms_per_sample": 0.025,
+    "per_class": {
+      "BENIGN": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 27
+      },
+      "CREDENTIAL_ACCESS": {
+        "precision": 0.2,
+        "recall": 1.0,
+        "f1": 0.3333,
+        "support": 3
+      },
+      "LATERAL_MOVEMENT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 15
+      },
+      "RECONNAISSANCE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3
+      }
+    },
+    "confusion_matrix": [
+      [
+        27,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        3,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        12,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        15,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        3
+      ]
+    ],
+    "class_names": [
+      "BENIGN",
+      "CREDENTIAL_ACCESS",
+      "EXFILTRATION",
+      "LATERAL_MOVEMENT",
+      "RECONNAISSANCE"
+    ],
+    "label_distribution": {
+      "BENIGN": 27,
+      "CREDENTIAL_ACCESS": 3,
+      "EXFILTRATION": 12,
+      "LATERAL_MOVEMENT": 15,
+      "RECONNAISSANCE": 3
+    },
+    "test_hash": "cb641764c02ddc2b",
+    "model_version": "2.0.0"
+  },
+  "after_metrics": {
+    "tag": "v2.1.0_adapted",
+    "n_samples": 60,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "fpr_on_benign": 0.0,
+    "auroc": 1.0,
+    "latency_ms_per_sample": 0.026,
+    "per_class": {
+      "BENIGN": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 27
+      },
+      "CREDENTIAL_ACCESS": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3
+      },
+      "EXFILTRATION": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 12
+      },
+      "LATERAL_MOVEMENT": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 15
+      },
+      "RECONNAISSANCE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 3
+      }
+    },
+    "confusion_matrix": [
+      [
+        27,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        3,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        12,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        15,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        3
+      ]
+    ],
+    "class_names": [
+      "BENIGN",
+      "CREDENTIAL_ACCESS",
+      "EXFILTRATION",
+      "LATERAL_MOVEMENT",
+      "RECONNAISSANCE"
+    ],
+    "label_distribution": {
+      "BENIGN": 27,
+      "CREDENTIAL_ACCESS": 3,
+      "EXFILTRATION": 12,
+      "LATERAL_MOVEMENT": 15,
+      "RECONNAISSANCE": 3
+    },
+    "test_hash": "cb641764c02ddc2b",
+    "model_version": "2.1.0"
+  },
+  "metrics_delta": {
+    "accuracy": {
+      "before": 0.8,
+      "after": 1.0,
+      "delta": 0.2
+    },
+    "macro_f1": {
+      "before": 0.6667,
+      "after": 1.0,
+      "delta": 0.3333
+    },
+    "macro_precision": {
+      "before": 0.64,
+      "after": 1.0,
+      "delta": 0.36
+    },
+    "macro_recall": {
+      "before": 0.8,
+      "after": 1.0,
+      "delta": 0.2
+    },
+    "fpr_on_benign": {
+      "before": 0.0,
+      "after": 0.0,
+      "delta": 0.0
+    },
+    "auroc": {
+      "before": 1.0,
+      "after": 1.0,
+      "delta": 0.0
+    },
+    "latency_ms_per_sample": {
+      "before": 0.025,
+      "after": 0.026,
+      "delta": 0.001
+    }
+  },
+  "generalization_verdict": "GENUINE GENERALIZATION CONFIRMED: System learned the novel EXFILTRATION concept from trace_exfil_01 and successfully recognized unseen trace_exfil_zeta with 100% precision/recall.",
+  "catastrophic_forgetting": false,
+  "rollback_verified": true
+}

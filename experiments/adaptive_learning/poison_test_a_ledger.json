@@ -1,0 +1,75 @@
+{
+  "active_version": "2.1.1-test",
+  "total_updates": 2,
+  "last_updated": "2026-09-19T01:40:18.202589+00:00",
+  "updates": [
+    {
+      "update_id": "adapt-1789781637",
+      "from_version": "2.0.0",
+      "to_version": "2.1.1-test",
+      "timestamp": "2026-09-19T01:33:57.318046+00:00",
+      "sample_count": 1,
+      "sample_ids": [
+        "val-6fdd4bfd"
+      ],
+      "before_metrics": {
+        "accuracy": 1.0,
+        "mean_confidence": 0.9968,
+        "correct_count": 1,
+        "total": 1,
+        "predicted_labels": [
+          "BENIGN"
+        ]
+      },
+      "after_metrics": {
+        "accuracy": 1.0,
+        "mean_confidence": 0.9951,
+        "correct_count": 1,
+        "total": 1,
+        "predicted_labels": [
+          "BENIGN"
+        ]
+      },
+      "metrics_delta": {
+        "accuracy_delta": 0.0,
+        "confidence_delta": -0.0017
+      },
+      "model_snapshot_path": "d:\\uec sih\\experiments\\adaptive_learning\\poison_models\\classifier\\known_classifier_2.0.0.pkl",
+      "rollback_available": true
+    },
+    {
+      "update_id": "adapt-1789782017",
+      "from_version": "2.1.1-test",
+      "to_version": "2.1.1-test",
+      "timestamp": "2026-09-19T01:40:17.485260+00:00",
+      "sample_count": 1,
+      "sample_ids": [
+        "val-567a1ca5"
+      ],
+      "before_metrics": {
+        "accuracy": 0.0,
+        "mean_confidence": 0.9925,
+        "correct_count": 0,
+        "total": 1,
+        "predicted_labels": [
+          "EXFILTRATION"
+        ]
+      },
+      "after_metrics": {
+        "accuracy": 1.0,
+        "mean_confidence": 0.9886,
+        "correct_count": 1,
+        "total": 1,
+        "predicted_labels": [
+          "BENIGN"
+        ]
+      },
+      "metrics_delta": {
+        "accuracy_delta": 1.0,
+        "confidence_delta": -0.0039
+      },
+      "model_snapshot_path": "d:\\uec sih\\experiments\\adaptive_learning\\poison_models\\classifier\\known_classifier_2.1.1-test.pkl",
+      "rollback_available": true
+    }
+  ]
+}

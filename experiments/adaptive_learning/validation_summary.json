@@ -1,0 +1,14 @@
+{
+  "candidate_events": 48,
+  "samples_validated": 48,
+  "threat_memory_before": 0,
+  "threat_memory_after": 48,
+  "start_time": "2026-09-19T01:33:56.042821+00:00",
+  "end_time": "2026-09-19T01:33:56.209587+00:00",
+  "label_distribution": {
+    "BENIGN": 12,
+    "CREDENTIAL_ACCESS": 12,
+    "LATERAL_MOVEMENT": 12,
+    "RECONNAISSANCE": 12
+  }
+}
