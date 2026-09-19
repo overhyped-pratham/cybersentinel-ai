@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -29,7 +30,7 @@ logger = logging.getLogger("CyberSentinelLauncher")
 def main():
     parser = argparse.ArgumentParser(description="Start CyberSentinel Command Center Server")
     parser.add_argument("--host", default="0.0.0.0", help="Host IP to bind to")
-    parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
+    parser.add_argument("--port", type=int, default=int(os.getenv("PORT", "8000")), help="Port to bind to")
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload for development")
     args = parser.parse_args()
 

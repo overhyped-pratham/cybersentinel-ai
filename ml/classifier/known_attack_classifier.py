@@ -18,7 +18,12 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import joblib
 import numpy as np
-import shap
+try:
+    import shap
+    _HAS_SHAP = True
+except ImportError:
+    shap = None
+    _HAS_SHAP = False
 import xgboost as xgb
 from sklearn.metrics import classification_report, f1_score
 
