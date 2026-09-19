@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cybersentinel-ai
+    runtime: python
+    buildCommand: pip install -r requirements.txt && npm install && npm run build
+    startCommand: uvicorn backend.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: CYBERSENTINEL_RATE_LIMIT
+        value: "120"
+      - key: CYBERSENTINEL_MAX_WS_CONNECTIONS
+        value: "50"
